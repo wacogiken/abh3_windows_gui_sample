@@ -1,17 +1,17 @@
-# CANabh3 DLL for Windows
+# gui_canABH3 (Sample for CANabh3.DLL)
 ROS Package for <a href="https://www.wacogiken.co.jp/agv/abh3.html">ABH3</a> Driver
 
 <table width="100%" border="0">
-<tr><th align="center" valign="center" bgcolor="blue"><font color="white">Device of ABH3 (preminary outward-appearance)</font></th></tr>
+<tr><th align="center" valign="center" bgcolor="blue"><font color="white">Software detail</font></th></tr>
 <tr><td align="center" valign="center">
 
-![](img/ABH3.png)
+![](img/gui_canABH3.png)
 </td></tr>
 </table>
 
 <table border="0">
     <tr><td><h2>About this</h2>
-        Control for ABH3 from Windows-PC.
+        Sample software. (For CANabh3.DLL)
         </td>
     </tr>
 </table>
@@ -23,17 +23,9 @@ ROS Package for <a href="https://www.wacogiken.co.jp/agv/abh3.html">ABH3</a> Dri
         <tr><th bgcolor="blue"><font color="white">Item</font></th><th bgcolor="blue"><font color="white">Information</font></th></tr>
         <tr><td align="center">OS</td><td align="center">Windows 10 (x64) or Windows 11 (x64)</td></tr>
         <tr><td align="center">Compiler</td><td align="center">Microsoft Visual Studio 2019 or later.</td></tr>
-        <tr><td align="center">Interface</td><td align="center">Ixxat USB-to-CAN V2</td></tr>
+        <tr><td align="center">DLL</td><td align="center">CANabh3.DLL or CANWACOUSB.DLL</td></tr>
     </table>
     </td></tr>
-</table>
-
-<!-- Document -->
-<table border="0">
-    <tr><td><h2>Documentation</h2>
-        See folder of document.
-        </td>
-    </tr>
 </table>
 
 <!-- Version table -->
@@ -47,7 +39,7 @@ ROS Package for <a href="https://www.wacogiken.co.jp/agv/abh3.html">ABH3</a> Dri
             <th bgcolor="blue"><font color="white">Notice</font></th>
         </tr>
         <tr>
-            <td>1.0.0.1</td>
+            <td>1.0.0.2</td>
             <td>2023/03/09</td>
             <td>Y.OGAWA</td>
             <td>1st release</td>
