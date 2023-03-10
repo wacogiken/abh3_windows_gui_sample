@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.32510.428
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gui_canABH3", "gui_canABH3\gui_canABH3.vcxproj", "{65443608-A68E-4BB6-94EB-61B2DB3C0507}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{65443608-A68E-4BB6-94EB-61B2DB3C0507}.Debug|x86.ActiveCfg = Debug|Win32
+		{65443608-A68E-4BB6-94EB-61B2DB3C0507}.Debug|x86.Build.0 = Debug|Win32
+		{65443608-A68E-4BB6-94EB-61B2DB3C0507}.Release|x86.ActiveCfg = Release|Win32
+		{65443608-A68E-4BB6-94EB-61B2DB3C0507}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F9FE7549-F26E-4814-9E93-3804D27ED7D2}
+	EndGlobalSection
+EndGlobal
