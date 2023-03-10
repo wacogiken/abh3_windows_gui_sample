@@ -136,9 +136,11 @@
     <ResourceCompile Include="guicanABH3.rc" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\README.md" />
     <None Include="res\guicanABH3.rc2" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="..\img\ABH3.png" />
     <Image Include="res\gui_canABH3.ico" />
     <Image Include="res\gui_canABH3Doc.ico" />
     <Image Include="res\idr_guic.ico" />
