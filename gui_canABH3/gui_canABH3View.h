@@ -128,6 +128,12 @@ protected:
 	void SetButtonTbl(pIDTEXT2 pIDtbl,bool bOn);
 	void SetButtonTbl(pIDTEXT5 pIDtbl,bool bOn);
 
+	//周期転送の復帰
+	void RestoreSendButton(uint8_t nID);
+
+	//周期転送の保存
+	void SaveSendButton(uint8_t nID);
+
 	//比較機能付きアイテムテキスト設定
 	bool FastSetText(UINT nUid,CString sNewText)
 		{
@@ -261,6 +267,7 @@ public:
 	afx_msg void OnDisableCycle();
 //	afx_msg void OnClose();
 	afx_msg void OnDestroy();
+	afx_msg void OnBnClickedRequestItem();
 };
 
 #ifndef _DEBUG  // gui_canABH3View.cpp のデバッグ バージョン

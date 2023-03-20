@@ -68,16 +68,18 @@ public:
 		uint8_t		nDLLoption;		//USB-to-CAN v2の場合はケーブル番号、WACOCANの場合はCOMポート番号、どちらも0開始
 		uint8_t		nHostID;		//ホストのID
 		uint8_t		nBaudrate;		//ボーレート(選択肢番号)
-		uint8_t		nType;			//機種設定(0..標準  1..小型)
+//		uint8_t		nType;			//機種設定(0..標準  1..小型)
 		uint8_t		nBr;			//ブロードキャスト送信(0..接続先のみ  1..全ABH3)
 		uint8_t		nInterval;		//割り込み周期(0..100[ms]  1..31[ms]  2..15[ms])
 		uint8_t		nLanguage;		//0..英語  1..日本語
 
 		//他の場所で設定する要素
-		uint8_t		nSelectID;		//ウィンドウを開く時のダイアログで使うID
-		uint8_t		nSelectGroup;	//ウィンドウを開く時のダイアログで使うグループ
+		uint8_t		nSelectID;		//ウィンドウを開く時のダイアログで使うID(0..ID1)
+		uint8_t		nSelectGroup;	//ウィンドウを開く時のダイアログで使うグループ(0..GROUP0)
 		uint8_t		nRecvCounter;	//受信カウンタ表示
 		uint8_t		nFPS;			//フレームレート表示
+		uint8_t		type256[256];	//機種設定(0..標準  1..小型)、要素1がID1なので要素0は使わない
+		uint32_t	send256[256];	//周期転送フラグ(ビット単位)
 
 		//保存しないが一時的に格納する要素
 		uint8_t		nRestart;		//設定変更に伴うソフト再起動要求
@@ -86,7 +88,7 @@ public:
 
 protected:
 	//
-	CONFIGDLG_CONFIG m_config;
+	pCONFIGDLG_CONFIG m_pConfig;
 
 	//描画用ブラシ
 	CBrush m_brush;
@@ -127,7 +129,7 @@ public:
 	//環境設定変数へのポインタ取得
 	pCONFIGDLG_CONFIG GetConfig(void)
 		{
-		return(&m_config);
+		return(m_pConfig);
 		}
 
 	//DLLファイル名を取得
@@ -146,7 +148,7 @@ public:
 	uint32_t getBaudrate(void);
 
 	//機種設定を取得
-	uint8_t getABH3type(void);
+	uint8_t getABH3type(uint8_t nDevice);
 
 	//(保留中)ブロードキャスト送信設定を取得
 	uint8_t getBr(void);
@@ -157,7 +159,7 @@ public:
 	//再起動を要求されているか？
 	bool IsRestartRequire(void)
 		{
-		return((m_config.nRestart != 0) ? true : false);
+		return((m_pConfig->nRestart != 0) ? true : false);
 		}
 
 public:
@@ -167,6 +169,10 @@ public:
 	virtual BOOL OnInitDialog();
 	virtual void OnOK();
 	afx_msg void OnBnClickedSave();
+	virtual BOOL CanShowOnTaskBarTabs()
+		{
+		return(FALSE);
+		}
 
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV サポート

@@ -49,7 +49,7 @@ protected:
 		{
 		uint8_t		nSelectID;
 		uint8_t		nGroup;
-		uint32_t	nInterval;	//[ms]で格納されている
+		uint8_t		nType;		//0..標準
 		} SELECTID_VAR,*pSELECTID_VAR;
 	//内部変数
 	SELECTID_VAR m_var;
@@ -57,11 +57,8 @@ protected:
 	CBrush m_brush;
 	//ID選択の選択肢を構築します
 	void CreateIDlist(void);
-	//更新周期設定の選択肢構築
-	void CreateIntervalList(void);
-	//更新周期設定を周期時間指定して選択
-	bool SetIntervalList(int nInterval1,int nInterval2 = 100);
-
+	//機種の選択状態を更新します
+	void UpdateType(void);
 	//ボタンの有効無効を設定します
 	void UpdateButton(void);
 	//色制御確認
@@ -79,15 +76,15 @@ public:
 		{
 		return(m_var.nGroup);
 		}
-	//周期設定を取得します
-	uint32_t GetInterval(void)
+	//機種設定を取得します
+	uint32_t GetType(void)
 		{
-		return(m_var.nInterval);
+		return(m_var.nType);
 		}
 
 	CComboBox m_selectid;
 	CComboBox m_selectgroup;
-	CComboBox m_selectinterval;
+	CComboBox m_selecttype;
 
 public:
 	CSelectID(CWnd* pParent = nullptr);   // 標準コンストラクター

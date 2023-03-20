@@ -438,6 +438,14 @@ BEGIN_MESSAGE_MAP(CguicanABH3View,CFormView)
 	ON_COMMAND(IDC_ENABLE_CYCLE,&CguicanABH3View::OnEnableCycle)
 	ON_COMMAND(IDC_DISABLE_CYCLE,&CguicanABH3View::OnDisableCycle)
 	ON_WM_DESTROY()
+	ON_BN_CLICKED(IDC_REQUESTDP0R,&CguicanABH3View::OnBnClickedRequestItem)
+	ON_BN_CLICKED(IDC_REQUESTBR0,&CguicanABH3View::OnBnClickedRequestItem)
+	ON_BN_CLICKED(IDC_REQUESTBR1,&CguicanABH3View::OnBnClickedRequestItem)
+	ON_BN_CLICKED(IDC_REQUESTBR2,&CguicanABH3View::OnBnClickedRequestItem)
+	ON_BN_CLICKED(IDC_REQUESTBR3,&CguicanABH3View::OnBnClickedRequestItem)
+	ON_BN_CLICKED(IDC_REQUESTBR4,&CguicanABH3View::OnBnClickedRequestItem)
+	ON_BN_CLICKED(IDC_REQUESTBR5,&CguicanABH3View::OnBnClickedRequestItem)
+	ON_BN_CLICKED(IDC_REQUESTBR6,&CguicanABH3View::OnBnClickedRequestItem)
 END_MESSAGE_MAP()
 
 //コンストラクタ
@@ -500,7 +508,7 @@ void CguicanABH3View::DoDataExchange(CDataExchange* pDX)
 		item3 = g_inputid_tbl[nLoop];
 		DDX_Control(pDX,item3.nUid,m_input_bit[nLoop]);
 		//I/Oフラグ
-		if(theConfig.getABH3type() == 0)
+		if(theConfig.getABH3type(GetDocument()->GetID()) == 0)
 			item = g_io_normal_tbl[nLoop];
 		else
 			item = g_io_small_tbl[nLoop];
@@ -550,7 +558,7 @@ void CguicanABH3View::OnInitialUpdate()
 	SetTextTbl(g_valueid_tbl);
 	SetTextTbl(g_ctrlid_title);
 	SetTextTbl(g_ctrlid_ctrl);
-	if(theConfig.getABH3type() == 0)
+	if(theConfig.getABH3type(GetDocument()->GetID()) == 0)
 		SetTextTbl(g_io_normal_tbl);	//標準タイプ
 	else
 		SetTextTbl(g_io_small_tbl);		//小型タイプ
@@ -560,11 +568,14 @@ void CguicanABH3View::OnInitialUpdate()
 	SetButtonTbl(g_request_tbl,false);
 	SetButtonTbl(g_ctrlid_ctrl,false);
 
+	//周期転送の復帰
+	RestoreSendButton(GetDocument()->GetID());
+
 	//データ表示更新
 	UpdateView(true);
 
 	//タイマー割り込み
-	uint32_t nInterval = GetDocument()->GetInterval();
+	uint32_t nInterval = theConfig.getInterval();
 	m_var.nTimerNum = SetTimer(theApp.GetTimerNum(),nInterval,NULL);
 	m_var.n1sec = SetTimer(theApp.GetTimerNum(),1000,NULL);
 
@@ -644,9 +655,9 @@ void CguicanABH3View::OnTimer(UINT_PTR nIDEvent)
 				//このウィンドウがアクティブ（最前面）？
 				if(bActive)
 					{
-					//現在の値を表示
+					//現在の値を表示（英語固定）
 					CString sText("");
-					sText.Format(_T("FPS(%d)  SEND(%d)"),m_var.nFPS,m_var.nSendCounter);
+					sText.Format(_T("SEND(%d)"),m_var.nSendCounter);
 					FastSetText(IDC_FPS,sText);
 					}
 				//周期割り込みカウンタ初期化
@@ -966,7 +977,7 @@ bool CguicanABH3View::DrawCheck_3(CWnd* pWnd,COLORREF& nTextColor,COLORREF& nBac
 		if(pWnd == &m_io_bit[nLoop])
 			{
 			//該当箇所の情報を取得
-			if(theConfig.getABH3type() == 0)
+			if(theConfig.getABH3type(GetDocument()->GetID()) == 0)
 				item = g_io_normal_tbl[nLoop];				
 			else
 				item = g_io_small_tbl[nLoop];				
@@ -1154,7 +1165,7 @@ void CguicanABH3View::UpdateView_2(bool bForce /* false */)
 	IDTEXT item;
 	for(int nLoop = 0;nLoop < 32;nLoop++)
 		{
-		if(theConfig.getABH3type() == 0)
+		if(theConfig.getABH3type(GetDocument()->GetID()) == 0)
 			item = g_io_normal_tbl[nLoop];
 		else
 			item = g_io_small_tbl[nLoop];
@@ -1522,4 +1533,49 @@ void CguicanABH3View::OnDestroy()
 	//非同期送信スレッド停止
 	m_var.thread.bQuit = true;
 	::WaitForSingleObject(m_var.thread.hThread,INFINITE);
+	}
+
+//周期転送の復帰
+void CguicanABH3View::RestoreSendButton(uint8_t nID)
+	{
+	uint32_t nValue = theConfig.GetConfig()->send256[nID];
+	uint32_t nLoop = 0;
+	while(-1)
+		{
+		IDTEXT5 item = g_request_tbl[nLoop];
+		if(item.nUid == 0)
+			break;
+		CButton* pBtn = (CButton*)GetDlgItem(item.nUid);
+		pBtn->SetCheck((1 << nLoop) & nValue ? TRUE : FALSE);
+		++nLoop;
+		}
+	}
+
+
+//周期送信ボタンが操作されると呼び出されます
+void CguicanABH3View::OnBnClickedRequestItem()
+	{
+	SaveSendButton(GetDocument()->GetID());
+	}
+
+//周期転送の保存
+void CguicanABH3View::SaveSendButton(uint8_t nID)
+	{
+	//表示を取り込み
+	uint32_t nValue = 0;
+	uint32_t nLoop = 0;
+	while(-1)
+		{
+		IDTEXT5 item = g_request_tbl[nLoop];
+		if(item.nUid == 0)
+			break;
+		CButton* pBtn = (CButton*)GetDlgItem(item.nUid);
+		if(pBtn->GetCheck())
+			nValue |= (1 << nLoop);
+		++nLoop;
+		}
+	//環境設定内に保存
+	theConfig.GetConfig()->send256[nID] = nValue;
+	//システムへ保存
+	theConfig.reg2sys();
 	}

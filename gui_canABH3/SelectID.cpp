@@ -60,7 +60,7 @@ static IDCOLOR1 g_selectid_textcolor_tbl[] = {
 	//beginID					endID					colorIndex
 	{IDC_TITLE_SELECTID,		0,						0},
 	{IDC_TITLE_SELECTGROUP,		0,						0},
-	{IDC_TITLE_SELECTINTERVAL,	0,						0},
+	{IDC_TITLE_SELECTTYPE,		0,						0},
 	{0,							0,						0},
 	};
 
@@ -69,8 +69,17 @@ static IDTEXT1 g_selectid_tbl[] = {
 	//ID					{textEN					textJP}
 	{IDC_TITLE_SELECTID,	{_T("ABH3 adrs"),		_T("ABH3 アドレス")}},
 	{IDC_TITLE_SELECTGROUP,	{_T("Group number"),	_T("グループ番号")}},
-	{0xffffffff,			{_T("Select ID"),		_T("ID選択")}},
+	{IDC_TITLE_SELECTTYPE,	{_T("Device type"),		_T("機種")}},
+	{0xffffffff,			{_T("Select ID"),		_T("ID選択")}},		//ダイアログタイトル
 	{0,						{NULL,					NULL}},
+	};
+
+//機種選択肢
+static CConfigDlg::TBL_CONFIG g_selectid_type[] = {
+	//{textEN			textJP}				value		textvalue
+	{{_T("Normal"),		_T("標準")},		0,			_T("0")},
+	{{_T("Small"),		_T("小型")},		1,			_T("1")},
+	{{NULL,				NULL},				0,			NULL},
 	};
 
 //周期設定の選択肢（一部数字に補正有り）
@@ -111,7 +120,7 @@ void CSelectID::DoDataExchange(CDataExchange* pDX)
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Control(pDX,IDC_SELECTID,m_selectid);
 	DDX_Control(pDX,IDC_SELECTGROUP,m_selectgroup);
-	DDX_Control(pDX,IDC_SELECTINTERVAL,m_selectinterval);
+	DDX_Control(pDX,IDC_SELECTTYPE,m_selecttype);
 	}
 
 //メッセージMAP
@@ -150,16 +159,26 @@ BOOL CSelectID::OnInitDialog()
 		}
 	m_selectgroup.SetCurSel(0);
 
-	//更新周期設定の選択肢構築
-	CreateIntervalList();
+	//機種選択肢の構築
+	m_selecttype.ResetContent();
+	nPt = 0;
+	while(g_selectid_type[nPt].text.pTextEN)
+		{
+		CConfigDlg::pTBL_CONFIG pItem = &g_selectid_type[nPt];
+		if(pItem->text.pTextEN == NULL)
+			break;
+		m_selecttype.AddString(theApp.GetLangText(&pItem->text));
+		++nPt;
+		}
+	m_selecttype.SetCurSel(0);
 
-	//IDとグループは、最後に選択した位置を設定
+	//最後に選択した位置を設定
 	CConfigDlg::pCONFIGDLG_CONFIG pConfig = theConfig.GetConfig();
 	m_selectid.SetCurSel(pConfig->nSelectID);
 	m_selectgroup.SetCurSel(pConfig->nSelectGroup);
 
-	//周期設定は、環境設定の値をデフォルトとする
-	SetIntervalList(theConfig.getInterval());
+	//IDに対応した機種を再設定
+	UpdateType();
 
 	//ボタンの有効無効を設定
 	UpdateButton();
@@ -167,47 +186,12 @@ BOOL CSelectID::OnInitDialog()
 	return TRUE;
 	}
 
-//更新周期設定の選択肢構築
-void CSelectID::CreateIntervalList()
+//機種の選択状態を更新します
+void CSelectID::UpdateType()
 	{
-	//環境設定から「数値」で周期を取得する
-	uint32_t nInterval = theConfig.getInterval();
-
-	//選択肢を構築する
-	m_selectinterval.ResetContent();
-	int nPt = 0;
-	while(g_selectid_interval[nPt].text.pTextEN)
-		{
-		CConfigDlg::TBL_CONFIG item = g_selectid_interval[nPt];
-		m_selectinterval.AddString(theApp.GetLangText(&item.text));
-		++nPt;
-		}
-	m_selectinterval.SetCurSel(0);
-	}
-
-//更新周期設定を周期時間指定して選択
-bool CSelectID::SetIntervalList(int nInterval1,int nInterval2 /* 100 */)
-	{
-	int nPt = 0;
-	while(g_selectid_interval[nPt].text.pTextEN)
-		{
-		CConfigDlg::TBL_CONFIG item = g_selectid_interval[nPt];
-		if(item.nValue == nInterval1)
-			{
-			m_selectinterval.SetCurSel(nPt);
-			return(true);
-			}
-		++nPt;
-		}
-	if(nInterval1 != nInterval2)
-		{
-		if(SetIntervalList(nInterval2,nInterval2))
-			return(true);
-		}
-	//両方の周期指定に該当する物が無い
-	m_selectinterval.SetCurSel(0);
-	//
-	return(false);
+	int nSel = m_selectid.GetCurSel();
+	CConfigDlg::pCONFIGDLG_CONFIG pConfig = theConfig.GetConfig();
+	m_selecttype.SetCurSel(pConfig->type256[nSel]);
 	}
 
 //ID選択コンボボックスのドロップダウン時に呼び出されます
@@ -249,6 +233,7 @@ void CSelectID::CreateIDlist()
 void CSelectID::OnCbnSelchangeSelectid()
 	{
 	UpdateButton();
+	UpdateType();
 	}
 
 //ボタンの有効無効を設定します
@@ -283,21 +268,26 @@ void CSelectID::OnOK()
 	int nGroup = m_selectgroup.GetCurSel();
 	if(nGroup < 0)
 		nGroup = 0;
-	//周期設定を取得
-	int nInterval = m_selectinterval.GetCurSel();
-	if(nInterval < 0)
-		nInterval = 0;
+	//機種設定w取得
+	int nType = m_selecttype.GetCurSel();
+	if(nType < 0)
+		nType = 0;
+	////周期設定を取得
+	//int nInterval = m_selectinterval.GetCurSel();
+	//if(nInterval < 0)
+	//	nInterval = 0;
 
 	//本クラスに設定値を保存
 	m_var.nSelectID = (uint8_t)nSelectID;
 	m_var.nGroup = (uint8_t)nGroup;
-	m_var.nInterval = g_selectid_interval[nInterval].nValue;
+	m_var.nType = (uint8_t)nType;
 
 	//接続対象とグループ番号は環境設定へ設定し、さらにシステムへ保存
 	//周期設定は保存しない（環境設定の値以外を適用したい用途を想定）
 	CConfigDlg::pCONFIGDLG_CONFIG pConfig = theConfig.GetConfig();
 	pConfig->nSelectID = m_var.nSelectID;
 	pConfig->nSelectGroup = m_var.nGroup;
+	pConfig->type256[pConfig->nSelectID] = m_var.nType;
 	theConfig.reg2sys();
 
 	//ダイアログを閉じて終了

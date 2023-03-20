@@ -22,8 +22,8 @@
 #define IDC_SELECTID2                   1004
 #define IDC_SELECTGROUP                 1004
 #define IDC_CONFIG_BR                   1005
-#define IDC_SELECTGROUP2                1005
 #define IDC_SELECTINTERVAL              1005
+#define IDC_SELECTTYPE                  1005
 #define IDC_CONFIG_DLL                  1006
 #define IDC_CONFIG_INTERVAL             1007
 #define IDC_CONFIG_LANGUAGE             1008
@@ -173,7 +173,7 @@
 #define IDC_VERSIONINFO                 1348
 #define IDC_TITLE_SELECTID              1349
 #define IDC_TITLE_SELECTGROUP           1350
-#define IDC_TITLE_SELECTINTERVAL        1351
+#define IDC_TITLE_SELECTTYPE            1351
 #define IDC_FPS                         1354
 #define IDC_ERR_BIT0                    2000
 #define IDC_ERR_BIT1                    2001

@@ -47,17 +47,17 @@ protected:
 		{
 		uint8_t		nID;		//対象ID
 		uint8_t		nGroup;		//ブロードキャスト要求に使用するグループID
-		uint32_t	nInterval;	//周期設定
+		uint8_t		nType;		//機種設定
 		} IDSET,*pIDSET;
 
 	IDSET	m_idset;
 
 	//
-	void SetIDangGroup(uint8_t nID,uint8_t nGroup,uint32_t nInterval)
+	void SetIDangGroup(uint8_t nID,uint8_t nGroup,uint32_t nType)
 		{
 		m_idset.nID			= nID;
 		m_idset.nGroup		= nGroup;
-		m_idset.nInterval	= nInterval;
+		m_idset.nType		= nType;
 		}
 
 public:
@@ -72,9 +72,9 @@ public:
 		return(m_idset.nGroup);
 		}
 	//ビューの周期を取得
-	uint32_t GetInterval(void)
+	uint32_t GetType(void)
 		{
-		return(m_idset.nInterval);
+		return(m_idset.nType);
 		}
 
 public:

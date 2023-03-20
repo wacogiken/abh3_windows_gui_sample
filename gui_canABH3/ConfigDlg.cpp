@@ -53,7 +53,7 @@ static IDTEXT1 g_config_title[] = {
 	{IDC_TITLE2,	{_T("I/F ootion"),		_T("I/F番号指定")}},
 	{IDC_TITLE3,	{_T("Host adrs"),		_T("ホストアドレス")}},
 	{IDC_TITLE4,	{_T("Baudrate"),		_T("ボーレート")}},
-	{IDC_TITLE5,	{_T("Target type"),		_T("機種設定")}},
+	//{IDC_TITLE5,	{_T("Target type"),		_T("機種設定")}},
 	{IDC_TITLE6,	{_T("Broadcast mode"),	_T("一括送信設定")}},	//保留
 	{IDC_TITLE7,	{_T("Update cycle"),	_T("更新周期")}},
 	{IDC_TITLE13,	{_T("Language"),		_T("表示言語")}},
@@ -108,14 +108,6 @@ static CConfigDlg::TBL_CONFIG g_config_baudrate[] = {
 	{{NULL,				NULL},		0,			NULL},
 	};
 
-//機種選択肢
-static CConfigDlg::TBL_CONFIG g_config_type[] = {
-	//{textEN			textJP}				value		textvalue
-	{{_T("Normal"),		_T("標準")},		0,			_T("0")},
-	{{_T("Small"),		_T("小型")},		1,			_T("1")},
-	{{NULL,				NULL},				0,			NULL},
-	};
-
 //送信モード選択肢
 static CConfigDlg::TBL_CONFIG g_config_br[] = {
 	//{textEN			textJP}				value		textvalue
@@ -141,8 +133,9 @@ IMPLEMENT_DYNAMIC(CConfigDlg, CDialogEx)
 CConfigDlg::CConfigDlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_CONFIG, pParent)
 	{
-	//
-	::ZeroMemory(&m_config,sizeof(CONFIGDLG_CONFIG));
+	//設定領域の構築
+	m_pConfig = new CONFIGDLG_CONFIG();
+	//::ZeroMemory(&m_config,sizeof(CONFIGDLG_CONFIG));
 
 	//描画用ブラシの構築
 	m_brush.CreateSolidBrush(COLOR_BLACK);
@@ -151,6 +144,8 @@ CConfigDlg::CConfigDlg(CWnd* pParent /*=nullptr*/)
 //
 CConfigDlg::~CConfigDlg()
 	{
+	//設定領域の解放
+	delete m_pConfig;
 	//描画用ブラシの解放
 	m_brush.DeleteObject();
 	}
@@ -183,9 +178,9 @@ BOOL CConfigDlg::OnInitDialog()
 	CDialogEx::OnInitDialog();
 
 	//後で比較が必要な要素は、この時点の設定を保存しておく
-	m_config.nOldDLL = m_config.nDLL;
-	m_config.nOldInterval = m_config.nInterval;
-	m_config.nOldLanguage = m_config.nLanguage;
+	m_pConfig->nOldDLL = m_pConfig->nDLL;
+	m_pConfig->nOldInterval = m_pConfig->nInterval;
+	m_pConfig->nOldLanguage = m_pConfig->nLanguage;
 
 	//画面構築
 	initScreen();
@@ -215,7 +210,6 @@ void CConfigDlg::initScreen()
 	//	ホストIDはテーブルを使わない
 	InitCombobox(&m_dll,g_config_dll);
 	InitCombobox(&m_baudrate,g_config_baudrate);
-	InitCombobox(&m_type,g_config_type);
 	InitCombobox(&m_br,g_config_br);
 	InitCombobox(&m_interval,g_config_interval);
 	InitCombobox(&m_language,g_config_language);
@@ -232,7 +226,7 @@ void CConfigDlg::initScreen()
 	reg2disp();
 
 	//選択肢構築・DLLオプション
-	CreateDLLoption(&m_dlloption,m_config.nDLL,m_config.nDLLoption);
+	CreateDLLoption(&m_dlloption,m_pConfig->nDLL,m_pConfig->nDLLoption);
 	}
 
 //
@@ -290,82 +284,95 @@ void CConfigDlg::InitCombobox(CComboBox* pCombo,pTBL_CONFIG pTbl)
 void CConfigDlg::sys2reg()
 	{
 	//
-	::ZeroMemory(&m_config,sizeof(CONFIGDLG_CONFIG));
-	//
-	CString sSection("base");
+
+	CString sSection("base"),sItem("");
 	//環境設定の項目
-	m_config.nDLL			= (uint8_t)theApp.GetProfileInt(sSection,_T("dll"),0x0);
-	m_config.nDLLoption		= (uint8_t)theApp.GetProfileInt(sSection,_T("dlloption"),0x0);
-	m_config.nHostID		= (uint8_t)theApp.GetProfileInt(sSection,_T("hostid"),0);
-	m_config.nBaudrate		= (uint8_t)theApp.GetProfileInt(sSection,_T("baudrate"),0);
-	m_config.nType			= (uint8_t)theApp.GetProfileInt(sSection,_T("type"),0);
-	m_config.nBr			= (uint8_t)theApp.GetProfileInt(sSection,_T("br"),0);
-	m_config.nInterval		= (uint8_t)theApp.GetProfileInt(sSection,_T("interval"),0);
-	m_config.nLanguage		= (uint8_t)theApp.GetProfileInt(sSection,_T("language"),0);
+	m_pConfig->nDLL				= (uint8_t)theApp.GetProfileInt(sSection,_T("dll"),0x0);
+	m_pConfig->nDLLoption		= (uint8_t)theApp.GetProfileInt(sSection,_T("dlloption"),0x0);
+	m_pConfig->nHostID			= (uint8_t)theApp.GetProfileInt(sSection,_T("hostid"),0);
+	m_pConfig->nBaudrate		= (uint8_t)theApp.GetProfileInt(sSection,_T("baudrate"),0);
+	m_pConfig->nBr				= (uint8_t)theApp.GetProfileInt(sSection,_T("br"),0);
+	m_pConfig->nInterval		= (uint8_t)theApp.GetProfileInt(sSection,_T("interval"),0);
+	m_pConfig->nLanguage		= (uint8_t)theApp.GetProfileInt(sSection,_T("language"),0);
 	//その他項目
-	m_config.nSelectID		= (uint8_t)theApp.GetProfileInt(sSection,_T("selectid"),0x0);
-	m_config.nSelectGroup	= (uint8_t)theApp.GetProfileInt(sSection,_T("selectgroup"),0x0);
-	m_config.nRecvCounter	= (uint8_t)theApp.GetProfileInt(sSection,_T("recvcounter"),0x0);
-	m_config.nFPS			= (uint8_t)theApp.GetProfileInt(sSection,_T("framerate"),0x0);
+	m_pConfig->nSelectID		= (uint8_t)theApp.GetProfileInt(sSection,_T("selectid"),0x0);
+	m_pConfig->nSelectGroup		= (uint8_t)theApp.GetProfileInt(sSection,_T("selectgroup"),0x0);
+	m_pConfig->nRecvCounter		= (uint8_t)theApp.GetProfileInt(sSection,_T("recvcounter"),0x0);
+	m_pConfig->nFPS				= (uint8_t)theApp.GetProfileInt(sSection,_T("framerate"),0x0);
+	for(int nLoop = 0;nLoop < 256;nLoop++)
+		{
+		//機種設定
+		sItem.Format(_T("type%d"),nLoop);
+		m_pConfig->type256[nLoop] = (uint8_t)theApp.GetProfileInt(sSection,sItem,0);
+		//周期転送設定
+		sItem.Format(_T("send%d"),nLoop);
+		m_pConfig->send256[nLoop] = (uint8_t)theApp.GetProfileInt(sSection,sItem,0);
+		}
 	}
 
 //現在の環境設定をシステムに保存
 void CConfigDlg::reg2sys()
 	{
 	//
-	CString sSection("base");
+	CString sSection("base"),sItem("");
 	//環境設定の項目
-	theApp.WriteProfileInt(sSection,_T("dll"),int(m_config.nDLL));
-	theApp.WriteProfileInt(sSection,_T("dlloption"),int(m_config.nDLLoption));
-	theApp.WriteProfileInt(sSection,_T("hostid"),int(m_config.nHostID));
-	theApp.WriteProfileInt(sSection,_T("baudrate"),int(m_config.nBaudrate));
-	theApp.WriteProfileInt(sSection,_T("type"),int(m_config.nType));
-	theApp.WriteProfileInt(sSection,_T("br"),int(m_config.nBr));
-	theApp.WriteProfileInt(sSection,_T("interval"),int(m_config.nInterval));
-	theApp.WriteProfileInt(sSection,_T("language"),int(m_config.nLanguage));
+	theApp.WriteProfileInt(sSection,_T("dll"),int(m_pConfig->nDLL));
+	theApp.WriteProfileInt(sSection,_T("dlloption"),int(m_pConfig->nDLLoption));
+	theApp.WriteProfileInt(sSection,_T("hostid"),int(m_pConfig->nHostID));
+	theApp.WriteProfileInt(sSection,_T("baudrate"),int(m_pConfig->nBaudrate));
+	theApp.WriteProfileInt(sSection,_T("br"),int(m_pConfig->nBr));
+	theApp.WriteProfileInt(sSection,_T("interval"),int(m_pConfig->nInterval));
+	theApp.WriteProfileInt(sSection,_T("language"),int(m_pConfig->nLanguage));
 	//その他項目
-	theApp.WriteProfileInt(sSection,_T("selectid"),int(m_config.nSelectID));
-	theApp.WriteProfileInt(sSection,_T("selectgroup"),int(m_config.nSelectGroup));
-	theApp.WriteProfileInt(sSection,_T("recvcounter"),int(m_config.nRecvCounter));
-	theApp.WriteProfileInt(sSection,_T("framerate"),int(m_config.nFPS));
+	theApp.WriteProfileInt(sSection,_T("selectid"),int(m_pConfig->nSelectID));
+	theApp.WriteProfileInt(sSection,_T("selectgroup"),int(m_pConfig->nSelectGroup));
+	theApp.WriteProfileInt(sSection,_T("recvcounter"),int(m_pConfig->nRecvCounter));
+	theApp.WriteProfileInt(sSection,_T("framerate"),int(m_pConfig->nFPS));
+	for(int nLoop = 0;nLoop < 256;nLoop++)
+		{
+		//機種設定
+		sItem.Format(_T("type%d"),nLoop);
+		theApp.WriteProfileInt(sSection,sItem,int(m_pConfig->type256[nLoop]));
+		//周期転送設定
+		sItem.Format(_T("send%d"),nLoop);
+		theApp.WriteProfileInt(sSection,sItem,int(m_pConfig->send256[nLoop]));
+		}
 	}
 
 //環境設定を表示物に設定
 void CConfigDlg::reg2disp()
 	{
-	m_dll.SetCurSel(m_config.nDLL);
-	m_dlloption.SetCurSel(m_config.nDLLoption);
-	m_hostid.SetCurSel(m_config.nHostID);
-	m_baudrate.SetCurSel(m_config.nBaudrate);
-	m_type.SetCurSel(m_config.nType);
-	m_br.SetCurSel(m_config.nBr);
-	m_interval.SetCurSel(m_config.nInterval);
-	m_language.SetCurSel(m_config.nLanguage);
+	m_dll.SetCurSel(m_pConfig->nDLL);
+	m_dlloption.SetCurSel(m_pConfig->nDLLoption);
+	m_hostid.SetCurSel(m_pConfig->nHostID);
+	m_baudrate.SetCurSel(m_pConfig->nBaudrate);
+	m_br.SetCurSel(m_pConfig->nBr);
+	m_interval.SetCurSel(m_pConfig->nInterval);
+	m_language.SetCurSel(m_pConfig->nLanguage);
 	}
 
 //表示を環境設定に取り込み
 void CConfigDlg::disp2reg()
 	{
-	m_config.nDLL = (uint8_t)m_dll.GetCurSel();
-	m_config.nDLLoption = (uint8_t)m_dlloption.GetCurSel();
-	m_config.nHostID = (uint8_t)m_hostid.GetCurSel();
-	m_config.nBaudrate = (uint8_t)m_baudrate.GetCurSel();
-	m_config.nType = (uint8_t)m_type.GetCurSel();
-	m_config.nBr = (uint8_t)m_br.GetCurSel();
-	m_config.nInterval = (uint8_t)m_interval.GetCurSel();
-	m_config.nLanguage = (uint8_t)m_language.GetCurSel();
+	m_pConfig->nDLL = (uint8_t)m_dll.GetCurSel();
+	m_pConfig->nDLLoption = (uint8_t)m_dlloption.GetCurSel();
+	m_pConfig->nHostID = (uint8_t)m_hostid.GetCurSel();
+	m_pConfig->nBaudrate = (uint8_t)m_baudrate.GetCurSel();
+	m_pConfig->nBr = (uint8_t)m_br.GetCurSel();
+	m_pConfig->nInterval = (uint8_t)m_interval.GetCurSel();
+	m_pConfig->nLanguage = (uint8_t)m_language.GetCurSel();
 	}
 
 //DLLファイル名を取得
 TCHAR* CConfigDlg::getDllname()
 	{
-	return(g_config_dll[m_config.nDLL].pValue);
+	return(g_config_dll[m_pConfig->nDLL].pValue);
 	}
 
 //DLLの番号を取得
 uint8_t CConfigDlg::getDll()
 	{
-	return(m_config.nDLL);
+	return(m_pConfig->nDLL);
 	}
 
 //DLLオプション番号を取得
@@ -375,38 +382,38 @@ uint8_t CConfigDlg::getDllOption()
 	//	USB-to-CAN v2 (dll == 0) の場合は、何本目のケーブルを使うかを指定（0開始:0..1本目）
 	//	WACOCAN (dll == 1) の場合は、COMポート番号を指定（0開始:0..COM1)
 
-	return(m_config.nDLLoption);
+	return(m_pConfig->nDLLoption);
 	}
 
 //ホスト設定番号を取得
 uint8_t CConfigDlg::getHostid(void)
 	{
-	return(m_config.nHostID + 1);
+	return(m_pConfig->nHostID + 1);
 	}
 
 //ボーレート設定値[Kbps]取得
 uint32_t CConfigDlg::getBaudrate()
 	{
-	uint32_t nResult = g_config_baudrate[m_config.nBaudrate].nValue;
+	uint32_t nResult = g_config_baudrate[m_pConfig->nBaudrate].nValue;
 	return(nResult);
 	}
 
 //機種設定を取得
-uint8_t CConfigDlg::getABH3type(void)
+uint8_t CConfigDlg::getABH3type(uint8_t nDevice)
 	{
-	return(m_config.nType);
+	return(m_pConfig->type256[nDevice]);
 	}
 
 //ブロードキャスト送信設定を取得
 uint8_t CConfigDlg::getBr(void)
 	{
-	return(m_config.nBr);
+	return(m_pConfig->nBr);
 	}
 
 //周期設定を取得
 uint32_t CConfigDlg::getInterval()
 	{
-	return((uint32_t)g_config_interval[m_config.nInterval].nValue);
+	return((uint32_t)g_config_interval[m_pConfig->nInterval].nValue);
 	}
 
 //ダイアログ表示中にリターンキーが押されると呼び出されます
@@ -422,32 +429,35 @@ void CConfigDlg::OnBnClickedSave()
 	//表示から取り込み
 	disp2reg();
 
-	//システムに保存
-	reg2sys();
-
 	//再起動要求フラグを解除
-	m_config.nRestart = 0;
+	m_pConfig->nRestart = 0;
 
 	//DLL設定が前と異なる？
-	if(m_config.nOldDLL != m_config.nDLL)
+	if(m_pConfig->nOldDLL != m_pConfig->nDLL)
 		{
 		//再起動要求設定
-		m_config.nRestart = 1;
+		m_pConfig->nRestart = 1;
 		//インターフェース設定が変更された為、本ソフトを再起動します
-		AfxMessageBox(theApp.GetLangText(&g_config_text[1]),MB_ICONWARNING);
+		if(AfxMessageBox(theApp.GetLangText(&g_config_text[1]),MB_ICONWARNING | MB_OKCANCEL) != IDOK)
+			return;
 		}
-	else if(m_config.nOldInterval != m_config.nInterval)
+	else if(m_pConfig->nOldInterval != m_pConfig->nInterval)
 		{
 		//更新周期の変更は、対象ウィンドウを開き直す必要が有ります
-		AfxMessageBox(theApp.GetLangText(&g_config_text[2]),MB_ICONWARNING);
+		if(AfxMessageBox(theApp.GetLangText(&g_config_text[2]),MB_ICONWARNING | MB_OKCANCEL) != IDOK)
+			return;
 		}
-	else if(m_config.nOldLanguage != m_config.nLanguage)
+	else if(m_pConfig->nOldLanguage != m_pConfig->nLanguage)
 		{
 		//再起動要求設定
-		m_config.nRestart = 1;
+		m_pConfig->nRestart = 1;
 		//言語設定が変更された為、本ソフトを再起動します
-		AfxMessageBox(theApp.GetLangText(&g_config_text[3]),MB_ICONWARNING);
+		if(AfxMessageBox(theApp.GetLangText(&g_config_text[3]),MB_ICONWARNING | MB_OKCANCEL) != IDOK)
+			return;
 		}
+
+	//システムに保存
+	reg2sys();
 
 	//ダイアログ終了
 	CDialogEx::OnOK();

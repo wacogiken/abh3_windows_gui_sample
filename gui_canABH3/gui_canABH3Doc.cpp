@@ -57,7 +57,7 @@ END_MESSAGE_MAP()
 CguicanABH3Doc::CguicanABH3Doc() noexcept
 	{
 	//ID未指定状態
-	SetIDangGroup(0xFF,0x00,100);
+	SetIDangGroup(0xFF,0x00,0);
 	}
 
 //
@@ -90,8 +90,8 @@ BOOL CguicanABH3Doc::OnNewDocument()
 	//選択したIDとグループを取得し、ドキュメントクラス内に登録
 	uint8_t nSelectID = SELID.GetID();
 	uint8_t nGroup = SELID.GetGroup();
-	uint32_t nInterval = SELID.GetInterval();
-	SetIDangGroup(nSelectID,nGroup,nInterval);
+	uint32_t nType = SELID.GetType();
+	SetIDangGroup(nSelectID,nGroup,nType);
 
 	//アプリケーションクラスにこのIDの利用を開始した事を通知
 	theApp.SetID(nSelectID,true);

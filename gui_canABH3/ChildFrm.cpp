@@ -85,6 +85,7 @@ BOOL CChildFrame::PreCreateWindow(CREATESTRUCT& cs)
 	cs.style = WS_CHILD | WS_VISIBLE | WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | FWS_ADDTOTITLE | WS_THICKFRAME;
 	cs.style &= ~FWS_ADDTOTITLE;
 
+	//
 	return TRUE;
 	}
 
