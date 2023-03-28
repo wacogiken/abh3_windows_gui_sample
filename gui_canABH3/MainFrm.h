@@ -69,8 +69,8 @@ public:
     afx_msg void OnUpdateDisconnect(CCmdUI* pCmdUI);
 	afx_msg void OnUpdateReconnect(CCmdUI* pCmdUI);
     afx_msg void OnTimer(UINT_PTR nIDEvent);
-    afx_msg void OnInfoRecvcounter();
-    afx_msg void OnUpdateInfoRecvcounter(CCmdUI* pCmdUI);
+    afx_msg void OnInfoCanratio();
+    afx_msg void OnUpdateInfoCanratio(CCmdUI* pCmdUI);
     afx_msg void OnInfoFps();
     afx_msg void OnUpdateInfoFps(CCmdUI* pCmdUI);
 	CMainFrame() noexcept;

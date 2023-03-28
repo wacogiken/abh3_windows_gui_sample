@@ -38,7 +38,6 @@
 #include "framework.h"
 #include "gui_canABH3.h"
 #include "ChildFrm.h"
-//#include "gui_canABH3View.h"
 
 #ifdef _DEBUG
  #define new DEBUG_NEW
@@ -85,16 +84,13 @@ BOOL CChildFrame::PreCreateWindow(CREATESTRUCT& cs)
 	cs.style = WS_CHILD | WS_VISIBLE | WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | FWS_ADDTOTITLE | WS_THICKFRAME;
 	cs.style &= ~FWS_ADDTOTITLE;
 
-	//
-	return TRUE;
+	return(TRUE);
 	}
 
-
-
+//ウィンドウのアクティブ状態が変化すると呼び出されます
 void CChildFrame::OnMDIActivate(BOOL bActivate,CWnd* pActivateWnd,CWnd* pDeactivateWnd)
     {
     CMDIChildWndEx::OnMDIActivate(bActivate,pActivateWnd,pDeactivateWnd);
-
+	//状態を保存
 	m_bActive = (bool)(bActivate != 0);
-
     }

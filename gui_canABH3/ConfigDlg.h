@@ -46,7 +46,7 @@ class CConfigDlg : public CDialogEx
 	DECLARE_DYNAMIC(CConfigDlg)
 
 public:
-
+	
 	//
 	typedef struct _TBL_CONFIG
 		{
@@ -55,39 +55,42 @@ public:
 		TCHAR*		pValue;			//文字列としての値
 		} TBL_CONFIG,*pTBL_CONFIG;
 
+	//指令関連
+	typedef struct _CFG_ORDER
+		{
+		float		nA;				//指令値A（ユーザーの入力値そのまま）
+		float		nB;				//指令値B（ユーザーの入力値そのまま）
+		uint8_t		nType;			//指令切り替え（0..速度  1..トルク)
+		} CFG_ORDER,*pCFG_ORDER;
+
 	//設定用構造体（直接ポインタを操作する場合が有るのでpublic）
 	typedef struct _CONFIGDLG_CONFIG
 		{
 		//ダイアログ初期化時のDLL設定（変化を調べる為に保存）
 		uint8_t		nOldDLL;
-		uint8_t		nOldInterval;
 		uint8_t		nOldLanguage;
 
 		//環境設定で設定する要素
-		uint8_t		nDLL;			//DLL番号
-		uint8_t		nDLLoption;		//USB-to-CAN v2の場合はケーブル番号、WACOCANの場合はCOMポート番号、どちらも0開始
-		uint8_t		nHostID;		//ホストのID
-		uint8_t		nBaudrate;		//ボーレート(選択肢番号)
-//		uint8_t		nType;			//機種設定(0..標準  1..小型)
-		uint8_t		nBr;			//ブロードキャスト送信(0..接続先のみ  1..全ABH3)
-		uint8_t		nInterval;		//割り込み周期(0..100[ms]  1..31[ms]  2..15[ms])
-		uint8_t		nLanguage;		//0..英語  1..日本語
+		uint8_t		nDLL;				//DLL番号
+		uint8_t		nDLLoption;			//USB-to-CAN v2の場合はケーブル番号、WACOCANの場合はCOMポート番号、どちらも0開始
+		uint8_t		nHostID;			//ホストのID
+		uint8_t		nBaudrate;			//ボーレート(選択肢番号)
+		uint8_t		nLanguage;			//0..英語  1..日本語
 
 		//他の場所で設定する要素
-		uint8_t		nSelectID;		//ウィンドウを開く時のダイアログで使うID(0..ID1)
-		uint8_t		nSelectGroup;	//ウィンドウを開く時のダイアログで使うグループ(0..GROUP0)
-		uint8_t		nRecvCounter;	//受信カウンタ表示
-		uint8_t		nFPS;			//フレームレート表示
-		uint8_t		type256[256];	//機種設定(0..標準  1..小型)、要素1がID1なので要素0は使わない
-		uint32_t	send256[256];	//周期転送フラグ(ビット単位)
-
+		uint8_t		nSelectID;			//ウィンドウを開く時のダイアログで使うID(0..ID1)
+		uint8_t		nSelectGroup;		//ウィンドウを開く時のダイアログで使うグループ(0..GROUP0)
+		uint8_t		nCanRatio;			//CAN-bus利用率表示
+		uint8_t		type256[256];		//機種設定(0..標準  1..小型)、要素1がID1なので要素0は使わない
+		uint32_t	send256[256];		//周期転送フラグ(ビット単位)
+		uint32_t	interval256[256];	//周期時間[ms]
+		CFG_ORDER	order256[256];		//指令関連
 		//保存しないが一時的に格納する要素
-		uint8_t		nRestart;		//設定変更に伴うソフト再起動要求
-
+		uint8_t		nRestart;			//設定変更に伴うソフト再起動要求
 		} CONFIGDLG_CONFIG,*pCONFIGDLG_CONFIG;
 
 protected:
-	//
+	//内部変数へのポインタ（動的確保）
 	pCONFIGDLG_CONFIG m_pConfig;
 
 	//描画用ブラシ
@@ -115,8 +118,6 @@ public:
 	CComboBox m_hostid;
 	CComboBox m_baudrate;
 	CComboBox m_type;
-	CComboBox m_br;
-	CComboBox m_interval;
 	CComboBox m_language;
 
 
@@ -150,11 +151,8 @@ public:
 	//機種設定を取得
 	uint8_t getABH3type(uint8_t nDevice);
 
-	//(保留中)ブロードキャスト送信設定を取得
-	uint8_t getBr(void);
-
 	//周期設定を取得
-	uint32_t getInterval(void);
+	//uint32_t getInterval(void);
 
 	//再起動を要求されているか？
 	bool IsRestartRequire(void)

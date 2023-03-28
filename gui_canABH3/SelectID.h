@@ -62,7 +62,7 @@ protected:
 	//ボタンの有効無効を設定します
 	void UpdateButton(void);
 	//色制御確認
-	bool DrawCheck(CWnd* pWnd,COLORREF& nTextColor,COLORREF& nBackColor);
+	bool DrawCheck(CWnd* pWnd,COLORITEM& colorItem);
 
 public:
 	//選択IDを取得します
@@ -81,6 +81,9 @@ public:
 		{
 		return(m_var.nType);
 		}
+	//機種名を取得します
+	CString GetTypeName(void);
+
 
 	CComboBox m_selectid;
 	CComboBox m_selectgroup;

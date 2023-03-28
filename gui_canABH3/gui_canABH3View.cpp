@@ -42,97 +42,79 @@
 #include "gui_canABH3Doc.h"
 #include "gui_canABH3View.h"
 #include "ChildFrm.h"
+#include "SelectID.h"
 
 #ifdef _DEBUG
  #define new DEBUG_NEW
 #endif
 
-//最低画面サイズ：1440 x 1080
-//推奨画面サイズ：1920 x 1080
-
-//色テーブル
-static IDCOLOR g_color_tbl[] = {
-	//colorNum				textColor				backColor
-	{0,						COLOR_WHITE,			COLOR_BLUE},
-	{1,						COLOR_WHITE,			COLOR_DARKGREEN},
-	{2,						COLOR_WHITE,			COLOR_DARKBLUE},
-	{3,						COLOR_WHITE,			COLOR_DARKMAGENTA},
-	{4,						COLOR_WHITE,			COLOR_SKYBLUE},
-	{5,						COLOR_WHITE,			COLOR_GREEN},
-	{6,						COLOR_BLACK,			COLOR_YELLOW},
-	{7,						COLOR_WHITE,			COLOR_RED},
-	{8,						COLOR_WHITE,			COLOR_BLACK},
-	{9,						COLOR_BLACK,			COLOR_WHITE},
-	{-1,					0,						0},
-	};
-
 //固定色アイテム
-static IDCOLOR1 g_textcolor_tbl[] = {
-	//beginID				endID					colorNum
-	{IDC_TITLE_A,			0,						1},
-	{IDC_TITLE_B,			0,						2},
-	{IDC_TITLE_VALUE0,		0,						1},
-	{IDC_TITLE_VALUE1,		0,						2},
-	{IDC_TITLE_VALUE2,		0,						1},
-	{IDC_TITLE_VALUE3,		0,						2},
-	{IDC_TITLE_VALUE4,		0,						1},
-	{IDC_TITLE_VALUE5,		0,						2},
-	{IDC_TITLE_VALUE6,		0,						1},
-	{IDC_TITLE_VALUE7,		0,						2},
-	{IDC_TITLE_VALUE8,		0,						1},
-	{IDC_TITLE_VALUE9,		0,						2},
-	{IDC_TITLE_VALUE10,		0,						1},
-	{IDC_TITLE_VALUE11,		0,						2},
-	{IDC_TITLE_VALUE12,		IDC_TITLE_VALUE13,		6},
-	{IDC_TITLE_VALUE14,		IDC_TITLE_VALUE15,		3},
-	{IDC_TITLE_VALUE16,		IDC_TITLE_VALUE17,		8},
-	{IDC_TITLE_CTRL,		0,						0},
-	{IDC_TITLE_INPUT,		0,						0},
-	{IDC_TITLE_REQUEST,		0,						0},
-	{IDC_TITLE_IO,			0,						0},
-	{IDC_TITLE_WARN,		0,						6},
-	{IDC_TITLE_ERR,			0,						7},
-	{IDC_TITLE_CYCLE,		0,						8},
-	{IDC_TITLE_CTRLID0,		IDC_TITLE_CTRLID7,		1},
-	{IDC_TITLE_CTRLID8,		IDC_TITLE_CTRLID15,		2},
-	{IDC_TITLE_CTRLID16,	0,						1},
-	{IDC_TITLE_CTRLID17,	0,						2},
-	{IDC_TITLE_CTRLID18,	IDC_TITLE_CTRLID19,		6},
-	{IDC_TITLE_CTRLID20,	0,						1},
-	{IDC_TITLE_CTRLID21,	0,						2},
-	{IDC_TITLE_CTRLID22,	0,						7},
-	{IDC_TITLE_CTRLID23,	IDC_TITLE_CTRLID31,		9},
-	{0,					0,					0},
+static IDCOLOR g_textcolor_tbl[] = {
+	//beginID				endID					APPCOLOR
+	{IDC_TITLE_A,			0,						APPCOLOR::APPC_AXISA},
+	{IDC_TITLE_B,			0,						APPCOLOR::APPC_AXISB},
+	{IDC_TITLE_VALUE0,		0,						APPCOLOR::APPC_AXISA},
+	{IDC_TITLE_VALUE1,		0,						APPCOLOR::APPC_AXISB},
+	{IDC_TITLE_VALUE2,		0,						APPCOLOR::APPC_AXISA},
+	{IDC_TITLE_VALUE3,		0,						APPCOLOR::APPC_AXISB},
+	{IDC_TITLE_VALUE4,		0,						APPCOLOR::APPC_AXISA},
+	{IDC_TITLE_VALUE5,		0,						APPCOLOR::APPC_AXISB},
+	{IDC_TITLE_VALUE6,		0,						APPCOLOR::APPC_AXISA},
+	{IDC_TITLE_VALUE7,		0,						APPCOLOR::APPC_AXISB},
+	{IDC_TITLE_VALUE8,		0,						APPCOLOR::APPC_AXISA},
+	{IDC_TITLE_VALUE9,		0,						APPCOLOR::APPC_AXISB},
+	{IDC_TITLE_VALUE10,		0,						APPCOLOR::APPC_AXISA},
+	{IDC_TITLE_VALUE11,		0,						APPCOLOR::APPC_AXISB},
+	{IDC_TITLE_VALUE12,		IDC_TITLE_VALUE13,		APPCOLOR::APPC_ANALOG},
+	{IDC_TITLE_VALUE14,		IDC_TITLE_VALUE15,		APPCOLOR::APPC_POWER},
+	{IDC_TITLE_VALUE16,		IDC_TITLE_VALUE17,		APPCOLOR::APPC_MONITOR},
+	{IDC_TITLE_CTRL,		0,						APPCOLOR::APPC_NORMAL},
+	{IDC_TITLE_INPUT,		0,						APPCOLOR::APPC_NORMAL},
+	{IDC_TITLE_REQUEST,		0,						APPCOLOR::APPC_NORMAL},
+	{IDC_TITLE_IO,			0,						APPCOLOR::APPC_NORMAL},
+	{IDC_TITLE_WARNERR,		0,						APPCOLOR::APPC_NORMAL},
+	{IDC_TITLE_WARN,		0,						APPCOLOR::APPC_WARNING},
+	{IDC_TITLE_ERR,			0,						APPCOLOR::APPC_ERROR},
+	{IDC_TITLE_ORDER,		0,						APPCOLOR::APPC_NORMAL},
+	{IDC_TITLE_INTERVAL,	0,						APPCOLOR::APPC_NORMAL},
+	{IDC_TITLE_WARNERR0,	IDC_TITLE_WARNERR31,	APPCOLOR::APPC_CTRL4},
+	{IDC_INFO,				0,						APPCOLOR::APPC_INFO},
+	{0,						0,						APPCOLOR::APPC_NOCOLOR},
 	};
 
-//汎用アイテムのテキスト
+//汎用アイテム（表示が変化しない物）のテキスト
 static IDTEXT1 g_anyitem_tbl[] = {
 	//ID				{textEN					textJP}
+	{IDC_TITLE_INTERVAL,{_T("Send Interval[ms]"),_T("送信周期[ms]")}},
+	{IDC_OFF_INTERVAL,	{_T("Send stop"),		_T("送信停止")}},
+	{IDC_ON_INTERVAL,	{_T("Send start"),		_T("送信開始")}},
+	{IDC_TITLE_ORDER,	{_T("Order mode"),		_T("指令モード")}},
+	{IDC_ORDER1,		{_T("Speed"),			_T("速度")}},
+	{IDC_ORDER2,		{_T("Torque"),			_T("トルク")}},
 	{IDC_TITLE_A,		{_T("A/Y order"),		_T("A/Y指令")}},
 	{IDC_TITLE_B,		{_T("B/X order"),		_T("B/X指令")}},
-	{IDC_TITLE_CYCLE,	{_T("Cycle execute"),	_T("周期実行対象")}},
-	{IDC_FPS,			{_T("Functions"),		_T("機能")}},
 	{IDC_TITLE_CTRL,	{_T("Operation flag"),	_T("操作フラグ")}},
 	{IDC_TITLE_INPUT,	{_T("Input flag"),		_T("入力フラグ")}},
 	{IDC_TITLE_REQUEST,	{_T("Control flag"),	_T("制御フラグ")}},
 	{IDC_TITLE_IO,		{_T("I/O flag"),		_T("I/Oフラグ")}},
-	{IDC_TITLE_WARN,	{_T("Warning"),			_T("警告フラグ")}},
-	{IDC_TITLE_ERR,		{_T("Error"),			_T("異常フラグ")}},
+	{IDC_TITLE_WARNERR,	{_T("Warn/Err"),		_T("警告/異常")}},
+	{IDC_TITLE_WARN,	{_T("Warn"),			_T("警告")}},
+	{IDC_TITLE_ERR,		{_T("Err"),				_T("異常")}},
 	{0,					{NULL,					NULL}},
 	};
 
 //周期要求要素（最大16要素）
 static IDTEXT5 g_request_tbl[] = {
-	//ID				text			packetType						adrs
-	{IDC_REQUESTDP0R,	_T("DP0"),		PACKETTYPE::SINGLE_PACKET,		0},
-	{IDC_REQUESTBR0,	_T("BR0"),		PACKETTYPE::BROADCAST_PACKET,	0},
-	{IDC_REQUESTBR1,	_T("BR1"),		PACKETTYPE::BROADCAST_PACKET,	1},
-	{IDC_REQUESTBR2,	_T("BR2"),		PACKETTYPE::BROADCAST_PACKET,	2},
-	{IDC_REQUESTBR3,	_T("BR3"),		PACKETTYPE::BROADCAST_PACKET,	3},
-	{IDC_REQUESTBR4,	_T("BR4"),		PACKETTYPE::BROADCAST_PACKET,	4},
-	{IDC_REQUESTBR5,	_T("BR5"),		PACKETTYPE::BROADCAST_PACKET,	5},
-	{IDC_REQUESTBR6,	_T("BR6"),		PACKETTYPE::BROADCAST_PACKET,	6},
-	{0,					_T(""),			PACKETTYPE::UNKNOWN_PACKET,		0},
+	//ID				subID				textEN		textJP			packetType						adrs
+	{IDC_REQUESTDP0R,	IDC_STATUSDP0R,		{_T("Singlepacket"),_T("シングルパケット")},		PACKETTYPE::SINGLE_PACKET,		0},
+	{IDC_REQUESTBR0,	IDC_STATUSBR0,		{_T("Broadcast0"),	_T("ブロードキャスト0")},		PACKETTYPE::BROADCAST_PACKET,	0},
+	{IDC_REQUESTBR1,	IDC_STATUSBR1,		{_T("Broadcast1"),	_T("ブロードキャスト1")},		PACKETTYPE::BROADCAST_PACKET,	1},
+	{IDC_REQUESTBR2,	IDC_STATUSBR2,		{_T("Broadcast2"),	_T("ブロードキャスト2")},		PACKETTYPE::BROADCAST_PACKET,	2},
+	{IDC_REQUESTBR3,	IDC_STATUSBR3,		{_T("Broadcast3"),	_T("ブロードキャスト3")},		PACKETTYPE::BROADCAST_PACKET,	3},
+	{IDC_REQUESTBR4,	IDC_STATUSBR4,		{_T("Broadcast4"),	_T("ブロードキャスト4")},		PACKETTYPE::BROADCAST_PACKET,	4},
+	{IDC_REQUESTBR5,	IDC_STATUSBR5,		{_T("Broadcast5"),	_T("ブロードキャスト5")},		PACKETTYPE::BROADCAST_PACKET,	5},
+	{IDC_REQUESTBR6,	IDC_STATUSBR6,		{_T("Broadcast6"),	_T("ブロードキャスト6")},		PACKETTYPE::BROADCAST_PACKET,	6},
+	{0,					0,					{_T(""),			_T("")},						PACKETTYPE::UNKNOWN_PACKET,		0},
 	};
 
 //各ステータス値
@@ -148,81 +130,43 @@ static IDTEXT4 g_valueid_tbl[] = {
 	{IDC_TITLE_VALUE7,	{_T("[B/X]Current.order"),	_T("B/X電流指令")},		IDC_VALUE7},
 	{IDC_TITLE_VALUE8,	{_T("[A]Load"),				_T("A負荷率")},			IDC_VALUE8},
 	{IDC_TITLE_VALUE9,	{_T("[B]Load"),				_T("B負荷率")},			IDC_VALUE9},
-	{IDC_TITLE_VALUE10,	{_T("[A]Pulse"),			_T("Aパルス積算値")},	IDC_VALUE10},
-	{IDC_TITLE_VALUE11,	{_T("[B]Pulse"),			_T("Bパルス積算値")},	IDC_VALUE11},
+	{IDC_TITLE_VALUE10,	{_T("[A]Pulse"),			_T("Aパルス積算")},		IDC_VALUE10},
+	{IDC_TITLE_VALUE11,	{_T("[B]Pulse"),			_T("Bパルス積算")},		IDC_VALUE11},
 	{IDC_TITLE_VALUE12,	{_T("Analog0"),				_T("アナログ入力0")},	IDC_VALUE12},
 	{IDC_TITLE_VALUE13,	{_T("Analog1"),				_T("アナログ入力1")},	IDC_VALUE13},
 	{IDC_TITLE_VALUE14,	{_T("Power(main)"),			_T("主電源電圧")},		IDC_VALUE14},
 	{IDC_TITLE_VALUE15,	{_T("Power(control)"),		_T("制御電源電圧")},	IDC_VALUE15},
-	{IDC_TITLE_VALUE16,	{_T("Monitor0"),			_T("モニタ0データ")},	IDC_VALUE16},
-	{IDC_TITLE_VALUE17,	{_T("Monitor1"),			_T("モニタ1データ")},	IDC_VALUE17},
+	{IDC_TITLE_VALUE16,	{_T("AnalogMonitor0"),		_T("アナログモニタ0")},	IDC_VALUE16},
+	{IDC_TITLE_VALUE17,	{_T("AnalogMonitor1"),		_T("アナログモニタ1")},	IDC_VALUE17},
 	{0,					{NULL,						NULL},					0},
-	};
-
-//操作フラグ類のタイトル（操作、制御、入力フラグの混合物）
-static IDTEXT g_ctrlid_title[] = {
-	//bit	ID						{textEN					textJP}
-	{0,		IDC_TITLE_CTRLID0,		{_T("[A/Y]Servo"),		_T("A/Y サーボ")}},
-	{1,		IDC_TITLE_CTRLID1,		{_T("[A/Y]Start"),		_T("A/Y スタート")}},
-	{2,		IDC_TITLE_CTRLID2,		{_T("[A/Y]Order.pol"),	_T("A/Y 指令極性")}},
-	{3,		IDC_TITLE_CTRLID3,		{_T("[A/Y]Add.adjust"),	_T("A/Y 補正加算")}},
-	{4,		IDC_TITLE_CTRLID4,		{_T("[A/Y]Data.sel0"),	_T("A/Y データ選択0")}},
-	{5,		IDC_TITLE_CTRLID5,		{_T("[A/Y]Data.sel1"),	_T("A/Y データ選択1")}},
-	{6,		IDC_TITLE_CTRLID6,		{_T("[A/Y]Data.sel2"),	_T("A/Y データ選択2")}},
-	{7,		IDC_TITLE_CTRLID7,		{_T("[A/Y]Adjust.pol"),	_T("A/Y 補正極性")}},
-	{8,		IDC_TITLE_CTRLID8,		{_T("[B/X]Servo"),		_T("B/X サーボ")}},
-	{9,		IDC_TITLE_CTRLID9,		{_T("[B/X]Start"),		_T("B/X スタート")}},
-	{10,	IDC_TITLE_CTRLID10,		{_T("[B/X]Order.pol"),	_T("B/X 指令極性")}},
-	{11,	IDC_TITLE_CTRLID11,		{_T("[B/X]Add.adjust"),	_T("B/X 補正加算")}},
-	{12,	IDC_TITLE_CTRLID12,		{_T("[B/X]Data.sel0"),	_T("B/X データ選択0")}},
-	{13,	IDC_TITLE_CTRLID13,		{_T("[B/X]Data.sel1"),	_T("B/X データ選択1")}},
-	{14,	IDC_TITLE_CTRLID14,		{_T("[B/X]Data.sel2"),	_T("B/X データ選択2")}},
-	{15,	IDC_TITLE_CTRLID15,		{_T("[B/X]Adjust.pol"),	_T("B/X 補正極性")}},
-	{16,	IDC_TITLE_CTRLID16,		{_T("[A/Y]Speed/Trq"),	_T("A/Y 速度/トルク")}},
-	{17,	IDC_TITLE_CTRLID17,		{_T("[B/X]Speed/Trq"),	_T("B/X 速度/トルク")}},
-	{18,	IDC_TITLE_CTRLID18,		{_T("Master/Slave"),	_T("マスタ/スレーブ")}},
-	{19,	IDC_TITLE_CTRLID19,		{_T("Break"),			_T("ブレーキ")}},
-	{20,	IDC_TITLE_CTRLID20,		{_T("[A]Pulse.clear"),	_T("A軸積算クリア")}},
-	{21,	IDC_TITLE_CTRLID21,		{_T("[B]Pulse.clear"),	_T("B軸積算クリア")}},
-	{22,	IDC_TITLE_CTRLID22,		{_T("Reset error"),		_T("エラーリセット")}},
-	{23,	IDC_TITLE_CTRLID23,		{_T(""),				_T("")}},
-	{24,	IDC_TITLE_CTRLID24,		{_T(""),				_T("")}},
-	{25,	IDC_TITLE_CTRLID25,		{_T("[A/Y]Ready"),		_T("A/Y軸 レディ")}},
-	{26,	IDC_TITLE_CTRLID26,		{_T("[A/Y]Busy"),		_T("A/Y軸 ビジー")}},
-	{27,	IDC_TITLE_CTRLID27,		{_T("[B/X]Ready"),		_T("B/X軸 レディ")}},
-	{28,	IDC_TITLE_CTRLID28,		{_T("[B/X]Busy"),		_T("B/X軸 ビジー")}},
-	{29,	IDC_TITLE_CTRLID29,		{_T("Control model"),	_T("制御モデル")}},
-	{30,	IDC_TITLE_CTRLID30,		{_T("Release break"),	_T("ブレーキ解放動作")}},
-	{31,	IDC_TITLE_CTRLID31,		{_T("Detected error"),	_T("エラー発生")}},
-	{0,		0,						{NULL,					NULL}},
 	};
 
 //操作フラグのボタン情報
 static IDTEXT2 g_ctrlid_ctrl[] =	{
 	//bit	btnOffID			{offtextEN					offtextJP}					btnOnID				{ontextEN				ontextJP}
-	{0,		IDC_OFF_CTRLID0,	{_T("ServoOFF"),			_T("サーボOFF")},			IDC_ON_CTRLID0,		{_T("ServoON"),			_T("サーボON")}},
-	{1,		IDC_OFF_CTRLID1,	{_T("Disable.order"),		_T("指令無効")},			IDC_ON_CTRLID1,		{_T("Enable.order"),	_T("指令有効")}},
-	{2,		IDC_OFF_CTRLID2,	{_T("Through"),				_T("スルー")},				IDC_ON_CTRLID2,		{_T("Reverse"),			_T("反転")}},
-	{3,		IDC_OFF_CTRLID3,	{_T("Off"),					_T("オフ")},				IDC_ON_CTRLID3,		{_T("On"),				_T("オン")}},
-	{4,		IDC_OFF_CTRLID4,	{_T("bit0"),				_T("bit0")},				IDC_ON_CTRLID4,		{_T("0"),				_T("0")}},
-	{5,		IDC_OFF_CTRLID5,	{_T("bit1"),				_T("bit1")},				IDC_ON_CTRLID5,		{_T("0"),				_T("0")}},
-	{6,		IDC_OFF_CTRLID6,	{_T("bit2"),				_T("bit2")},				IDC_ON_CTRLID6,		{_T("0"),				_T("0")}},
-	{7,		IDC_OFF_CTRLID7,	{_T("Add"),					_T("加算")},				IDC_ON_CTRLID7,		{_T("Sub"),				_T("減算")}},
-	{8,		IDC_OFF_CTRLID8,	{_T("ServoOFF"),			_T("サーボOFF")},			IDC_ON_CTRLID8,		{_T("ServoON"),			_T("サーボON")}},
-	{9,		IDC_OFF_CTRLID9,	{_T("Disable.order"),		_T("指令無効")},			IDC_ON_CTRLID9,		{_T("Enable.order"),	_T("指令有効")}},
-	{10,	IDC_OFF_CTRLID10,	{_T("Through"),				_T("スルー")},				IDC_ON_CTRLID10,	{_T("Reverse"),			_T("反転")}},
-	{11,	IDC_OFF_CTRLID11,	{_T("Off"),					_T("オフ")},				IDC_ON_CTRLID11,	{_T("On"),				_T("オン")}},
-	{12,	IDC_OFF_CTRLID12,	{_T("bit0"),				_T("bit0")},				IDC_ON_CTRLID12,	{_T("0"),				_T("0")}},
-	{13,	IDC_OFF_CTRLID13,	{_T("bit1"),				_T("bit1")},				IDC_ON_CTRLID13,	{_T("0"),				_T("0")}},
-	{14,	IDC_OFF_CTRLID14,	{_T("bit2"),				_T("bit2")},				IDC_ON_CTRLID14,	{_T("0"),				_T("0")}},
-	{15,	IDC_OFF_CTRLID15,	{_T("Add"),					_T("加算")},				IDC_ON_CTRLID15,	{_T("Sub"),				_T("減算")}},
-	{16,	IDC_OFF_CTRLID16,	{_T("Speed/[A/Y]master"),	_T("速度・A/Y軸マスタ")},	IDC_ON_CTRLID16,	{_T("Trq/[B/X]master"),	_T("トルク/B/X軸マスタ")}},
-	{17,	IDC_OFF_CTRLID17,	{_T("Speed"),				_T("速度")},				IDC_ON_CTRLID17,	{_T("Trq"),				_T("トルク")}},
-	{18,	IDC_OFF_CTRLID18,	{_T("Off"),					_T("オフ")},				IDC_ON_CTRLID18,	{_T("On"),				_T("オン")}},
-	{19,	IDC_OFF_CTRLID19,	{_T("Release.off"),			_T("解放操作オフ")},		IDC_ON_CTRLID19,	{_T("Release on"),		_T("解放操作オン")}},
-	{20,	IDC_OFF_CTRLID20,	{_T("Never"),				_T("非動作")},				IDC_ON_CTRLID20,	{_T("Clear"),			_T("クリア")}},
-	{21,	IDC_OFF_CTRLID21,	{_T("Never"),				_T("非動作")},				IDC_ON_CTRLID21,	{_T("Clear"),			_T("クリア")}},
-	{22,	IDC_OFF_CTRLID22,	{_T("Never"),				_T("非動作")},				IDC_ON_CTRLID22,	{_T("Clear"),			_T("クリア")}},
+	{0,		IDC_OFF_CTRLID0,	{_T("A/Y servoOFF"),		_T("A/YサーボOFF")},		IDC_ON_CTRLID0,		{_T("A/Y servoON"),			_T("A/YサーボON")}},
+	{1,		IDC_OFF_CTRLID1,	{_T("A/Y stop"),			_T("A/Yストップ")},			IDC_ON_CTRLID1,		{_T("A/Y start"),		_T("A/Yスタート")}},
+	{2,		IDC_OFF_CTRLID2,	{_T("A/Y fwd.order"),		_T("A/Y指令正転")},			IDC_ON_CTRLID2,		{_T("A/Y rev.order"),	_T("A/Y指令反転")}},
+	{3,		IDC_OFF_CTRLID3,	{_T("A/Y adj.off"),			_T("A/Y補正加算オフ")},		IDC_ON_CTRLID3,		{_T("A/Y adj.add"),		_T("A/Y補正加算オン")}},
+	{4,		IDC_OFF_CTRLID4,	{_T("A/Y sel0=0"),			_T("A/Y選択0=0")},			IDC_ON_CTRLID4,		{_T("A/Y sel0=1"),		_T("A/Y選択0=1")}},
+	{5,		IDC_OFF_CTRLID5,	{_T("A/Y sel1=0"),			_T("A/Y選択1=0")},			IDC_ON_CTRLID5,		{_T("A/Y sel1=1"),		_T("A/Y選択1=1")}},
+	{6,		IDC_OFF_CTRLID6,	{_T("A/Y sel2=0"),			_T("A/Y選択2=0")},			IDC_ON_CTRLID6,		{_T("A/Y sel2=1"),		_T("A/Y選択2=1")}},
+	{7,		IDC_OFF_CTRLID7,	{_T("A/Y adj.add"),			_T("A/Y補正加算")},			IDC_ON_CTRLID7,		{_T("A/Y adj.sub"),		_T("A/Y補正減算")}},
+	{8,		IDC_OFF_CTRLID8,	{_T("B/X servoOFF"),		_T("B/XサーボOFF")},		IDC_ON_CTRLID8,		{_T("B/X servoON"),		_T("B/XサーボON")}},
+	{9,		IDC_OFF_CTRLID9,	{_T("B/X stop"),			_T("B/Xストップ")},			IDC_ON_CTRLID9,		{_T("B/X start"),		_T("B/Xスタート")}},
+	{10,	IDC_OFF_CTRLID10,	{_T("B/X fwd.order"),		_T("B/X指令正転")},			IDC_ON_CTRLID10,	{_T("B/X rev.order"),	_T("B/X指令反転")}},
+	{11,	IDC_OFF_CTRLID11,	{_T("B/X adj.off"),			_T("B/X補正加算オフ")},		IDC_ON_CTRLID11,	{_T("B/X adj.add"),		_T("B/X補正加算オン")}},
+	{12,	IDC_OFF_CTRLID12,	{_T("B/X sel0=0"),			_T("B/X選択0=0")},			IDC_ON_CTRLID12,	{_T("B/X sel0=1"),		_T("B/X選択0=1")}},
+	{13,	IDC_OFF_CTRLID13,	{_T("B/X sel1=0"),			_T("B/X選択1=0")},			IDC_ON_CTRLID13,	{_T("B/X sel1=1"),		_T("B/X選択1=1")}},
+	{14,	IDC_OFF_CTRLID14,	{_T("B/X sel2=0"),			_T("B/X選択2=0")},			IDC_ON_CTRLID14,	{_T("B/X sel2=1"),		_T("B/X選択2=1")}},
+	{15,	IDC_OFF_CTRLID15,	{_T("B/X adj.add"),			_T("B/X補正加算")},			IDC_ON_CTRLID15,	{_T("B/X adj.sub"),		_T("B/X補正減算")}},
+	{16,	IDC_OFF_CTRLID16,	{_T("A/Y speed"),			_T("A/Y速度")},				IDC_ON_CTRLID16,	{_T("A/Y torque"),		_T("A/Yトルク")}},
+	{17,	IDC_OFF_CTRLID17,	{_T("B/X speed"),			_T("B/X速度")},				IDC_ON_CTRLID17,	{_T("B/X torque"),		_T("B/Xトルク")}},
+	{18,	IDC_OFF_CTRLID18,	{_T("Disable mst/slv"),		_T("マスタ/スレーブ無効")},	IDC_ON_CTRLID18,	{_T("Enable mst/slv"),	_T("マスタ/スレーブ有効")}},
+	{19,	IDC_OFF_CTRLID19,	{_T("Lock break"),			_T("ブレーキ保持")},		IDC_ON_CTRLID19,	{_T("Release break"),	_T("ブレーキ解放")}},
+	{20,	IDC_OFF_CTRLID20,	{_T("Never"),				_T("非動作")},				IDC_ON_CTRLID20,	{_T("AxisA clear"),		_T("A軸積算クリア")}},
+	{21,	IDC_OFF_CTRLID21,	{_T("Never"),				_T("非動作")},				IDC_ON_CTRLID21,	{_T("AxisB clear"),		_T("B軸積算クリア")}},
+	{22,	IDC_OFF_CTRLID22,	{_T("Never"),				_T("非動作")},				IDC_ON_CTRLID22,	{_T("Reset error"),		_T("エラーリセット")}},
 	{23,	IDC_OFF_CTRLID23,	{_T(""),					_T("")},					IDC_ON_CTRLID23,	{_T(""),				_T("")}},
 	{23,	IDC_OFF_CTRLID24,	{_T(""),					_T("")},					IDC_ON_CTRLID24,	{_T(""),				_T("")}},
 	{23,	IDC_OFF_CTRLID25,	{_T(""),					_T("")},					IDC_ON_CTRLID25,	{_T(""),				_T("")}},
@@ -238,191 +182,206 @@ static IDTEXT2 g_ctrlid_ctrl[] =	{
 //入力フラグの詳細情報
 static IDTEXT3 g_inputid_tbl[] =	{
 	//bit	ID					{offtextEN					offtextJP}					{ontextEN					ontextJP}
-	{0,		IDC_INPUTID0,		{_T("ServoOFF"),			_T("サーボOFF")},			{_T("ServoON"),				_T("サーボON")}},
-	{1,		IDC_INPUTID1,		{_T("Disable order"),		_T("指令無効")},			{_T("Enable order"),		_T("指令有効")}},
-	{2,		IDC_INPUTID2,		{_T("Through"),				_T("スルー")},				{_T("Reverse"),				_T("反転")}},
-	{3,		IDC_INPUTID3,		{_T("Off"),					_T("オフ")},				{_T("On"),					_T("オン")}},
-	{4,		IDC_INPUTID4,		{_T("0"),					_T("0")},					{_T("bit0"),				_T("bit0")}},
-	{5,		IDC_INPUTID5,		{_T("0"),					_T("0")},					{_T("bit1"),				_T("bit1")}},
-	{6,		IDC_INPUTID6,		{_T("0"),					_T("0")},					{_T("bit2"),				_T("bit2")}},
-	{7,		IDC_INPUTID7,		{_T("Add"),					_T("加算")},				{_T("Sub"),					_T("減算")}},
-	{8,		IDC_INPUTID8,		{_T("ServoOFF"),			_T("サーボOFF")},			{_T("ServoON"),				_T("サーボON")}},
-	{9,		IDC_INPUTID9,		{_T("Disable order"),		_T("指令無効")},			{_T("Enable order"),		_T("指令有効")}},
-	{10,	IDC_INPUTID10,		{_T("Through"),				_T("スルー")},				{_T("Reverse"),				_T("反転")}},
-	{11,	IDC_INPUTID11,		{_T("Off"),					_T("オフ")},				{_T("On"),					_T("オン")}},
-	{12,	IDC_INPUTID12,		{_T("0"),					_T("0")},					{_T("bit0"),				_T("bit0")}},
-	{13,	IDC_INPUTID13,		{_T("0"),					_T("0")},					{_T("bit1"),				_T("bit1")}},
-	{14,	IDC_INPUTID14,		{_T("0"),					_T("0")},					{_T("bit2"),				_T("bit2")}},
-	{15,	IDC_INPUTID15,		{_T("Add"),					_T("加算")},				{_T("Sub"),					_T("減算")}},
-	{16,	IDC_INPUTID16,		{_T("Speed/[A/Y]master"),	_T("速度・A/Y軸マスタ")},	{_T("Trq/[B/X]master"),		_T("トルク/B/X軸マスタ")}},
-	{17,	IDC_INPUTID17,		{_T("Speed"),				_T("速度")},				{_T("Trq"),					_T("トルク")}},
-	{18,	IDC_INPUTID18,		{_T("Off"),					_T("オフ")},				{_T("On"),					_T("オン")}},
-	{19,	IDC_INPUTID19,		{_T("ReleaseOFF"),			_T("解放操作オフ")},		{_T("ReleaseON"),			_T("解放操作オン")}},
-	{20,	IDC_INPUTID20,		{_T("No operation"),		_T("非動作")},				{_T("Clear"),				_T("クリア")}},
-	{21,	IDC_INPUTID21,		{_T("No operation"),		_T("非動作")},				{_T("Clear"),				_T("クリア")}},
-	{22,	IDC_INPUTID22,		{_T("No operation"),		_T("非動作")},				{_T("Clear"),				_T("クリア")}},
-	{23,	IDC_INPUTID23,		{_T(""),					_T("")},					{_T(""),					_T("")}},
-	{24,	IDC_INPUTID24,		{_T(""),					_T("")},					{_T(""),					_T("")}},
-	{25,	IDC_INPUTID25,		{_T(""),					_T("")},					{_T(""),					_T("")}},
-	{26,	IDC_INPUTID26,		{_T(""),					_T("")},					{_T(""),					_T("")}},
-	{27,	IDC_INPUTID27,		{_T(""),					_T("")},					{_T(""),					_T("")}},
-	{28,	IDC_INPUTID28,		{_T(""),					_T("")},					{_T(""),					_T("")}},
-	{29,	IDC_INPUTID29,		{_T(""),					_T("")},					{_T(""),					_T("")}},
-	{30,	IDC_INPUTID30,		{_T(""),					_T("")},					{_T(""),					_T("")}},
-	{31,	IDC_INPUTID31,		{_T(""),					_T("")},					{_T(""),					_T("")}},
-	{0,		0,					{NULL,						NULL},						{NULL,						NULL}},
+	{0,		IDC_INPUTID0,	{_T("A.Y servoOFF"),		_T("A/YサーボOFF")},			{_T("A/Y servoON"),			_T("A/YサーボON")}},
+	{1,		IDC_INPUTID1,	{_T("A/Y stop"),			_T("A/Yストップ")},				{_T("A/Y start"),		_T("A/Yスタート")}},
+	{2,		IDC_INPUTID2,	{_T("A/Y fwd.order"),		_T("A/Y指令正転")},				{_T("A/Y rev.order"),	_T("A/Y指令反転")}},
+	{3,		IDC_INPUTID3,	{_T("A/Y adj.off"),			_T("A/Y補正加算オフ")},			{_T("A/Y adj.add"),		_T("A/Y補正加算オン")}},
+	{4,		IDC_INPUTID4,	{_T("A/Y sel0=0"),			_T("A/Y選択0=0")},				{_T("A/Y sel0=1"),		_T("A/Y選択0=1")}},
+	{5,		IDC_INPUTID5,	{_T("A/Y sel1=0"),			_T("A/Y選択1=0")},				{_T("A/Y sel1=1"),		_T("A/Y選択1=1")}},
+	{6,		IDC_INPUTID6,	{_T("A/Y sel2=0"),			_T("A/Y選択2=0")},				{_T("A/Y sel2=1"),		_T("A/Y選択2=1")}},
+	{7,		IDC_INPUTID7,	{_T("A/Y adj.add"),			_T("A/Y補正加算")},				{_T("A/Y adj.sub"),		_T("A/Y補正減算")}},
+	{8,		IDC_INPUTID8,	{_T("B/X servoOFF"),		_T("B/XサーボOFF")},			{_T("B/X servoON"),		_T("B/XサーボON")}},
+	{9,		IDC_INPUTID9,	{_T("B/X stop"),			_T("B/Xストップ")},				{_T("B/X start"),		_T("B/Xスタート")}},
+	{10,	IDC_INPUTID10,	{_T("B/X fwd.order"),		_T("B/X指令正転")},				{_T("B/X rev.order"),	_T("B/X指令反転")}},
+	{11,	IDC_INPUTID11,	{_T("B/X adj.off"),			_T("B/X補正加算オフ")},			{_T("B/X adj.add"),		_T("B/X補正加算オン")}},
+	{12,	IDC_INPUTID12,	{_T("B/X sel0=0"),			_T("B/X選択0=0")},				{_T("B/X sel0=1"),		_T("B/X選択0=1")}},
+	{13,	IDC_INPUTID13,	{_T("B/X sel1=0"),			_T("B/X選択1=0")},				{_T("B/X sel1=1"),		_T("B/X選択1=1")}},
+	{14,	IDC_INPUTID14,	{_T("B/X sel2=0"),			_T("B/X選択2=0")},				{_T("B/X sel2=1"),		_T("B/X選択2=1")}},
+	{15,	IDC_INPUTID15,	{_T("B/X adj.add"),			_T("B/X補正加算")},				{_T("B/X adj.sub"),		_T("B/X補正減算")}},
+	{16,	IDC_INPUTID16,	{_T("A/Y speed"),			_T("A/Y速度")},					{_T("A/Y torque"),		_T("A/Yトルク")}},
+	{17,	IDC_INPUTID17,	{_T("B/X speed"),			_T("B/X速度")},					{_T("B/X torque"),		_T("B/Xトルク")}},
+	{18,	IDC_INPUTID18,	{_T("Disable mst/slv"),		_T("マスタ/スレーブ無効")},		{_T("Enable mst/slv")	_T("マスタ/スレーブ有効")}},
+	{19,	IDC_INPUTID19,	{_T("Lock break"),			_T("ブレーキ保持")},			{_T("Release break"),	_T("ブレーキ解放")}},
+	{20,	IDC_INPUTID20,	{_T("Never"),				_T("非動作")},					{_T("AxisA clear"),		_T("A軸積算クリア")}},
+	{21,	IDC_INPUTID21,	{_T("Never"),				_T("非動作")},					{_T("AxisB clear"),		_T("B軸積算クリア")}},
+	{22,	IDC_INPUTID22,	{_T("Never"),				_T("非動作")},					{_T("Reset error"),		_T("エラーリセット")}},
+	{23,	IDC_INPUTID23,	{_T(""),					_T("")},						{_T(""),				_T("")}},
+	{23,	IDC_INPUTID24,	{_T(""),					_T("")},						{_T(""),				_T("")}},
+	{23,	IDC_INPUTID25,	{_T(""),					_T("")},						{_T(""),				_T("")}},
+	{23,	IDC_INPUTID26,	{_T(""),					_T("")},						{_T(""),				_T("")}},
+	{23,	IDC_INPUTID27,	{_T(""),					_T("")},						{_T(""),				_T("")}},
+	{23,	IDC_INPUTID28,	{_T(""),					_T("")},						{_T(""),				_T("")}},
+	{23,	IDC_INPUTID29,	{_T(""),					_T("")},						{_T(""),				_T("")}},
+	{23,	IDC_INPUTID30,	{_T(""),					_T("")},						{_T(""),				_T("")}},
+	{23,	IDC_INPUTID31,	{_T(""),					_T("")},						{_T(""),				_T("")}},
+	{0,		0,				{NULL,						NULL},							{NULL,					NULL}},
 	};
 
 //制御フラグ詳細
 static IDTEXT3 g_resultid_tbl[] =	{
-	//bit	ID					offText						onText
-	{0,		IDC_RESULTID0,		{_T("ServoOFF"),			_T("サーボOFF")},			{_T("ServoON"),				_T("サーボON")}},
-	{1,		IDC_RESULTID1,		{_T("Disable order"),		_T("指令無効")},			{_T("Enable order"),		_T("指令有効")}},
-	{2,		IDC_RESULTID2,		{_T("Through"),				_T("スルー")},				{_T("Reverse"),				_T("反転")}},
-	{3,		IDC_RESULTID3,		{_T("Off"),					_T("オフ")},				{_T("On"),					_T("オン")}},
-	{4,		IDC_RESULTID4,		{_T("0"),					_T("0")},					{_T("bit0"),				_T("bit0")}},
-	{5,		IDC_RESULTID5,		{_T("0"),					_T("0")},					{_T("bit1"),				_T("bit1")}},
-	{6,		IDC_RESULTID6,		{_T("0"),					_T("0")},					{_T("bit2"),				_T("bit2")}},
-	{7,		IDC_RESULTID7,		{_T("Add"),					_T("加算")},				{_T("Sub"),					_T("減算")}},
-	{8,		IDC_RESULTID8,		{_T("ServoOFF"),			_T("サーボOFF")},			{_T("ServoON"),				_T("サーボON")}},
-	{9,		IDC_RESULTID9,		{_T("Disable order"),		_T("指令無効")},			{_T("Enable order"),		_T("指令有効")}},
-	{10,	IDC_RESULTID10,		{_T("Through"),				_T("スルー")},				{_T("Reverse"),				_T("反転")}},
-	{11,	IDC_RESULTID11,		{_T("Off"),					_T("オフ")},				{_T("On"),					_T("オン")}},
-	{12,	IDC_RESULTID12,		{_T("0"),					_T("0")},					{_T("bit0"),				_T("bit0")}},
-	{13,	IDC_RESULTID13,		{_T("0"),					_T("0")},					{_T("bit1"),				_T("bit1")}},
-	{14,	IDC_RESULTID14,		{_T("0"),					_T("0")},					{_T("bit2"),				_T("bit2")}},
-	{15,	IDC_RESULTID15,		{_T("Add"),					_T("加算")},				{_T("Sub"),					_T("減算")}},
-	{16,	IDC_RESULTID16,		{_T("Speed/[A/Y]master"),	_T("速度・A/Y軸マスタ")},	{_T("Trq/[B/X]master"),		_T("トルク/B/X軸マスタ")}},
-	{17,	IDC_RESULTID17,		{_T("Speed"),				_T("速度")},				{_T("Trq"),					_T("トルク")}},
-	{18,	IDC_RESULTID18,		{_T("Off"),					_T("オフ")},				{_T("On"),					_T("オン")}},
-	{19,	IDC_RESULTID19,		{_T("ReleaseOFF"),			_T("解放操作オフ")},		{_T("ReleaseON"),			_T("解放操作オン")}},
-	{20,	IDC_RESULTID20,		{_T(""),					_T("非動作")},				{_T("Clear"),				_T("クリア")}},
-	{21,	IDC_RESULTID21,		{_T(""),					_T("非動作")},				{_T("Clear"),				_T("クリア")}},
-	{22,	IDC_RESULTID22,		{_T(""),					_T("非動作")},				{_T("Clear"),				_T("クリア")}},
-	{23,	IDC_RESULTID23,		{_T(""),					_T("")},					{_T(""),					_T("")}},
-	{24,	IDC_RESULTID24,		{_T(""),					_T("")},					{_T(""),					_T("")}},
-	{25,	IDC_RESULTID25,		{_T("Status ServoOFF"),		_T("サーボOFF状態")},		{_T("Status ServoON"),		_T("サーボON状態")}},
-	{26,	IDC_RESULTID26,		{_T("Order=0"),				_T("指令=0")},				{_T("Moving"),				_T("駆動中")}},
-	{27,	IDC_RESULTID27,		{_T("Status ServoOFF"),		_T("サーボOFF状態")},		{_T("Status ServoON"),		_T("サーボON状態")}},
-	{28,	IDC_RESULTID28,		{_T("Order=0"),				_T("指令=0")},				{_T("Moving"),				_T("駆動中")}},
-	{29,	IDC_RESULTID29,		{_T("Axis motor"),			_T("モータ軸")},			{_T("Axis tire"),			_T("走行軸")}},
-	{30,	IDC_RESULTID30,		{_T("Enable break"),		_T("ブレーキ保持")},		{_T("Release break"),		_T("ブレーキ解放")}},
-	{31,	IDC_RESULTID31,		{_T("Normal"),				_T("異常無し")},			{_T("Abnormal"),			_T("異常有り")}},
-	{0,		0,					{NULL,						NULL},						{NULL,						NULL}},
+	//bit	ID				offText						onText
+	{0,		IDC_RESULTID0,	{_T("A.Y servoOFF"),		_T("A/YサーボOFF")},			{_T("A/Y servoON"),			_T("A/YサーボON")}},
+	{1,		IDC_RESULTID1,	{_T("A/Y stop"),			_T("A/Yストップ")},				{_T("A/Y start"),		_T("A/Yスタート")}},
+	{2,		IDC_RESULTID2,	{_T("A/Y fwd.order"),		_T("A/Y指令正転")},				{_T("A/Y rev.order"),	_T("A/Y指令反転")}},
+	{3,		IDC_RESULTID3,	{_T("A/Y adj.off"),			_T("A/Y補正加算オフ")},			{_T("A/Y adj.add"),		_T("A/Y補正加算オン")}},
+	{4,		IDC_RESULTID4,	{_T("A/Y sel0=0"),			_T("A/Y選択0=0")},				{_T("A/Y sel0=1"),		_T("A/Y選択0=1")}},
+	{5,		IDC_RESULTID5,	{_T("A/Y sel1=0"),			_T("A/Y選択1=0")},				{_T("A/Y sel1=1"),		_T("A/Y選択1=1")}},
+	{6,		IDC_RESULTID6,	{_T("A/Y sel2=0"),			_T("A/Y選択2=0")},				{_T("A/Y sel2=1"),		_T("A/Y選択2=1")}},
+	{7,		IDC_RESULTID7,	{_T("A/Y adj.add"),			_T("A/Y補正加算")},				{_T("A/Y adj.sub"),		_T("A/Y補正減算")}},
+	{8,		IDC_RESULTID8,	{_T("B/X servoOFF"),		_T("B/XサーボOFF")},			{_T("B/X servoON"),		_T("B/XサーボON")}},
+	{9,		IDC_RESULTID9,	{_T("B/X stop"),			_T("B/Xストップ")},				{_T("B/X start"),		_T("B/Xスタート")}},
+	{10,	IDC_RESULTID10,	{_T("B/X fwd.order"),		_T("B/X指令正転")},				{_T("B/X rev.order"),	_T("B/X指令反転")}},
+	{11,	IDC_RESULTID11,	{_T("B/X adj.off"),			_T("B/X補正加算オフ")},			{_T("B/X adj.add"),		_T("B/X補正加算オン")}},
+	{12,	IDC_RESULTID12,	{_T("B/X sel0=0"),			_T("B/X選択0=0")},				{_T("B/X sel0=1"),		_T("B/X選択0=1")}},
+	{13,	IDC_RESULTID13,	{_T("B/X sel1=0"),			_T("B/X選択1=0")},				{_T("B/X sel1=1"),		_T("B/X選択1=1")}},
+	{14,	IDC_RESULTID14,	{_T("B/X sel2=0"),			_T("B/X選択2=0")},				{_T("B/X sel2=1"),		_T("B/X選択2=1")}},
+	{15,	IDC_RESULTID15,	{_T("B/X adj.add"),			_T("B/X補正加算")},				{_T("B/X adj.sub"),		_T("B/X補正減算")}},
+	{16,	IDC_RESULTID16,	{_T("A/Y speed"),			_T("A/Y速度")},					{_T("A/Y torque"),		_T("A/Yトルク")}},
+	{17,	IDC_RESULTID17,	{_T("B/X speed"),			_T("B/X速度")},					{_T("B/X torque"),		_T("B/Xトルク")}},
+	{18,	IDC_RESULTID18,	{_T("Disable mst/slv"),		_T("マスタ/スレーブ無効")},		{_T("Enable mst/slv")	_T("マスタ/スレーブ有効")}},
+	{19,	IDC_RESULTID19,	{_T("Lock break"),			_T("ブレーキ保持")},			{_T("Release break"),	_T("ブレーキ解放")}},
+	{20,	IDC_RESULTID20,	{_T("Never"),				_T("非動作")},					{_T("AxisA clear"),		_T("A軸積算クリア")}},
+	{21,	IDC_RESULTID21,	{_T("Never"),				_T("非動作")},					{_T("AxisB clear"),		_T("B軸積算クリア")}},
+	{22,	IDC_RESULTID22,	{_T("Never"),				_T("非動作")},					{_T("Reset error"),		_T("エラーリセット")}},
+	{23,	IDC_RESULTID23,	{_T(""),					_T("")},						{_T(""),				_T("")}},
+	{24,	IDC_RESULTID24,	{_T(""),					_T("")},						{_T(""),				_T("")}},
+	{25,	IDC_RESULTID25,	{_T("A/Y servoOFF"),		_T("A/YサーボOFF")},			{_T("A/Y servoON"),		_T("A/YサーボON")}},
+	{26,	IDC_RESULTID26,	{_T("A/Y order=0"),			_T("A/Y指令=0")},				{_T("A/X order"),		_T("A/Y指令≠0")}},
+	{27,	IDC_RESULTID27,	{_T("B/X servoOFF"),		_T("B/XサーボOFF")},			{_T("B/X servoON"),		_T("B/XサーボON")}},
+	{28,	IDC_RESULTID28,	{_T("B/X order=0"),			_T("B/X指令=0")},				{_T("B/X order"),		_T("B/X指令≠0")}},
+	{29,	IDC_RESULTID29,	{_T("Control motor"),		_T("モータ軸制御")},			{_T("Control tire"),	_T("走行軸制御")}},
+	{30,	IDC_RESULTID30,	{_T("Lock break"),		_T("ブレーキ解除出力OFF")},			{_T("Release break"),	_T("ブレーキ解放出力ON")}},
+	{31,	IDC_RESULTID31,	{_T("Normal"),				_T("異常なし")},				{_T("Abnormal"),		_T("異常発生")}},
+	{0,		0,				{NULL,						NULL},							{NULL,					NULL}},
 	};
 
 //標準ABH3のI/Oフラグ
 static IDTEXT g_io_normal_tbl[] =	{
 	//bit	ID					{textEN						textJP}
-	{0,		IDC_IO0,			{_T("Error.out"),			_T("エラー出力")}},
-	{1,		IDC_IO1,			{_T("Alarm code0"),			_T("アラームコード0")}},
-	{2,		IDC_IO2,			{_T("Alarm code1"),			_T("アラームコード1")}},
-	{3,		IDC_IO3,			{_T("Alarm code2"),			_T("アラームコード2")}},
-	{4,		IDC_IO4,			{_T("Ready.out"),			_T("レディ出力")}},
-	{5,		IDC_IO5,			{_T("Busy.out"),			_T("ビジー出力")}},
-	{6,		IDC_IO6,			{_T("Alarm code"),			_T("アラームコード")}},
-	{7,		IDC_IO7,			{_T("Alarm.out"),			_T("アラーム出力")}},
-	{8,		IDC_IO8,			{_T("[A/Y]ServoON"),		_T("A/YサーボON")}},
-	{9,		IDC_IO9,			{_T("[A/Y]Start"),			_T("A/Yスタート")}},
-	{10,	IDC_IO10,			{_T("Break"),				_T("ブレーキ")}},
-	{11,	IDC_IO11,			{_T("[A/Y]Speed/Trq"),		_T("A/Y速度/トルク")}},
-	{12,	IDC_IO12,			{_T("[A/Y]Select.data0"),	_T("A/Yデータ選択0")}},
-	{13,	IDC_IO13,			{_T("[A/Y]Select.data1"),	_T("A/Yデータ選択1")}},
-	{14,	IDC_IO14,			{_T("[A/Y]Adjust.pol"),		_T("A/Y補正極性")}},
-	{15,	IDC_IO15,			{_T("[A/Y]Adjust.add"),		_T("A/Y補正加算")}},
-	{16,	IDC_IO16,			{_T("[A/Y]Select.data2"),	_T("A/Yデータ選択2")}},
-	{17,	IDC_IO17,			{_T("[A/Y]Order.pol"),		_T("A/Y指令極性")}},
-	{18,	IDC_IO18,			{_T("[B/X]ServoON"),		_T("B/XサーボON")}},
-	{19,	IDC_IO19,			{_T("[B/X]Start"),			_T("B/Xスタート")}},
-	{20,	IDC_IO20,			{_T("Master/Slave"),		_T("マスタ/スレーブ")}},
-	{21,	IDC_IO21,			{_T("[B/X]Speed/Trq"),		_T("B/X速度/トルク")}},
-	{22,	IDC_IO22,			{_T("[B/X]Select.data0"),	_T("B/Xデータ選択0")}},
-	{23,	IDC_IO23,			{_T("[B/X]Select.data1"),	_T("B/Xデータ選択1")}},
-	{24,	IDC_IO24,			{_T("[B/X]Adjust.pol"),		_T("B/X補正極性")}},
-	{25,	IDC_IO25,			{_T("[B/X]Adjust.add"),		_T("B/X補正加算")}},
-	{26,	IDC_IO26,			{_T("[B/X]Select.data2"),	_T("B/Xデータ選択2")}},
-	{27,	IDC_IO27,			{_T("[B/X]Order.pol"),		_T("B/X指令極性")}},
+	{0,		IDC_IO0,			{_T("Output #0"),			_T("汎用出力 #0")}},
+	{1,		IDC_IO1,			{_T("Output #1"),			_T("汎用出力 #1")}},
+	{2,		IDC_IO2,			{_T("Output #2"),			_T("汎用出力 #2")}},
+	{3,		IDC_IO3,			{_T("Output #3"),			_T("汎用出力 #3")}},
+	{4,		IDC_IO4,			{_T("Output #4"),			_T("汎用出力 #4")}},
+	{5,		IDC_IO5,			{_T("Output #5"),			_T("汎用出力 #5")}},
+	{6,		IDC_IO6,			{_T("Output #6"),			_T("汎用出力 #6")}},
+	{7,		IDC_IO7,			{_T("Output #7"),			_T("汎用出力 #7")}},
+	{8,		IDC_IO8,			{_T("Input #0"),			_T("汎用入力 #0")}},
+	{9,		IDC_IO9,			{_T("Input #1"),			_T("汎用入力 #1")}},
+	{10,	IDC_IO10,			{_T("Input #2"),			_T("汎用入力 #2")}},
+	{11,	IDC_IO11,			{_T("Input #3"),			_T("汎用入力 #3")}},
+	{12,	IDC_IO12,			{_T("Input #4"),			_T("汎用入力 #4")}},
+	{13,	IDC_IO13,			{_T("Input #5"),			_T("汎用入力 #5")}},
+	{14,	IDC_IO14,			{_T("Input #6"),			_T("汎用入力 #6")}},
+	{15,	IDC_IO15,			{_T("Input #7"),			_T("汎用入力 #7")}},
+	{16,	IDC_IO16,			{_T("Input #8"),			_T("汎用入力 #8")}},
+	{17,	IDC_IO17,			{_T("Input #9"),			_T("汎用入力 #9")}},
+	{18,	IDC_IO18,			{_T("Input #10"),			_T("汎用入力 #0")}},
+	{19,	IDC_IO19,			{_T("Input #11"),			_T("汎用入力 #1")}},
+	{20,	IDC_IO20,			{_T("Input #12"),			_T("汎用入力 #2")}},
+	{21,	IDC_IO21,			{_T("Input #13"),			_T("汎用入力 #3")}},
+	{22,	IDC_IO22,			{_T("Input #14"),			_T("汎用入力 #4")}},
+	{23,	IDC_IO23,			{_T("Input #15"),			_T("汎用入力 #5")}},
+	{24,	IDC_IO24,			{_T("Input #16"),			_T("汎用入力 #6")}},
+	{25,	IDC_IO25,			{_T("Input #17"),			_T("汎用入力 #7")}},
+	{26,	IDC_IO26,			{_T("Input #18"),			_T("汎用入力 #8")}},
+	{27,	IDC_IO27,			{_T("Input #19"),			_T("汎用入力 #9")}},
 	{28,	IDC_IO28,			{_T(""),					_T("")}},
 	{29,	IDC_IO29,			{_T(""),					_T("")}},
 	{30,	IDC_IO30,			{_T(""),					_T("")}},
-	{31,	IDC_IO31,			{_T("エラーリセット入力"),	_T("エラーリセット入力")}},
+	{31,	IDC_IO31,			{_T("Input reset-error"),	_T("エラーリセット入力")}},
 	{0,		0,					{NULL,						NULL}},
 	};
 
 //小型ABH3のI/Oフラグ
 static IDTEXT g_io_small_tbl[] =	{
 	//bit	ID					text
-	{0,		IDC_IO0,			_T("Error.out"),			_T("エラー出力")},
-	{1,		IDC_IO1,			_T("Alarm.out"),			_T("アラーム出力")},
-	{2,		IDC_IO2,			_T("Ready.out"),			_T("レディ出力")},
-	{3,		IDC_IO3,			_T("Busy.out"),				_T("ビジー出力")},
-	{4,		IDC_IO4,			_T(""),						_T("")},
-	{5,		IDC_IO5,			_T(""),						_T("")},
-	{6,		IDC_IO6,			_T(""),						_T("")},
-	{7,		IDC_IO7,			_T(""),						_T("")},
-	{8,		IDC_IO8,			_T("[A/Y]ServoON"),			_T("A/YサーボON")},
-	{9,		IDC_IO9,			_T("[A/Y]Start"),			_T("A/Yスタート")},
-	{10,	IDC_IO10,			_T("[A/Y]Order.pol"),		_T("A/Y指令極性")},
-	{11,	IDC_IO11,			_T("[B/X]ServoON"),			_T("B/XサーボON")},
-	{12,	IDC_IO12,			_T("[B/X]Start"),			_T("B/Xスタート")},
-	{13,	IDC_IO13,			_T("[B/X]Order.pol"),		_T("B/X指令極性")},
-	{14,	IDC_IO14,			_T("Select.data0"),			_T("データ選択0")},
-	{15,	IDC_IO15,			_T("Select.data1"),			_T("データ選択1")},
-	{16,	IDC_IO16,			_T("Select.data2"),			_T("データ選択2")},
-	{17,	IDC_IO17,			_T("Break"),				_T("ブレーキ")},
-	{18,	IDC_IO18,			_T(""),						_T("")},
-	{19,	IDC_IO19,			_T(""),						_T("")},
-	{20,	IDC_IO20,			_T(""),						_T("")},
-	{21,	IDC_IO21,			_T(""),						_T("")},
-	{22,	IDC_IO22,			_T(""),						_T("")},
-	{23,	IDC_IO23,			_T(""),						_T("")},
-	{24,	IDC_IO24,			_T(""),						_T("")},
-	{25,	IDC_IO25,			_T(""),						_T("")},
-	{26,	IDC_IO26,			_T(""),						_T("")},
-	{27,	IDC_IO27,			_T(""),						_T("")},
-	{28,	IDC_IO28,			_T(""),						_T("")},
-	{29,	IDC_IO29,			_T(""),						_T("")},
-	{30,	IDC_IO30,			_T(""),						_T("")},
-	{31,	IDC_IO31,			_T("Reset.err"),			_T("エラーリセット入力")},
-	{0,		0,					NULL,						NULL},
+	{0,		IDC_IO0,			{_T("Output #0"),			_T("汎用出力 #0")}},
+	{1,		IDC_IO1,			{_T("Output #1"),			_T("汎用出力 #1")}},
+	{2,		IDC_IO2,			{_T("Output #2"),			_T("汎用出力 #2")}},
+	{3,		IDC_IO3,			{_T("Output #3"),			_T("汎用出力 #3")}},
+	{4,		IDC_IO4,			{_T(""),					_T("")}},
+	{5,		IDC_IO5,			{_T(""),					_T("")}},
+	{6,		IDC_IO6,			{_T(""),					_T("")}},
+	{7,		IDC_IO7,			{_T(""),					_T("")}},
+	{8,		IDC_IO8,			{_T("Input #0"),			_T("汎用入力 #0")}},
+	{9,		IDC_IO9,			{_T("Input #1"),			_T("汎用入力 #1")}},
+	{10,	IDC_IO10,			{_T("Input #2"),			_T("汎用入力 #2")}},
+	{11,	IDC_IO11,			{_T("Input #3"),			_T("汎用入力 #3")}},
+	{12,	IDC_IO12,			{_T("Input #4"),			_T("汎用入力 #4")}},
+	{13,	IDC_IO13,			{_T("Input #5"),			_T("汎用入力 #5")}},
+	{14,	IDC_IO14,			{_T("Input #6"),			_T("汎用入力 #6")}},
+	{15,	IDC_IO15,			{_T("Input #7"),			_T("汎用入力 #7")}},
+	{16,	IDC_IO16,			{_T("Input #8"),			_T("汎用入力 #8")}},
+	{17,	IDC_IO17,			{_T("Input #9"),			_T("汎用入力 #9")}},
+	{18,	IDC_IO18,			{_T(""),					_T("")}},
+	{19,	IDC_IO19,			{_T(""),					_T("")}},
+	{20,	IDC_IO20,			{_T(""),					_T("")}},
+	{21,	IDC_IO21,			{_T(""),					_T("")}},
+	{22,	IDC_IO22,			{_T(""),					_T("")}},
+	{23,	IDC_IO23,			{_T(""),					_T("")}},
+	{24,	IDC_IO24,			{_T(""),					_T("")}},
+	{25,	IDC_IO25,			{_T(""),					_T("")}},
+	{26,	IDC_IO26,			{_T(""),					_T("")}},
+	{27,	IDC_IO27,			{_T(""),					_T("")}},
+	{28,	IDC_IO28,			{_T(""),					_T("")}},
+	{29,	IDC_IO29,			{_T(""),					_T("")}},
+	{30,	IDC_IO30,			{_T(""),					_T("")}},
+	{31,	IDC_IO31,			{_T(""),					_T("")}},
+	{0,		0,					{NULL,						NULL}},
 	};
 
 //警告とエラー
-static IDTEXT2 g_warnerr_tbl[] =	{
-	//bit	warnID			{warntextEN					warnTextJP}					errID					{errtextEN				errTextJP}
-	{0,		IDC_WARN_BIT0,	{_T(""),					_T("")},					IDC_ERR_BIT0,		{_T("AxisA Lock.mecha"),	_T("A軸 メカロック")}},
-	{1,		IDC_WARN_BIT1,	{_T(""),					_T("")},					IDC_ERR_BIT1,		{_T("AxisB Lock.mecha"),	_T("B軸 メカロック")}},
-	{2,		IDC_WARN_BIT2,	{_T(""),					_T("")},					IDC_ERR_BIT2,		{_T("Overheat"),			_T("ドライバ過熱")}},
-	{3,		IDC_WARN_BIT3,	{_T(""),					_T("")},					IDC_ERR_BIT3,		{_T("Abnormal break"),		_T("ブレーキ異常")}},
-	{4,		IDC_WARN_BIT4,	{_T(""),					_T("")},					IDC_ERR_BIT4,		{_T("AxisA resolver"),		_T("A軸 レゾルバ")}},
-	{5,		IDC_WARN_BIT5,	{_T(""),					_T("")},					IDC_ERR_BIT5,		{_T("AxisB resolver"),		_T("B軸 レゾルバ")}},
-	{6,		IDC_WARN_BIT6,	{_T(""),					_T("")},					IDC_ERR_BIT6,		{_T("AxisA Over current"),	_T("A軸 過電流")}},
-	{7,		IDC_WARN_BIT7,	{_T(""),					_T("")},					IDC_ERR_BIT7,		{_T("AxisB Over current"),	_T("B軸 過電流")}},
-	{8,		IDC_WARN_BIT8,	{_T(""),					_T("")},					IDC_ERR_BIT8,		{_T("Lower power.control"),	_T("制御電源 電圧低下")}},
-	{9,		IDC_WARN_BIT9,	{_T(""),					_T("")},					IDC_ERR_BIT9,		{_T("Abnormal parameter"),	_T("パラメータ")}},
-	{10,	IDC_WARN_BIT10,	{_T(""),					_T("")},					IDC_ERR_BIT10,		{_T("AxisA PDU"),			_T("A軸 PDU")}},
-	{11,	IDC_WARN_BIT11,	{_T(""),					_T("")},					IDC_ERR_BIT11,		{_T("AxisB PDU"),			_T("B軸 PDU")}},
-	{12,	IDC_WARN_BIT12,	{_T("AxisA SoftThermal"),	_T("A軸 電子サーマル")},	IDC_ERR_BIT12,		{_T("AxisA SoftThermal"),	_T("A軸 電子サーマル")}},
-	{13,	IDC_WARN_BIT13,	{_T("AxisB SoftThermal"),	_T("B軸 電子サーマル")},	IDC_ERR_BIT13,		{_T("AxisB SoftThermal"),	_T("B軸 電子サーマル")}},
-	{14,	IDC_WARN_BIT14,	{_T("Lower power.main"),	_T("主電源 電圧低下")},		IDC_ERR_BIT14,		{_T(""),					_T("")}},
-	{15,	IDC_WARN_BIT15,	{_T(""),					_T("")},					IDC_ERR_BIT15,		{_T("Over power"),			_T("電源 過電圧")}},
-	{16,	IDC_WARN_BIT16,	{_T(""),					_T("")},					IDC_ERR_BIT16,		{_T("AxisA Over accurate"),	_T("A軸 過速度")}},
-	{17,	IDC_WARN_BIT17,	{_T(""),					_T("")},					IDC_ERR_BIT17,		{_T("AxisB Over accurate"),	_T("B軸 過速度")}},
-	{18,	IDC_WARN_BIT18,	{_T("AxisA Limit speed"),	_T("A軸 速度リミット")},	IDC_ERR_BIT18,		{_T(""),					_T("")}},
-	{19,	IDC_WARN_BIT19,	{_T("AxisB Limit speed"),	_T("B軸 速度リミット")},	IDC_ERR_BIT19,		{_T(""),					_T("")}},
-	{20,	IDC_WARN_BIT20,	{_T("AxisA Limit current"),	_T("A軸 電流リミット")},	IDC_ERR_BIT20,		{_T(""),					_T("")}},
-	{21,	IDC_WARN_BIT21,	{_T("AxisB Limit current"),	_T("B軸 電流リミット")},	IDC_ERR_BIT21,		{_T(""),					_T("")}},
-	{22,	IDC_WARN_BIT22,	{_T("Timeout.comm"),		_T("通信タイムアウト")},	IDC_ERR_BIT22,		{_T("Timeout.comm"),		_T("通信タイムアウト")}},
-	{23,	IDC_WARN_BIT23,	{_T(""),					_T("")},					IDC_ERR_BIT23,		{_T("Over comminucation"),	_T("通信トラフィック過大")}},
-	{24,	IDC_WARN_BIT24,	{_T(""),					_T("")},					IDC_ERR_BIT24,		{_T(""),					_T("")}},
-	{25,	IDC_WARN_BIT25,	{_T(""),					_T("")},					IDC_ERR_BIT25,		{_T(""),					_T("")}},
-	{26,	IDC_WARN_BIT26,	{_T(""),					_T("")},					IDC_ERR_BIT26,		{_T(""),					_T("")}},
-	{27,	IDC_WARN_BIT27,	{_T(""),					_T("")},					IDC_ERR_BIT27,		{_T(""),					_T("")}},
-	{28,	IDC_WARN_BIT28,	{_T("Code.Alarm0"),			_T("アラームコード0")},		IDC_ERR_BIT28,		{_T("Code Error0"),			_T("エラーコード0")}},
-	{29,	IDC_WARN_BIT29,	{_T("Code.Alarm1"),			_T("アラームコード1")},		IDC_ERR_BIT29,		{_T("Code Error1"),			_T("エラーコード1")}},
-	{30,	IDC_WARN_BIT30,	{_T("Code.Alarm2"),			_T("アラームコード2")},		IDC_ERR_BIT30,		{_T("Code Error2"),			_T("エラーコード2")}},
-	{31,	IDC_WARN_BIT31,	{_T("Code.Alarm3"),			_T("アラームコード3")},		IDC_ERR_BIT31,		{_T("Code Error3"),			_T("エラーコード3")}},
-	{0,		0,				{NULL,						NULL},						0,					{NULL,						NULL}},
+static IDTEXT1 g_warnerr_tbl[] = {
+	//ID					{textEN						textJP}
+	{IDC_TITLE_WARNERR0,	{_T("AxisA Lock.mecha"),	_T("A軸 メカロック")}},
+	{IDC_TITLE_WARNERR1,	{_T("AxisB Lock.mecha"),	_T("B軸 メカロック")}},
+	{IDC_TITLE_WARNERR2,	{_T("Overheat"),			_T("ドライバ過熱")}},
+	{IDC_TITLE_WARNERR3,	{_T("Abnormal break"),		_T("ブレーキ異常")}},
+	{IDC_TITLE_WARNERR4,	{_T("AxisA resolver"),		_T("A軸 レゾルバ")}},
+	{IDC_TITLE_WARNERR5,	{_T("AxisB resolver"),		_T("B軸 レゾルバ")}},
+	{IDC_TITLE_WARNERR6,	{_T("AxisA Over current"),	_T("A軸 過電流")}},
+	{IDC_TITLE_WARNERR7,	{_T("AxisB Over current"),	_T("B軸 過電流")}},
+	{IDC_TITLE_WARNERR8,	{_T("Lower power.control"),	_T("制御電源 電圧低下")}},
+	{IDC_TITLE_WARNERR9,	{_T("Abnormal parameter"),	_T("パラメータ")}},
+	{IDC_TITLE_WARNERR10,	{_T("AxisA PDU"),			_T("A軸 PDU")}},
+	{IDC_TITLE_WARNERR11,	{_T("AxisB PDU"),			_T("B軸 PDU")}},
+	{IDC_TITLE_WARNERR12,	{_T("AxisA SoftThermal"),	_T("A軸 電子サーマル")}},
+	{IDC_TITLE_WARNERR13,	{_T("AxisB SoftThermal"),	_T("B軸 電子サーマル")}},
+	{IDC_TITLE_WARNERR14,	{_T("Lower power.main"),	_T("主電源 電圧低下")}},
+	{IDC_TITLE_WARNERR15,	{_T("Over power"),			_T("制/主電源過電圧")}},
+	{IDC_TITLE_WARNERR16,	{_T("AxisA Over accurate"),	_T("A軸 過速度")}},
+	{IDC_TITLE_WARNERR17,	{_T("AxisB Over accurate"),	_T("B軸 過速度")}},
+	{IDC_TITLE_WARNERR18,	{_T("AxisA Limit speed"),	_T("A軸 速度リミット")}},
+	{IDC_TITLE_WARNERR19,	{_T("AxisB Limit speed"),	_T("B軸 速度リミット")}},
+	{IDC_TITLE_WARNERR20,	{_T("AxisA Limit current"),	_T("A軸 電流リミット")}},
+	{IDC_TITLE_WARNERR21,	{_T("AxisB Limit current"),	_T("B軸 電流リミット")}},
+	{IDC_TITLE_WARNERR22,	{_T("Timeout.comm"),		_T("CAN通信タイムアウト")}},
+	{IDC_TITLE_WARNERR23,	{_T("Over comminucation"),	_T("CAN通信トラフィック過大")}},
+	{IDC_TITLE_WARNERR24,	{_T(""),					_T("")}},
+	{IDC_TITLE_WARNERR25,	{_T(""),					_T("")}},
+	{IDC_TITLE_WARNERR26,	{_T(""),					_T("")}},
+	{IDC_TITLE_WARNERR27,	{_T(""),					_T("")}},
+	{IDC_TITLE_WARNERR28,	{_T(""),					_T("")}},
+	{IDC_TITLE_WARNERR29,	{_T(""),					_T("")}},
+	{IDC_TITLE_WARNERR30,	{_T(""),					_T("")}},
+	{IDC_TITLE_WARNERR31,	{_T(""),					_T("")}},
+	{0,						{NULL,						NULL}},
+	};
+
+//ハートビート関連文字列
+static LANGTEXT g_heartbeat_text[] = {
+	//textEN			textJP
+	{_T("Receiving"),	_T("受信中")},
+	{_T("No received"),	_T("受信無し")},
+	{NULL,				NULL},
+	};
+
+static LANGTEXT g_status_text[] = {
+	//textEN			textJP
+	{_T("Normal operation."),			_T("正常動作中")},
+	{_T("Detected error of interface."),_T("インターフェースのエラーを検出中")},
+	{NULL,				NULL},
 	};
 
 //
@@ -435,17 +394,13 @@ BEGIN_MESSAGE_MAP(CguicanABH3View,CFormView)
 	ON_CONTROL_RANGE(EN_CHANGE,IDC_EDIT0,IDC_EDIT1,&CguicanABH3View::OnEnChangeEdit)
 	ON_COMMAND_RANGE(IDC_OFF_CTRLID0,IDC_OFF_CTRLID22,&CguicanABH3View::OnBnClickedOffCtrlid)
 	ON_COMMAND_RANGE(IDC_ON_CTRLID0,IDC_ON_CTRLID22,&CguicanABH3View::OnBnClickedOnCtrlid)
-	ON_COMMAND(IDC_ENABLE_CYCLE,&CguicanABH3View::OnEnableCycle)
-	ON_COMMAND(IDC_DISABLE_CYCLE,&CguicanABH3View::OnDisableCycle)
+	ON_COMMAND_RANGE(IDC_ORDER1,IDC_ORDER2,&CguicanABH3View::OnBnClickedOrder)
 	ON_WM_DESTROY()
-	ON_BN_CLICKED(IDC_REQUESTDP0R,&CguicanABH3View::OnBnClickedRequestItem)
-	ON_BN_CLICKED(IDC_REQUESTBR0,&CguicanABH3View::OnBnClickedRequestItem)
-	ON_BN_CLICKED(IDC_REQUESTBR1,&CguicanABH3View::OnBnClickedRequestItem)
-	ON_BN_CLICKED(IDC_REQUESTBR2,&CguicanABH3View::OnBnClickedRequestItem)
-	ON_BN_CLICKED(IDC_REQUESTBR3,&CguicanABH3View::OnBnClickedRequestItem)
-	ON_BN_CLICKED(IDC_REQUESTBR4,&CguicanABH3View::OnBnClickedRequestItem)
-	ON_BN_CLICKED(IDC_REQUESTBR5,&CguicanABH3View::OnBnClickedRequestItem)
-	ON_BN_CLICKED(IDC_REQUESTBR6,&CguicanABH3View::OnBnClickedRequestItem)
+	ON_COMMAND_RANGE(IDC_REQUESTDP0R,IDC_REQUESTBR6,&CguicanABH3View::OnBnClickedRequestTarget)
+	ON_COMMAND_RANGE(IDC_OFF_INTERVAL,IDC_ON_INTERVAL,&CguicanABH3View::OnBnClickedInterval)
+	ON_EN_CHANGE(IDC_INTERVAL,&CguicanABH3View::OnEnChangeInterval)
+	ON_UPDATE_COMMAND_UI(IDC_ON_INTERVAL,&CguicanABH3View::OnUpdateOnInterval)
+	ON_UPDATE_COMMAND_UI(IDC_OFF_INTERVAL,&CguicanABH3View::OnUpdateOffInterval)
 END_MESSAGE_MAP()
 
 //コンストラクタ
@@ -488,13 +443,27 @@ void CguicanABH3View::DoDataExchange(CDataExchange* pDX)
 	{
 	CFormView::DoDataExchange(pDX);
 
-	//ID
-	DDX_Control(pDX,IDC_TITLE_ID,m_id);
-	//FPS
-	DDX_Control(pDX,IDC_FPS,m_fps);
+	//ハートビート関連
+	int nLoop = 0;
+	pIDTEXT5 pItem5 = g_request_tbl;
+	while(pItem5->nUid)
+		{
+		DDX_Control(pDX,pItem5->nUid,m_status[nLoop++]);
+		++pItem5;
+		}
+
 	//指令
 	DDX_Control(pDX,IDC_EDIT0,m_edit[0]);
 	DDX_Control(pDX,IDC_EDIT1,m_edit[1]);
+
+	//
+	DDX_Control(pDX,IDC_TITLE_ORDER,m_order_title);
+	DDX_Control(pDX,IDC_ORDER1,m_order_value[0]);
+	DDX_Control(pDX,IDC_ORDER2,m_order_value[1]);
+	DDX_Control(pDX,IDC_INTERVAL,m_interval);
+	DDX_Control(pDX,IDC_OFF_INTERVAL,m_interval_btn[0]);
+	DDX_Control(pDX,IDC_ON_INTERVAL,m_interval_btn[1]);
+
 	//32項目系
 	IDTEXT item;
 	IDTEXT2 item2;
@@ -513,18 +482,15 @@ void CguicanABH3View::DoDataExchange(CDataExchange* pDX)
 		else
 			item = g_io_small_tbl[nLoop];
 		DDX_Control(pDX,item.nUid,m_io_bit[nLoop]);
-		//警告とエラー
-		item2 = g_warnerr_tbl[nLoop];
-		DDX_Control(pDX,item2.nOffUid,m_warn_bit[nLoop]);
-		DDX_Control(pDX,item2.nOnUid,m_err_bit[nLoop]);
 		//操作フラグ
 		item2 = g_ctrlid_ctrl[nLoop];
 		DDX_Control(pDX,item2.nOffUid,m_ctrl_off_bit[nLoop]);
 		DDX_Control(pDX,item2.nOnUid,m_ctrl_on_bit[nLoop]);
 		}
+
 	}
 
-//
+//ウィンドウ作成時に呼び出されます
 BOOL CguicanABH3View::PreCreateWindow(CREATESTRUCT& cs)
 	{
 	// TODO: この位置で CREATESTRUCT cs を修正して Window クラスまたはスタイルを
@@ -539,221 +505,363 @@ void CguicanABH3View::OnInitialUpdate()
 	CFormView::OnInitialUpdate();
 	ResizeParentToFit();
 
+	//画面構築
+	CreateScreen();
+
+	//設定の復帰
+	reg2disp();
+
+	//タイマー割り込み
+	m_var.nTimerNum = SetTimer(theApp.GetTimerNum(),100,NULL);	//表示は固定周期100ms
+	m_var.n1sec = SetTimer(theApp.GetTimerNum(),1000,NULL);		//その他の周期は1000ms
+
+	//非同期送信用スレッド
+	m_var.thread.hThread = (HANDLE)_beginthreadex(NULL,0,CguicanABH3View::SendThread,this,0,&m_var.thread.nUid);
+	}
+
+
+//================================================================================
+//ハートビート関連（受信の有無判断）
+//================================================================================
+
+//指定番号のハートビートが有りました
+void CguicanABH3View::UpHeartBeat(int nNum)
+	{
+	if(nNum < QTY_HEARTBEAT)
+		{
+		//前の値
+		uint8_t nOld = m_var.heartbeat.lifeTime[nNum];
+
+		//新しい寿命を設定
+		m_var.heartbeat.lifeTime[nNum] = 10;
+
+		//前の値が0だった？
+		if(nOld == 0)
+			{
+			//表示文字を設定し、再描画させる
+			CStatic* pStatic = (CStatic*)GetDlgItem(g_request_tbl[nNum].nSubUid);
+			pStatic->SetWindowText(theApp.GetLangText(&g_heartbeat_text[0]));
+			pStatic->Invalidate();
+			}
+		}
+
+	m_var.heartbeat.lifeTime[nNum] = 10;
+	}
+
+//全体のハートビートカウンタを減らします
+void CguicanABH3View::DownHeartBeat()
+	{
+	for(int nNum = 0;nNum < QTY_HEARTBEAT;nNum++)
+		{
+		uint8_t nOld = m_var.heartbeat.lifeTime[nNum];
+		if(nOld)
+			{
+			--nOld;
+			if(nOld == 0)
+				{
+				//再描画させる
+				CStatic* pStatic = (CStatic*)GetDlgItem(g_request_tbl[nNum].nSubUid);
+				pStatic->SetWindowText(theApp.GetLangText(&g_heartbeat_text[1]));
+				pStatic->Invalidate();
+				}
+			m_var.heartbeat.lifeTime[nNum] = nOld;
+			}
+		}
+	}
+
+//================================================================================
+//画面構築関連
+//================================================================================
+
+//画面構築
+void CguicanABH3View::CreateScreen()
+	{
+	//自分のID
+	uint8_t nID = GetDocument()->GetID();
+
 	//ダイアログアイテムの再配置（間隔を一定にする為）
-	ArrangementItem();
+	ArrangeScreenItem();
 
-	//シートタブ名とフォーム左上のタイトルを更新
-	UpdateTitle();
+	//ウィンドウタブとシートのタイトル更新
+	UpdateWindowTitle();
+	UpdateSheetInfo();
 
-	//指令入力箇所の設定（変更時に白文字赤背景、初期値"0.0"）
+	//汎用アイテムの文字列設定
+	SetTextTbl(g_anyitem_tbl);
+
+	//周期設定入力箇所の設定（変更時に白文字赤背景、初期値"100"）
+	m_interval.SetChangeColor(true,COLOR_WHITE,COLOR_RED);
+	RestoreInterval();
+
+	//m_interval.SetWindowText(_T("100"));
+	//m_var.thread.nIntervalMS = 100;
+
+	//送信停止/送信開始ボタンを送信停止に設定
+	CtrlButtonInterval(false);
+
+	//指令選択のボタンを速度に設定
+	CtrlButtonOrder(true);
+
+	//指令入力箇所の設定（変更時に白文字赤背景、初期値"0"）
 	for(int nLoop = 0;nLoop < 2;nLoop++)
 		{
 		m_edit[nLoop].SetChangeColor(true,COLOR_WHITE,COLOR_RED);
-		m_edit[nLoop].SetWindowText(_T("0.0"));
+		m_edit[nLoop].SetWindowText(_T("0"));
 		}
 
-	//ダイアログアイテムに文字列設定
-	SetTextTbl(g_anyitem_tbl);
+	//送信対象のチェックボックスに文字列設定し、チェック無しに設定
 	SetTextTbl(g_request_tbl);
+	SetButtonTbl(g_request_tbl,false);
+
+	//数値表示項目のタイトルに文字列設定
 	SetTextTbl(g_valueid_tbl);
-	SetTextTbl(g_ctrlid_title);
+
+	//操作フラグのボタンに文字列設定し、ボタンをOFF側に設定
 	SetTextTbl(g_ctrlid_ctrl);
+	SetButtonTbl(g_ctrlid_ctrl,false);
+
+	//I/Oフラグの表示領域に文字列設定
 	if(theConfig.getABH3type(GetDocument()->GetID()) == 0)
 		SetTextTbl(g_io_normal_tbl);	//標準タイプ
 	else
 		SetTextTbl(g_io_small_tbl);		//小型タイプ
+
+	//警告/異常のタイトル領域に文字列設定
 	SetTextTbl(g_warnerr_tbl);
-
-	//ボタンの初期値
-	SetButtonTbl(g_request_tbl,false);
-	SetButtonTbl(g_ctrlid_ctrl,false);
-
-	//周期転送の復帰
-	RestoreSendButton(GetDocument()->GetID());
-
-	//データ表示更新
-	UpdateView(true);
-
-	//タイマー割り込み
-	uint32_t nInterval = theConfig.getInterval();
-	m_var.nTimerNum = SetTimer(theApp.GetTimerNum(),nInterval,NULL);
-	m_var.n1sec = SetTimer(theApp.GetTimerNum(),1000,NULL);
-
-	//非同期送信スレッド
-	m_var.thread.hThread = (HANDLE)_beginthreadex(NULL,0,CguicanABH3View::SendThread,this,0,&m_var.thread.nUid);
 	}
 
-//ダイアログアイテムの色制御時に呼び出されます
-HBRUSH CguicanABH3View::OnCtlColor(CDC* pDC,CWnd* pWnd,UINT nCtlColor)
+//画面アイテムの再配置と表示
+void CguicanABH3View::ArrangeScreenItem()
 	{
-	bool bDraw = false;
-	COLORREF nTextColor = COLOR_BLACK;
-	COLORREF nBackColor = COLOR_WHITE;
+	CRect baseRect,itemRect,moveRect,tmpRect1,tmpRect2;
+	CSize baseSize,btnSize;
+	GetDlgItem(IDC_TITLE_INTERVAL)->GetWindowRect(baseRect);
+	baseSize.cx = baseRect.Width();
+	baseSize.cy = baseRect.Height();
 
-	//色付け対象か？
-	if(DrawCheck(pWnd,nTextColor,nBackColor))
+	GetDlgItem(IDC_OFF_CTRLID0)->GetWindowRect(itemRect);
+	btnSize.cx = baseSize.cx;
+	btnSize.cy = itemRect.Height();
+
+	int nSepa = baseRect.Height() / 4;				//セパレータ距離
+	int nSepa2 = (nSepa * 2);
+	int nSepa4 = (nSepa * 4);
+	int nHeightStep = baseRect.Height() + nSepa;	//1行の高さ
+
+	//配置位置の計算
+	int posX[10],posY[64];
+	posX[0] = nSepa;
+	posX[1] = posX[0] + baseSize.cx + nSepa;
+	posX[2] = posX[1] + baseSize.cx + (nSepa * 2);
+	posX[3] = posX[2] + baseSize.cx;
+	posX[4] = posX[3] + baseSize.cx + (nSepa * 2);
+	posX[5] = posX[4] + baseSize.cx + (nSepa * 4);
+	posX[6] = posX[5] + baseSize.cx + nSepa;
+	posX[7] = posX[6] + baseSize.cx + (nSepa * 4);
+	posX[8] = posX[7] + ((baseSize.cx * 2) * 70 / 100);
+	posX[9] = posX[8] + ((baseSize.cx * 2) * 15 / 100);
+	posY[0] = nSepa;
+	posY[1] = posY[0] + baseSize.cy + (nSepa * 2);
+	for(int nLoop = 2;nLoop < 64;nLoop++)
+		posY[nLoop] = posY[nLoop - 1] + baseSize.cy;
+	int nLen1 = posX[8] - posX[7];	//異常/警告タイトルの幅
+	int nLen2 = posX[9] - posX[8];	//異常/警告表示部の幅
+
+	//========================================
+	//最上段（送信周期・送信ボタン）
+	//========================================
+	MoveItem(IDC_TITLE_INTERVAL,CPoint(posX[0],posY[0]),baseSize);
+	MoveItem(IDC_INTERVAL,CPoint(posX[1],posY[0]),baseSize);
+	MoveItem(IDC_OFF_INTERVAL,CPoint(posX[2],posY[0]),baseSize);
+	MoveItem(IDC_ON_INTERVAL,CPoint(posX[3],posY[0]),baseSize);
+	MoveItem(IDC_INFO,CPoint(posX[7],posY[0]),CSize(nLen1 + nLen2 + nLen2,baseSize.cy));
+	MoveItem(IDC_INFO2,CPoint(posX[4],posY[0]),CSize(posX[7] - posX[4] - nSepa4,baseSize.cy));
+
+	//========================================
+	//カラム0（指令と数値表示）
+	//========================================
+	//開始行
+	int nRow = 1;
+	//DP0R:チェックボックスとステータス表示
+	MoveItem(IDC_REQUESTDP0R,CPoint(posX[0],posY[nRow]),baseSize);
+	MoveItem(IDC_STATUSDP0R,CPoint(posX[1],posY[nRow++]),CSize(posX[5] - posX[1] - nSepa4,baseSize.cy));
+	//指令モードと選択肢及び指令と帰還
+	MoveItem(IDC_TITLE_ORDER,CPoint(posX[0],posY[nRow]),CSize(baseSize.cx,baseSize.cy * 2));
+	MoveItem(IDC_ORDER1,CPoint(posX[1],posY[nRow++]),baseSize);
+	MoveItem(IDC_ORDER2,CPoint(posX[1],posY[nRow++]),baseSize);
+	MoveItem(IDC_TITLE_A,CPoint(posX[0],posY[nRow]),baseSize);
+	MoveItem(IDC_EDIT0,CPoint(posX[1],posY[nRow++]),baseSize);
+	MoveItem(IDC_TITLE_B,CPoint(posX[0],posY[nRow]),baseSize);
+	MoveItem(IDC_EDIT1,CPoint(posX[1],posY[nRow++]),baseSize);
+	MoveItem(IDC_TITLE_VALUE0,CPoint(posX[0],posY[nRow]),baseSize);
+	MoveItem(IDC_VALUE0,CPoint(posX[1],posY[nRow++]),baseSize);
+	MoveItem(IDC_TITLE_VALUE1,CPoint(posX[0],posY[nRow]),baseSize);
+	MoveItem(IDC_VALUE1,CPoint(posX[1],posY[nRow++]),baseSize);
+	++nRow;
+	//BR2:チェックボックスとステータス表示
+	MoveItem(IDC_REQUESTBR2,CPoint(posX[0],posY[nRow]),baseSize);
+	MoveItem(IDC_STATUSBR2,CPoint(posX[1],posY[nRow++]),baseSize);
+	//BR2:4項目表示
+	for(int nLoop = 0;nLoop < 4;nLoop++)
 		{
-		//
-		m_brush.DeleteObject();
-		m_brush.CreateSolidBrush(nBackColor);
-		pDC->SetBkMode(TRANSPARENT);
-		pDC->SetBkColor(nBackColor);
-		pDC->SetTextColor(nTextColor);
-		return(m_brush);
+		MoveItem(IDC_TITLE_VALUE2 + nLoop,CPoint(posX[0],posY[nRow]),baseSize);
+		MoveItem(IDC_VALUE2 + nLoop,CPoint(posX[1],posY[nRow++]),baseSize);
+		}
+	++nRow;
+	//BR3:チェックボックスとステータス表示
+	MoveItem(IDC_REQUESTBR3,CPoint(posX[0],posY[nRow]),baseSize);
+	MoveItem(IDC_STATUSBR3,CPoint(posX[1],posY[nRow++]),baseSize);
+	//BR3:4項目表示
+	for(int nLoop = 0;nLoop < 4;nLoop++)
+		{
+		MoveItem(IDC_TITLE_VALUE6 + nLoop,CPoint(posX[0],posY[nRow]),baseSize);
+		MoveItem(IDC_VALUE6 + nLoop,CPoint(posX[1],posY[nRow++]),baseSize);
+		}
+	++nRow;
+	//BR4:チェックボックスとステータス表示
+	MoveItem(IDC_REQUESTBR4,CPoint(posX[0],posY[nRow]),baseSize);
+	MoveItem(IDC_STATUSBR4,CPoint(posX[1],posY[nRow++]),baseSize);
+	//BR4:2項目表示
+	for(int nLoop = 0;nLoop < 2;nLoop++)
+		{
+		MoveItem(IDC_TITLE_VALUE10 + nLoop,CPoint(posX[0],posY[nRow]),baseSize);
+		MoveItem(IDC_VALUE10 + nLoop,CPoint(posX[1],posY[nRow++]),baseSize);
+		}
+	++nRow;
+	//BR5:チェックボックスとステータス表示
+	MoveItem(IDC_REQUESTBR5,CPoint(posX[0],posY[nRow]),baseSize);
+	MoveItem(IDC_STATUSBR5,CPoint(posX[1],posY[nRow++]),baseSize);
+	//BR5:4項目表示
+	for(int nLoop = 0;nLoop < 4;nLoop++)
+		{
+		MoveItem(IDC_TITLE_VALUE12 + nLoop,CPoint(posX[0],posY[nRow]),baseSize);
+		MoveItem(IDC_VALUE12 + nLoop,CPoint(posX[1],posY[nRow++]),baseSize);
+		}
+	++nRow;
+	//BR6:チェックボックスとステータス表示
+	MoveItem(IDC_REQUESTBR6,CPoint(posX[0],posY[nRow]),baseSize);
+	MoveItem(IDC_STATUSBR6,CPoint(posX[1],posY[nRow++]),baseSize);
+	//BR6:2項目表示
+	for(int nLoop = 0;nLoop < 2;nLoop++)
+		{
+		MoveItem(IDC_TITLE_VALUE16 + nLoop,CPoint(posX[0],posY[nRow]),baseSize);
+		MoveItem(IDC_VALUE16 + nLoop,CPoint(posX[1],posY[nRow++]),baseSize);
+		}
+	++nRow;
+
+	//========================================
+	//カラム1（操作ボタン）
+	//========================================
+	//開始行
+	nRow = 2;
+	//タイトル
+	MoveItem(IDC_TITLE_CTRL,CPoint(posX[2],posY[nRow++]),CSize(baseSize.cx * 2,baseSize.cy));
+	//ボタン
+	for(UINT nLoop = 0;nLoop < 32;nLoop++)
+		{
+		MoveItem(IDC_OFF_CTRLID0 + nLoop,CPoint(posX[2],posY[nRow]),baseSize);
+		MoveItem(IDC_ON_CTRLID0 + nLoop,CPoint(posX[3],posY[nRow++]),baseSize);
 		}
 
-	//標準処理
-	HBRUSH hbr = CFormView::OnCtlColor(pDC,pWnd,nCtlColor);
-	return hbr;
-	}
-
-//画面上の周期要求要素を取り込み
-uint32_t CguicanABH3View::disp2cycle()
-	{
-	//戻り値
-	uint32_t nResult = 0;
-	//値の取得
-	int nLoop = 0;
-	while(-1)
+	//========================================
+	//カラム2（制御フラグ）
+	//========================================
+	//開始行
+	nRow = 2;
+	//タイトル
+	MoveItem(IDC_TITLE_REQUEST,CPoint(posX[4],posY[nRow++]),baseSize);
+	//表示領域
+	for(UINT nLoop = 0;nLoop < 32;nLoop++)
 		{
-		//テーブルから情報取得
-		IDTEXT5 item = g_request_tbl[nLoop];
-		//終端？
-		if(item.nUid == 0)
-			break;
-		//ボタン状態を取得して指定bitに格納
-		CButton* pBtn = (CButton*)GetDlgItem(item.nUid);
-		if(pBtn->GetCheck())
-			nResult = nResult | (1 << nLoop);
-		//次の項目
-		++nLoop;
+		MoveItem(IDC_RESULTID0 + nLoop,CPoint(posX[4],posY[nRow++]),baseSize);
 		}
-	//
-	return(nResult);
+
+	//========================================
+	//カラム3（入力フラグとI/Oフラグ）
+	//========================================
+	//開始行
+	nRow = 1;
+	//BR1:チェックボックスとステータス表示
+	MoveItem(IDC_REQUESTBR1,CPoint(posX[5],posY[nRow]),baseSize);
+	MoveItem(IDC_STATUSBR1,CPoint(posX[6],posY[nRow++]),baseSize);
+	//タイトル
+	MoveItem(IDC_TITLE_INPUT,CPoint(posX[5],posY[nRow]),baseSize);
+	MoveItem(IDC_TITLE_IO,CPoint(posX[6],posY[nRow++]),baseSize);
+	//表示領域
+	for(UINT nLoop = 0;nLoop < 32;nLoop++)
+		{
+		MoveItem(IDC_INPUTID0 + nLoop,CPoint(posX[5],posY[nRow]),baseSize);
+		MoveItem(IDC_IO0 + nLoop,CPoint(posX[6],posY[nRow++]),baseSize);
+		}
+
+	//========================================
+	//カラム4（警告/異常）
+	//========================================
+	//開始行
+	nRow = 1;
+	//BR0:チェックボックスとステータス表示
+	MoveItem(IDC_REQUESTBR0,CPoint(posX[7],posY[nRow]),baseSize);
+	MoveItem(IDC_STATUSBR0,CPoint(posX[7] + baseSize.cx,posY[nRow++]),baseSize);
+	//タイトル
+	MoveItem(IDC_TITLE_WARNERR,CPoint(posX[7],posY[nRow]),CSize(nLen1,baseSize.cy));
+	MoveItem(IDC_TITLE_WARN,CPoint(posX[8],posY[nRow]),CSize(nLen2,baseSize.cy));
+	MoveItem(IDC_TITLE_ERR,CPoint(posX[9],posY[nRow++]),CSize(nLen2,baseSize.cy));
+	//表示領域
+	for(UINT nLoop = 0;nLoop < 32;nLoop++)
+		{
+		MoveItem(IDC_TITLE_WARNERR0 + nLoop,CPoint(posX[7],posY[nRow]),CSize(nLen1,baseSize.cy));
+		MoveItem(IDC_WARN_BIT0 + nLoop,CPoint(posX[8],posY[nRow]),CSize(nLen2,baseSize.cy));
+		MoveItem(IDC_ERR_BIT0 + nLoop,CPoint(posX[9],posY[nRow++]),CSize(nLen2,baseSize.cy));
+		}
+
+
+	//========================================
+	//全体処理
+	//========================================
+	//フォームの全アイテムを表示する（フォーム上のアイテムは、初期状態が非表示設定）
+	CWnd* pWnd = GetTopWindow();
+	while(pWnd)
+		{
+		pWnd->ShowWindow(SW_SHOW);
+		pWnd = pWnd->GetNextWindow();
+		}
 	}
 
-
-//タイマー割り込み時に呼び出されます
-void CguicanABH3View::OnTimer(UINT_PTR nIDEvent)
+//ウィンドウタイトルを更新
+void CguicanABH3View::UpdateWindowTitle()
 	{
-	static bool m_bTimerRunning = false;
-	if(!m_bTimerRunning)
+	//情報を一括取得する
+	CguicanABH3Doc::pIDSET pIDSET = GetDocument()->GetIDSET();
+
+	//タブシート名をタブに設定する
+	CString sText("");
+	sText.Format(_T("ID = %d (%s)"),pIDSET->nID,pIDSET->sType32);
+	GetParentFrame()->SetWindowText(sText);
+
+	//シート右上の情報表示も更新
+	FastSetText(IDC_INFO,sText);
+	}
+
+//シートタイトルを更新
+void CguicanABH3View::UpdateSheetInfo()
+	{
+	//このビューに割り当てられたID
+	uint8_t nID = GetDocument()->GetID();
+
+	//エラー状態の取得
+	if(theApp.isErrorID(nID))
 		{
-		m_bTimerRunning = true;
-
-		//現在、このビューがアクティブかどうか（親フレーム側に処理実装されている）
-		//注意：100ms周期程度で通信してないと通信エラーでサーボOFFされるので、周期処理間隔は変えない
-		bool bActive = ((CChildFrame*)GetParentFrame())->IsActivate();
-
-
-		//1秒割り込み？
-		if(nIDEvent == m_var.n1sec)
-			{
-			//フレームレート表示有り？
-			if(theConfig.GetConfig()->nFPS)
-				{
-				//このウィンドウがアクティブ（最前面）？
-				if(bActive)
-					{
-					//現在の値を表示（英語固定）
-					CString sText("");
-					sText.Format(_T("SEND(%d)"),m_var.nSendCounter);
-					FastSetText(IDC_FPS,sText);
-					}
-				//周期割り込みカウンタ初期化
-				m_var.nFPS = 0;
-				//送信カウンタ初期化
-				m_var.nSendCounter = 0;
-				}
-			}
-		else if(nIDEvent == m_var.nTimerNum)
-			{
-			//表示更新回数加算
-			++m_var.nFPS;
-
-			//最前面に表示されていれば、表示物を更新
-			if(bActive)
-				UpdateView();
-
-			//周期要求要素の取り込み
-			m_var.cycle.nCycleRequest = disp2cycle();
-
-			//周期要求
-			m_var.thread.bRequest = true;
-
-			//周期要求の結果を確認（今回の要求結果とは限らない）
-			uint32_t nResult = m_var.thread.nResult;
-			if(nResult)
-				{
-				//エラーになった箇所をチェック無しにする
-				IDTEXT5 item = g_request_tbl[nResult - 1];
-				SetCheckbox(item.nUid,false);
-				//送信エラーを設定
-				theApp.SetErrorID(GetDocument()->GetID());
-				//再開
-				m_var.thread.nResult = 0;
-				}
-			}
-		//
-		m_bTimerRunning = false;
+		//エラー有り
+		FastSetText(IDC_INFO2,theApp.GetLangText(&g_status_text[1]));
 		}
 	else
 		{
-		//
+		//正常動作中
+		FastSetText(IDC_INFO2,theApp.GetLangText(&g_status_text[0]));
 		}
-
-	CFormView::OnTimer(nIDEvent);
 	}
 
-//非同期送信スレッド
- unsigned __stdcall CguicanABH3View::SendThread(void* pParam)
-	{
-	//
-	CguicanABH3View* pClass = (CguicanABH3View*)pParam;
-	volatile CguicanABH3View::pVIEW_VAR pVar = &pClass->m_var;
-
-	while(!pVar->thread.bQuit)
-		{
-		//送信要求があるか？
-		if(pVar->thread.bRequest)
-			{
-			//要求受理したのでフラグ解除（送信中に再設定される場合も有る）
-			pVar->thread.bRequest = false;
-			//エラー状態では無いか？
-			if(pVar->thread.nResult == 0)
-				{
-				//回線を開いているか？
-				if(theABH3.IsOpenInterface())
-					{
-					//送信処理
-					pVar->thread.nResult = pClass->ExecCycleRequest(pVar->cycle.nCycleRequest);
-					//送信カウンタ更新
-					++pVar->nSendCounter;
-					}
-				}
-			}
-
-		Sleep(1);
-		}
-
-	//
-	_endthreadex(0);
-	return(0);
-	}
-
-//「全ての周期送信を有効化」を選択すると呼び出されます
-void CguicanABH3View::OnEnableCycle()
-	{
-	SetButtonTbl(g_request_tbl,true);
-	}
-
-//「全ての周期送信を無効化」を選択すると呼び出されます
-void CguicanABH3View::OnDisableCycle()
-	{
-	SetButtonTbl(g_request_tbl,false);
-	}
-
-//テーブルを使用してダイアログアイテムに文字列を設定
+//テーブルを元にテキストを一括設定
 void CguicanABH3View::SetTextTbl(pIDTEXT pIDtbl)
 	{
 	int nLoop = 0;
@@ -796,12 +904,12 @@ void CguicanABH3View::SetTextTbl(pIDTEXT5 pIDtbl)
 	int nLoop = 0;
 	while(pIDtbl->nUid)
 		{
-		GetDlgItem(pIDtbl->nUid)->SetWindowText(pIDtbl->pText);
+		GetDlgItem(pIDtbl->nUid)->SetWindowText(theApp.GetLangText(&pIDtbl->text));
 		++pIDtbl;
 		}
 	}
 
-//指定テーブルのボタンを操作
+//テーブルを元にボタンを一括操作
 void CguicanABH3View::SetButtonTbl(pIDTEXT2 pIDtbl,bool bOn)
 	{
 	int nLoop = 0;
@@ -834,66 +942,61 @@ void CguicanABH3View::SetButtonTbl(pIDTEXT5 pIDtbl,bool bOn)
 		}
 	}
 
+//指令切り替えのボタン制御
+void CguicanABH3View::CtrlButtonOrder(bool bSpeed)
+	{
+	//ボタン制御及びフラグ制御を行う
+	m_order_value[0].SetCheck((bSpeed != false) ? 1 : 0);
+	m_order_value[1].SetCheck((bSpeed == false) ? 1 : 0);
+	uint8_t nID = GetDocument()->GetID();
+	CConfigDlg::pCFG_ORDER pOrder = &theConfig.GetConfig()->order256[nID];
+	pOrder->nType = (bSpeed != false) ? 0 : 1;	
+	}
+
+//周期送信のボタン制御
+void CguicanABH3View::CtrlButtonInterval(bool bON)
+	{
+	//ボタン制御及びフラグ制御を行う
+	m_interval_btn[0].SetCheck((bON == false) ? 1 : 0);
+	m_interval_btn[1].SetCheck((bON != false) ? 1 : 0);
+	m_var.thread.bRequest = bON;
+	}
 
 //色制御確認
-bool CguicanABH3View::DrawCheck(CWnd* pWnd,COLORREF& nTextColor,COLORREF& nBackColor)
+bool CguicanABH3View::DrawCheck(CWnd* pWnd,COLORITEM& colorItem)
 	{
-
 	//戻り値（描画フラグ）
-	if(DrawCheck_0(pWnd,nTextColor,nBackColor))
+	if(DrawCheck_0(pWnd,colorItem))
 		return(true);
-	else if(DrawCheck_1(pWnd,nTextColor,nBackColor))
+	else if(DrawCheck_1(pWnd,colorItem))
 		return(true);
-	else if(DrawCheck_2(pWnd,nTextColor,nBackColor))
+	else if(DrawCheck_2(pWnd,colorItem))
 		return(true);
-	else if(DrawCheck_3(pWnd,nTextColor,nBackColor))
+	else if(DrawCheck_3(pWnd,colorItem))
 		return(true);
-	else if(DrawCheck_4(pWnd,nTextColor,nBackColor))
+	else if(DrawCheck_4(pWnd,colorItem))
 		return(true);
-	else if(DrawCheck_5(pWnd,nTextColor,nBackColor))
+	else if(DrawCheck_5(pWnd,colorItem))
+		return(true);
+	else if(DrawCheck_6(pWnd,colorItem))
 		return(true);
 	return(false);
 	}
 
-//固定テキストアイテムの色制御確認
-bool CguicanABH3View::DrawCheck_0(CWnd* pWnd,COLORREF& nTextColor,COLORREF& nBackColor)
+//固定テキスト類アイテムの色制御確認
+bool CguicanABH3View::DrawCheck_0(CWnd* pWnd,COLORITEM& colorItem)
 	{
 	//ID取得
 	UINT nUid = pWnd->GetDlgCtrlID();
 
-	//ID
-	if(pWnd == &m_id)
+	//情報表示
+	if(nUid == IDC_INFO2)
 		{
-		if(theApp.isErrorID(GetDocument()->GetID()))
-			{
-			//エラー発生中
-			nTextColor = COLOR_WHITE;
-			nBackColor = COLOR_RED;
-			}
+		//エラー有り？
+		if(!theApp.isErrorID(GetDocument()->GetID()))
+			colorItem = GetAppColor(APPCOLOR::APPC_INFO);
 		else
-			{
-			//正常動作中
-			nTextColor = COLOR_WHITE;
-			nBackColor = COLOR_BLUE;
-			}
-		return(true);
-		}
-
-	//FPS
-	if(pWnd == &m_fps)
-		{
-		if(theConfig.GetConfig()->nFPS)
-			{
-			//フレームレート表示中
-			nTextColor = COLOR_BLACK;
-			nBackColor = COLOR_YELLOW;
-			}
-		else
-			{
-			//通常時
-			nTextColor = COLOR_WHITE;
-			nBackColor = COLOR_BLUE;
-			}
+			colorItem = GetAppColor(APPCOLOR::APPC_ERROR);
 		return(true);
 		}
 
@@ -901,13 +1004,12 @@ bool CguicanABH3View::DrawCheck_0(CWnd* pWnd,COLORREF& nTextColor,COLORREF& nBac
 	int nLoop = 0;
 	while(-1)
 		{
-		IDCOLOR1 info = g_textcolor_tbl[nLoop];
+		IDCOLOR info = g_textcolor_tbl[nLoop];
 		if(info.nBeginUid == 0)
 			break;
 		else if(((info.nBeginUid == nUid) && (info.nEndUid == 0)) || ((info.nBeginUid <= nUid) && (info.nEndUid >= nUid)))
 			{
-			nTextColor = g_color_tbl[info.nColorIndex].nText;
-			nBackColor = g_color_tbl[info.nColorIndex].nBack;
+			colorItem = GetAppColor(info.index);
 			return(true);
 			}
 		++nLoop;
@@ -916,7 +1018,7 @@ bool CguicanABH3View::DrawCheck_0(CWnd* pWnd,COLORREF& nTextColor,COLORREF& nBac
 	}
 
 //入力フラグの色制御確認
-bool CguicanABH3View::DrawCheck_1(CWnd* pWnd,COLORREF& nTextColor,COLORREF& nBackColor)
+bool CguicanABH3View::DrawCheck_1(CWnd* pWnd,COLORITEM& colorItem)
 	{
 	//描画対象が警告部か確認
 	for(int nLoop = 0;nLoop < 32;nLoop++)
@@ -930,8 +1032,7 @@ bool CguicanABH3View::DrawCheck_1(CWnd* pWnd,COLORREF& nTextColor,COLORREF& nBac
 			//成立中？
 			if(IsBit(nValue,item3.nBit))
 				{
-				nTextColor = RGB(255,255,255);
-				nBackColor = RGB(0,0,255);
+				colorItem = GetAppColor(APPCOLOR::APPC_CTRL2);
 				return(true);
 				}
 			return(false);
@@ -941,7 +1042,7 @@ bool CguicanABH3View::DrawCheck_1(CWnd* pWnd,COLORREF& nTextColor,COLORREF& nBac
 	}
 
 //制御フラグの色制御確認
-bool CguicanABH3View::DrawCheck_2(CWnd* pWnd,COLORREF& nTextColor,COLORREF& nBackColor)
+bool CguicanABH3View::DrawCheck_2(CWnd* pWnd,COLORITEM& colorItem)
 	{
 	//描画対象が警告部か確認
 	for(int nLoop = 0;nLoop < 32;nLoop++)
@@ -955,8 +1056,7 @@ bool CguicanABH3View::DrawCheck_2(CWnd* pWnd,COLORREF& nTextColor,COLORREF& nBac
 			//成立中？
 			if(IsBit(nValue,item3.nBit))
 				{
-				nTextColor = RGB(255,255,255);
-				nBackColor = RGB(0,0,255);
+				colorItem = GetAppColor(APPCOLOR::APPC_CTRL1);
 				return(true);
 				}
 			return(false);
@@ -966,7 +1066,7 @@ bool CguicanABH3View::DrawCheck_2(CWnd* pWnd,COLORREF& nTextColor,COLORREF& nBac
 	}
 
 //I/Oフラグの色制御確認
-bool CguicanABH3View::DrawCheck_3(CWnd* pWnd,COLORREF& nTextColor,COLORREF& nBackColor)
+bool CguicanABH3View::DrawCheck_3(CWnd* pWnd,COLORITEM& colorItem)
 	{
 	//
 	IDTEXT item;
@@ -985,8 +1085,7 @@ bool CguicanABH3View::DrawCheck_3(CWnd* pWnd,COLORREF& nTextColor,COLORREF& nBac
 			//成立中？
 			if(IsBit(nValue,item.nBit))
 				{
-				nTextColor = RGB(255,255,255);
-				nBackColor = RGB(0,0,255);
+				colorItem = GetAppColor(APPCOLOR::APPC_CTRL3);
 				return(true);
 				}
 			return(false);
@@ -996,64 +1095,80 @@ bool CguicanABH3View::DrawCheck_3(CWnd* pWnd,COLORREF& nTextColor,COLORREF& nBac
 	}
 
 //警告フラグの色制御確認
-bool CguicanABH3View::DrawCheck_4(CWnd* pWnd,COLORREF& nTextColor,COLORREF& nBackColor)
+bool CguicanABH3View::DrawCheck_4(CWnd* pWnd,COLORITEM& colorItem)
 	{
-	//描画対象が警告部か確認
-	for(int nLoop = 0;nLoop < 32;nLoop++)
+	UINT nUid = pWnd->GetDlgCtrlID();
+	if((nUid >= IDC_WARN_BIT0) && (nUid <= IDC_WARN_BIT31))
 		{
-		//該当？
-		if(pWnd == &m_warn_bit[nLoop])
+		//該当
+		int nBit = int(nUid - IDC_WARN_BIT0);
+		uint32_t nValue = m_var.lastdata.BR0.nWarnBit;
+		//成立中？
+		if(IsBit(nValue,nBit))
 			{
-			//該当箇所の情報を取得
-			IDTEXT2 item2 = g_warnerr_tbl[nLoop];				
-			uint32_t nValue = m_var.lastdata.BR0.nWarnBit;
-			//成立中？
-			if(IsBit(nValue,item2.nBit))
-				{
-				nTextColor = RGB(0,0,0);
-				nBackColor = RGB(255,255,0);
-				return(true);
-				}
-			return(false);
+			//ONの時の色を戻す
+			colorItem = GetAppColor(APPCOLOR::APPC_WARNING);
+			return(true);
 			}
 		}
+	//該当しない、又は該当したがOFF状態
 	return(false);
 	}
 
 //異常フラグの色制御確認
-bool CguicanABH3View::DrawCheck_5(CWnd* pWnd,COLORREF& nTextColor,COLORREF& nBackColor)
+bool CguicanABH3View::DrawCheck_5(CWnd* pWnd,COLORITEM& colorItem)
 	{
-	//描画対象が警告部か確認
-	for(int nLoop = 0;nLoop < 32;nLoop++)
+	UINT nUid = pWnd->GetDlgCtrlID();
+	if((nUid >= IDC_ERR_BIT0) && (nUid <= IDC_ERR_BIT31))
 		{
-		//該当？
-		if(pWnd == &m_err_bit[nLoop])
+		//該当
+		int nBit = int(nUid - IDC_ERR_BIT0);
+		uint32_t nValue = m_var.lastdata.BR0.nErrorBit;
+		//成立中？
+		if(IsBit(nValue,nBit))
 			{
-			//該当箇所の情報を取得
-			IDTEXT2 item2 = g_warnerr_tbl[nLoop];				
-			uint32_t nValue = m_var.lastdata.BR0.nErrorBit;
-			//成立中？
-			if(IsBit(nValue,item2.nBit))
+			//ONの時の色を戻す
+			colorItem = GetAppColor(APPCOLOR::APPC_ERROR);
+			return(true);
+			}
+		}
+	//該当しない、又は該当したがOFF状態
+	return(false);
+	}
+
+//ハートビート関連
+bool CguicanABH3View::DrawCheck_6(CWnd* pWnd,COLORITEM& colorItem)
+	{
+	UINT nUid = pWnd->GetDlgCtrlID();
+
+	int nNum = 0;
+	pIDTEXT5 pItem5 = g_request_tbl;
+	while(pItem5->nUid)
+		{
+		if(pItem5->nSubUid == nUid)
+			{
+			//
+			if(IsHeartBeat(nNum))
 				{
-				//発生中
-				nTextColor = RGB(255,255,255);
-				nBackColor = RGB(255,0,0);
+				//有効
+				colorItem = GetAppColor(APPCOLOR::APPC_HEARTBEAT);
 				return(true);
 				}
-			return(false);
+			//無効
+			colorItem = GetAppColor(APPCOLOR::APPC_WARNING);
+			return(true);
 			}
+		++nNum;
+		++pItem5;
 		}
 	return(false);
 	}
 
-//
+//全データ部分の更新
 void CguicanABH3View::UpdateView(bool bForce /* false */)
 	{
-	//このビューに割り当てられたID
-	uint8_t nID = GetDocument()->GetID();
-
 	//最終受信データを取得
-	theABH3.abh3_can_copylastdata(nID,&m_var.lastdata);
+	theABH3.abh3_can_copylastdata(GetDocument()->GetID(),&m_var.lastdata);
 
 	//各ビュー要素の更新
 	UpdateView_0(bForce);
@@ -1064,9 +1179,6 @@ void CguicanABH3View::UpdateView(bool bForce /* false */)
 	UpdateView_5(bForce);
 	UpdateView_6(bForce);
 	UpdateView_7(bForce);
-
-	//タイトル更新
-	UpdateTitle();
 	}
 
 //帰還・制御フラグの更新(要素0)
@@ -1078,6 +1190,9 @@ void CguicanABH3View::UpdateView_0(bool bForce /* false */)
 	//更新不用？
 	if((bForce | (bool)(m_var.lastdata.update[nPos].nUpdate != 0)) == false)
 		return;
+
+	//ハートビート設定
+	UpHeartBeat(nPos);
 
 	//========================================
 	//帰還
@@ -1122,24 +1237,16 @@ void CguicanABH3View::UpdateView_1(bool bForce /* false */)
 	if((bForce | (bool)(m_var.lastdata.update[nPos].nUpdate != 0)) == false)
 		return;
 
-	//========================================
-	//異常フラグ
-	//========================================
-	//再描画処理
-	for(int nLoop = 0;nLoop < 32;nLoop++)
-		{
-		IDTEXT2 item = g_warnerr_tbl[nLoop];
-		GetDlgItem(item.nOffUid)->Invalidate();
-		}
+	//ハートビート設定
+	UpHeartBeat(nPos);
 
 	//========================================
-	//警告フラグ
+	//異常フラグと警告フラグの再描画
 	//========================================
-	//再描画処理
 	for(int nLoop = 0;nLoop < 32;nLoop++)
 		{
-		IDTEXT2 item = g_warnerr_tbl[nLoop];
-		GetDlgItem(item.nOnUid)->Invalidate();
+		GetDlgItem(IDC_WARN_BIT0 + nLoop)->Invalidate();
+		GetDlgItem(IDC_ERR_BIT0 + nLoop)->Invalidate();
 		}
 
 	//========================================
@@ -1157,6 +1264,9 @@ void CguicanABH3View::UpdateView_2(bool bForce /* false */)
 	//更新不用？
 	if((bForce | (bool)(m_var.lastdata.update[nPos].nUpdate != 0)) == false)
 		return;
+
+	//ハートビート設定
+	UpHeartBeat(nPos);
 
 	//========================================
 	//I/Oフラグ
@@ -1208,6 +1318,9 @@ void CguicanABH3View::UpdateView_3(bool bForce /* false */)
 	if((bForce | (bool)(m_var.lastdata.update[nPos].nUpdate != 0)) == false)
 		return;
 
+	//ハートビート設定
+	UpHeartBeat(nPos);
+
 	//========================================
 	//速度指令
 	//========================================
@@ -1235,6 +1348,9 @@ void CguicanABH3View::UpdateView_4(bool bForce /* false */)
 	//更新不用？
 	if((bForce | (bool)(m_var.lastdata.update[nPos].nUpdate != 0)) == false)
 		return;
+
+	//ハートビート設定
+	UpHeartBeat(nPos);
 
 	//========================================
 	//電流指令
@@ -1264,6 +1380,9 @@ void CguicanABH3View::UpdateView_5(bool bForce /* false */)
 	if((bForce | (bool)(m_var.lastdata.update[nPos].nUpdate != 0)) == false)
 		return;
 
+	//ハートビート設定
+	UpHeartBeat(nPos);
+
 	//========================================
 	//パルス積算値
 	//========================================
@@ -1285,6 +1404,9 @@ void CguicanABH3View::UpdateView_6(bool bForce /* false */)
 	//更新不用？
 	if((bForce | (bool)(m_var.lastdata.update[nPos].nUpdate != 0)) == false)
 		return;
+
+	//ハートビート設定
+	UpHeartBeat(nPos);
 
 	//========================================
 	//アナログ入力
@@ -1314,11 +1436,14 @@ void CguicanABH3View::UpdateView_7(bool bForce /* false */)
 	if((bForce | (bool)(m_var.lastdata.update[nPos].nUpdate != 0)) == false)
 		return;
 
+	//ハートビート設定
+	UpHeartBeat(nPos);
+
 	//========================================
 	//モニタデータ（正体不明）
 	//========================================
-	FastSetText(g_valueid_tbl[16].nValueUid,float2text(_T("%f"),m_var.lastdata.BR6.nMonitor0));
-	FastSetText(g_valueid_tbl[17].nValueUid,float2text(_T("%f"),m_var.lastdata.BR6.nMonitor1));
+	FastSetText(g_valueid_tbl[16].nValueUid,float2text(_T("%.2f"),m_var.lastdata.BR6.nMonitor0));
+	FastSetText(g_valueid_tbl[17].nValueUid,float2text(_T("%.2f"),m_var.lastdata.BR6.nMonitor1));
 
 	//========================================
 	//更新フラグ解除
@@ -1326,241 +1451,144 @@ void CguicanABH3View::UpdateView_7(bool bForce /* false */)
 	theABH3.abh3_can_resetlastdata(GetDocument()->GetID(),nPos);
 	}
 
-//周期要求設定の実行
-uint32_t CguicanABH3View::ExecCycleRequest(uint32_t nCycleRequest)
+//================================================================================
+//設定関連
+//================================================================================
+
+//設定の復帰
+void CguicanABH3View::reg2disp()
 	{
-	//
-	uint32_t nResult = 0;
-	int32_t nLoop = 0;
-	IDTEXT5 item;
-	//
-	while(-1)
-		{
-		//情報取り出しと終端判断
-		item = g_request_tbl[nLoop];;
-		if(item.nUid == 0)
-			break;
-
-		//周期処理要求あり？
-		else if(nCycleRequest & (1 << nLoop))
-			{
-			//シングルパケット？
-			if(item.nType == PACKETTYPE::SINGLE_PACKET)
-				{
-				//指令の変換
-				//	仕様がいまいち不明なので、速度扱いで変換する
-				uint16_t nA = theABH3.cnvVel2CAN(m_var.DP0R.nValue[0]);
-				uint16_t nB = theABH3.cnvVel2CAN(m_var.DP0R.nValue[1]);
-				//シングルパケット・指令と操作を一括
-				if(theABH3.abh3_can_cmdAndopSet(
-					GetDocument()->GetID(),
-					nA,
-					nB,
-					m_var.DP0R.nRequest,
-					0,
-					NULL
-					))
-					{
-					//エラー
-					nResult = nLoop + 1;
-					break;
-					}
-				}
-			//ブロードキャスト？
-			else if(item.nType == PACKETTYPE::BROADCAST_PACKET)
-				{
-				//グループとアドレスからコードを作る
-				uint8_t nCode = (GetDocument()->GetGroup() << 3) | (item.nAdrs & 0x07);
-
-				if(theABH3.abh3_can_reqBRD(
-					GetDocument()->GetID(),
-					nCode,
-					0,
-					NULL))
-					{
-					nResult = nLoop + 1;
-					break;
-					}
-				}
-			}
-		//
-		++nLoop;
-		}
-
-	//正常終了
-	return(nResult);
-	}
-
-//指令が更新されると呼び出されます
-void CguicanABH3View::OnEnChangeEdit(UINT nUid)
-	{
-	//
-	UINT nEdit = nUid - IDC_EDIT0;
-
-	//確定した？
-	if(m_edit[nEdit].IsSetData())
-		{
-		//確定したので、入力文字を取得し格納
-		CString sText("");
-		m_edit[nEdit].GetWindowText(sText);
-		float nValue = (float)::_tcstod((LPCTSTR)sText,NULL);
-		m_var.DP0R.nValue[nEdit] = nValue;
-
-		//入力値をCANで扱う値に変換
-		//int16_t nValue16 = theABH3.cnvVel2CAN(nValue);
-		////
-		//int32_t nResult = theABH3.abh3_can_cmdAY(GetDocument()->GetID(),nValue16,NULL);
-		}
-	}
-
-//操作フラグのOFFボタンが押されると呼び出されます
-void CguicanABH3View::OnBnClickedOffCtrlid(UINT nUid)
-	{
-	//押されたボタン
-	UINT nBtn = nUid - IDC_OFF_CTRLID0;
-	//指定ビットを解除
-	m_var.DP0R.nRequest &= ~(1 << nBtn);
-	}
-
-//操作フラグのONボタンが押されると呼び出されます
-void CguicanABH3View::OnBnClickedOnCtrlid(UINT nUid)
-	{
-	//押されたボタン
-	UINT nBtn = nUid - IDC_ON_CTRLID0;
-	//指定ビットを設定
-	m_var.DP0R.nRequest |= (1 << nBtn);
-	}
-
-//画面アイテムの再配置と表示
-void CguicanABH3View::ArrangementItem()
-	{
-	//ダイアログ上のアイテムを再配置
-	CRect rect1 = ArrangementItem_sub(IDC_TITLE_A,IDC_TITLE_B);
-	ArrangementItem_sub(IDC_EDIT0,IDC_EDIT1);
-	ArrangementItem_sub(IDC_TITLE_VALUE0,IDC_TITLE_VALUE17);
-	ArrangementItem_sub(IDC_VALUE0,IDC_VALUE17);
-	ArrangementItem_sub(IDC_TITLE_CTRLID0,IDC_TITLE_CTRLID31);
-	ArrangementItem_sub(IDC_OFF_CTRLID0,IDC_OFF_CTRLID31);
-	ArrangementItem_sub(IDC_ON_CTRLID0,IDC_ON_CTRLID31);
-	ArrangementItem_sub(IDC_INPUTID0,IDC_INPUTID31);
-	ArrangementItem_sub(IDC_RESULTID0,IDC_RESULTID31);
-	ArrangementItem_sub(IDC_IO0,IDC_IO31);
-	ArrangementItem_sub(IDC_WARN_BIT0,IDC_WARN_BIT31);
-	CRect rect2 = ArrangementItem_sub(IDC_ERR_BIT0,IDC_ERR_BIT31);
-	CRect rect3 = MoveItem(IDC_TITLE_CYCLE,CPoint(rect1.left,rect2.bottom + (rect1.Height() / 2)));
-	MoveItem(IDC_REQUESTDP0R,CPoint(rect3.right + (rect1.Height() / 2),rect3.top));
-
-	//周期要求要素は横に並べる
-	ArrangementItem_sub(IDC_REQUESTDP0R,IDC_REQUESTBR6,false);
-
-	//フォームの全アイテムを表示する（フォーム上のアイテムは、初期状態は全て非表示）
-	CWnd* pWnd = GetTopWindow();
-	while(pWnd)
-		{
-		pWnd->ShowWindow(SW_SHOW);
-		pWnd = pWnd->GetNextWindow();
-		}
-	}
-
-//ダイアログアイテムを詰めて並べる
-CRect CguicanABH3View::ArrangementItem_sub(UINT nBaseUID,UINT nLastUID,bool bVert /* true */)
-	{
-	//概要
-	//	ダイアログアイテムを詰めて並べる
-	//パラメータ
-	//	nBaseID		基準となるダイアログアイテムのID
-	//	nLastID		移動対象となる最後のダイアログアイテムのID
-	//	bVert		trueで下方向に並べ、falseで右方向に並べる
-	//戻り値
-	//	最後の移動アイテムの位置をクライアント座標で戻す
-	//注意
-	//	配置するダイアログアイテムのIDは、連続している事が前提となる。
-	//	ダイアログアイテムのIDは、resource.hを直接編集する事が前提となる
-	//
-
-	//
-	CRect itemRect,moveRect;
-	//基準のアイテム位置を取得
-	GetDlgItem(nBaseUID)->GetWindowRect(itemRect);
-	ScreenToClient(itemRect);
-	moveRect = itemRect;
-	int nHeight = itemRect.Height();
-	int nWidth = itemRect.Width();
-	for(UINT nUid = nBaseUID + 1;nUid <= nLastUID;nUid++)
-		{
-		if(bVert)
-			{
-			moveRect.top = moveRect.bottom;
-			moveRect.bottom = moveRect.top + nHeight;
-			}
-		else
-			{
-			moveRect.left = moveRect.right;
-			moveRect.right = moveRect.left + nWidth;
-			}
-		GetDlgItem(nUid)->MoveWindow(moveRect);
-		}
-	//最後のアイテム位置を戻す
-	return(moveRect);
-	}
-
-//ウィンドウタイトルを更新
-void CguicanABH3View::UpdateTitle()
-	{
-	//このビューに割り当てられたID
+	//自分のID
 	uint8_t nID = GetDocument()->GetID();
 
-	//タイトル（タブシート名を兼ねる）設定
+	//周期設定と周期送信対象を前の状態に復帰
+	RestoreInterval();
+	RestoreRequestTarget();
+
+	//指令値と指令モードを前の状態に復帰
+	RestoreOrder();
+
+	//送信対象のチェックボックスを前の状態に復帰
+	RestoreRequestTarget();
+
+	//データ表示更新
+	UpdateView(true);
+	}
+
+//指令を設定しシステムへ保存
+void CguicanABH3View::SetOrder(int nNum,CString sValue)
+	{
+	SetOrder(nNum,(float)::_tcstod(sValue,NULL));
+	}
+void CguicanABH3View::SetOrder(int nNum,float nValue)
+	{
+	//ID
+	uint8_t nID = GetDocument()->GetID();
+	//環境設定に設定
+	CConfigDlg::pCFG_ORDER pOrder = &theConfig.GetConfig()->order256[nID];
+	if(nNum == 0)
+		pOrder->nA = nValue;
+	else if(nNum == 1)
+		pOrder->nB = nValue;
+	//システムに保存
+	theConfig.reg2sys();
+	}
+
+//指令モードを設定しシステムへ保存
+void CguicanABH3View::SetOrderType(int nMode)
+	{
+	//ID
+	uint8_t nID = GetDocument()->GetID();
+	//環境設定に設定
+	CConfigDlg::pCFG_ORDER pOrder = &theConfig.GetConfig()->order256[nID];
+	pOrder->nType = uint8_t(nMode);
+	//システムに保存
+	theConfig.reg2sys();
+	}
+
+//指令と指令選択の復帰
+void CguicanABH3View::RestoreOrder()
+	{
+	//
+	uint8_t nID = GetDocument()->GetID();
+
 	CString sText("");
-	sText.Format(_T("ID = %02Xh"),nID);
+	CConfigDlg::pCFG_ORDER pOrder = &theConfig.GetConfig()->order256[nID];
 
-	//エラー有り？
-	if(theApp.isErrorID(nID))
-		sText += _T(" (Detected I/F error)");
-
-	//シートタブ名
-	GetParentFrame()->SetWindowText(sText);
-
-	//フォームアイテム
-	GetDlgItem(IDC_TITLE_ID)->SetWindowText(sText);
+	//指令を表示
+	sText.Format(_T("%.1f"),pOrder->nA);
+	m_edit[0].SetWindowText(sText);
+	sText.Format(_T("%.1f"),pOrder->nB);
+	m_edit[1].SetWindowText(sText);
+	
+	//指令モードを表示
+	m_order_value[0].SetCheck((pOrder->nType == 0) ? 1 : 0);
+	m_order_value[1].SetCheck((pOrder->nType != 0) ? 1 : 0);
 	}
 
-//ウィンドウが破棄される時に呼び出されます
-void CguicanABH3View::OnDestroy()
-	{
-	CFormView::OnDestroy();
 
-	//非同期送信スレッド停止
-	m_var.thread.bQuit = true;
-	::WaitForSingleObject(m_var.thread.hThread,INFINITE);
+//周期設定を設定しシステムへ保存
+void CguicanABH3View::SetInterval(uint32_t nTimeMS)
+	{
+	//ID
+	uint8_t nID = GetDocument()->GetID();
+	//範囲制限(10-10000)
+	if(nTimeMS < 10)
+		nTimeMS = 10;
+	else if(nTimeMS > 10000)
+		nTimeMS = 10000;
+	//環境設定に設定
+	theConfig.GetConfig()->interval256[nID] = nTimeMS;
+	//システムに保存
+	theConfig.reg2sys();
 	}
 
-//周期転送の復帰
-void CguicanABH3View::RestoreSendButton(uint8_t nID)
+//周期設定を復帰
+void CguicanABH3View::RestoreInterval()
 	{
+	//ID
+	uint8_t nID = GetDocument()->GetID();
+	//環境設定から取得
+	uint32_t nTimeMS = theConfig.GetConfig()->interval256[nID];
+	//保存データ無し？
+	if(nTimeMS == 0)
+		nTimeMS = 100;	//工場出荷設定
+	//範囲制限(10-10000)
+	else if(nTimeMS < 10)
+		nTimeMS = 10;
+	else if(nTimeMS > 10000)
+		nTimeMS = 10000;
+	//表示
+	CString sText("");
+	sText.Format(_T("%d"),nTimeMS);
+	m_interval.SetWindowText(sText);
+	}
+
+//周期送信対象の復帰
+void CguicanABH3View::RestoreRequestTarget()
+	{
+	//
+	uint8_t nID = GetDocument()->GetID();
 	uint32_t nValue = theConfig.GetConfig()->send256[nID];
-	uint32_t nLoop = 0;
+
+	int nLoop = 0;
 	while(-1)
 		{
 		IDTEXT5 item = g_request_tbl[nLoop];
 		if(item.nUid == 0)
 			break;
 		CButton* pBtn = (CButton*)GetDlgItem(item.nUid);
-		pBtn->SetCheck((1 << nLoop) & nValue ? TRUE : FALSE);
+		pBtn->SetCheck(((nValue & (1 << nLoop)) != 0) ? 1 : 0);
 		++nLoop;
 		}
 	}
 
-
-//周期送信ボタンが操作されると呼び出されます
-void CguicanABH3View::OnBnClickedRequestItem()
+//周期送信対象の取り込み
+uint32_t CguicanABH3View::StockRequestTarget(bool bNoSave /* false */)
 	{
-	SaveSendButton(GetDocument()->GetID());
-	}
+	//
+	uint8_t nID = GetDocument()->GetID();
 
-//周期転送の保存
-void CguicanABH3View::SaveSendButton(uint8_t nID)
-	{
 	//表示を取り込み
 	uint32_t nValue = 0;
 	uint32_t nLoop = 0;
@@ -1576,6 +1604,389 @@ void CguicanABH3View::SaveSendButton(uint8_t nID)
 		}
 	//環境設定内に保存
 	theConfig.GetConfig()->send256[nID] = nValue;
-	//システムへ保存
-	theConfig.reg2sys();
+	//指定が有ればシステムへ保存
+	if(!bNoSave)
+		theConfig.reg2sys();
+	//
+	return(nValue);
 	}
+
+//================================================================================
+//処理系
+//================================================================================
+
+//非同期送信スレッド
+ unsigned __stdcall CguicanABH3View::SendThread(void* pParam)
+	{
+	//========================================
+	//目的の動作
+	//========================================
+	//一定時間毎に周期送信処理を行う。
+	//処理時間が長い等の理由で、指定時間に処理が開始出来ない場合は、次回時間に持ち越す
+	//
+	//========================================
+	//動作詳細
+	//========================================
+	//(1)現在時間を取得し、予定時間（次の周期指定送信時間）を超過しているか確認
+	//	未達の場合は(5)に移動
+	//(2)送信要求が有り、エラーが無く、インターフェースの利用開始状態なら、
+	//	周期送信処理を呼び出す。
+	//(3)エラーが有った場合、回線が切れているか判断する。
+	//	回線が切れている場合はユーザーが切ったと判断し、エラーにしない
+	//	そうでない場合はエラーを保存しておく
+	//(4)予定時間に周期時間を加算する処理を、現在時間より後の時間になる迄繰り返す。
+	//	予定時間が決まったら、(1)に戻る
+	//(5)現在時間と予定時間の半分の時間（但し1秒を超えない）を算出し、待つ
+	//	待ったら(1)に戻る
+	//
+	//========================================
+
+	//呼び出し元クラス類と制御用変数へのポインタ類
+	CguicanABH3View* pClass = (CguicanABH3View*)pParam;
+	CguicanABH3Doc* pDoc = pClass->GetDocument();
+	volatile CguicanABH3View::pVIEW_VAR pVar = &pClass->m_var;
+	//時間制御用及び制御対象IDの取得
+	uint32_t nNextTime = theABH3.GetTm();
+	uint32_t nEndTime = 0;
+	uint8_t nID = pDoc->GetID();
+
+	//処理ループ
+	while(!pVar->thread.bQuit)
+		{
+		//現在時間
+		uint32_t nCurrentTime = theABH3.GetTm();
+
+		//送信予定時間超過？
+		if(nCurrentTime >= nNextTime)
+			{
+			//送信要求があるか？
+			if(pVar->thread.bRequest)
+				{
+				//エラー状態では無いか？
+				if(pVar->thread.nResult == 0)
+					{
+					//回線を開いているか？
+					if(theABH3.IsOpenInterface())
+						{
+						//送信処理
+						uint32_t nResult = pClass->ExecCycleRequest();//pVar->cycle.nCycleRequest);
+						//エラー有り？
+						if(nResult)
+							{
+							//もしかしてユーザーに回線切られた？
+							if(!theABH3.IsOpenInterface())
+								{
+								//エラーにしない
+								nResult = 0;
+								}
+							}
+						//結果格納
+						pVar->thread.nResult = nResult;
+						}
+					}
+				}
+			//次回時間
+			uint32_t nStepTime = theConfig.GetConfig()->interval256[nID];
+			if(nStepTime < 10)
+				nStepTime = 10;
+			while(nNextTime <= nCurrentTime)
+				{
+				nNextTime += nStepTime;
+				}
+			}
+		//予定時間前
+		else
+			{
+			//残り時間の半分を待つ、但し最大1秒
+			uint32_t nRemain = nNextTime - nCurrentTime;
+			uint32_t nWaitMS = nRemain / 2;
+			if(nWaitMS > 1000)
+				nWaitMS = 1000;
+			Sleep(nWaitMS);
+			}
+		}
+
+	//スレッド終了処理
+	_endthreadex(0);
+	return(0);
+	}
+
+//周期要求設定の実行
+uint32_t CguicanABH3View::ExecCycleRequest()	//uint32_t nCycleRequest)
+	{
+	//
+	uint32_t nResult = 0;
+	int32_t nLoop = 0;
+	IDTEXT5 item;
+	uint8_t nID = GetDocument()->GetID();
+	uint32_t nRequest = theConfig.GetConfig()->send256[nID];
+
+	//
+	while(-1)
+		{
+		//情報取り出しと終端判断
+		item = g_request_tbl[nLoop];;
+		if(item.nUid == 0)
+			{
+			break;
+			}
+
+		//周期処理要求あり？
+		else if(nRequest & (1 << nLoop))
+			{
+			//シングルパケット？
+			if(item.nType == PACKETTYPE::SINGLE_PACKET)
+				{
+				//
+				CConfigDlg::pCONFIGDLG_CONFIG pConfig = theConfig.GetConfig();
+				CConfigDlg::pCFG_ORDER pOrder = &pConfig->order256[nID];
+	
+				//現在の指令値を取得して、指定された指令モード用に値を変換する
+				uint16_t nA = 0;
+				uint16_t nB = 0;
+				//速度モード？
+				if(pOrder->nType == 0)
+					{
+					//速度
+					nA = theABH3.cnvVel2CAN(pOrder->nA);
+					nB = theABH3.cnvVel2CAN(pOrder->nB);
+					}
+				else
+					{
+					//トルク
+					nA = theABH3.cnvCur2CAN(pOrder->nA);
+					nB = theABH3.cnvCur2CAN(pOrder->nB);
+					}
+
+				//シングルパケット・指令と操作を一括送信・受信無し
+				if(theABH3.abh3_can_cmdAndopSet(nID,nA,nB,m_var.userctrl.nRequestFlag,0,NULL))
+					{
+					//エラー
+					int32_t x = theABH3.IsOpenInterface();
+					nResult = nLoop + 1;
+					break;
+					}
+				}
+			//ブロードキャスト？
+			else if(item.nType == PACKETTYPE::BROADCAST_PACKET)
+				{
+				//グループとアドレスからコードを作り、送信のみ行う
+				uint8_t nCode = (GetDocument()->GetGroup() << 3) | (item.nAdrs & 0x07);
+				if(theABH3.abh3_can_reqBRD(nID,nCode,0,NULL))
+					{
+					int32_t x = theABH3.IsOpenInterface();
+					nResult = nLoop + 1;
+					break;
+					}
+				}
+			}
+		//次の送信対象
+		++nLoop;
+		}
+
+	//正常終了
+	return(nResult);
+	}
+
+//================================================================================
+//イベントハンドラ
+//================================================================================
+
+//ダイアログアイテムの色制御時に呼び出されます
+HBRUSH CguicanABH3View::OnCtlColor(CDC* pDC,CWnd* pWnd,UINT nCtlColor)
+	{
+	bool bDraw = false;
+	COLORITEM colorItem = GetAppColor(APPCOLOR::APPC_NORMAL);
+
+	//色付け対象か？
+	if(DrawCheck(pWnd,colorItem))
+		{
+		//
+		m_brush.DeleteObject();
+		m_brush.CreateSolidBrush(colorItem.nBack);
+		pDC->SetBkMode(TRANSPARENT);
+		pDC->SetBkColor(colorItem.nBack);
+		pDC->SetTextColor(colorItem.nText);
+		return(m_brush);
+		}
+
+	//標準処理
+	HBRUSH hbr = CFormView::OnCtlColor(pDC,pWnd,nCtlColor);
+	return hbr;
+	}
+
+//タイマー割り込み時に呼び出されます
+void CguicanABH3View::OnTimer(UINT_PTR nIDEvent)
+	{
+	static bool m_bTimerRunning = false;
+	if(!m_bTimerRunning)
+		{
+		m_bTimerRunning = true;
+
+		//現在、このビューがアクティブかどうか（親フレーム側に処理実装されている）
+		//注意：100ms周期程度で通信してないと通信エラーでサーボOFFされるので、周期処理間隔は変えない
+		bool bActive = ((CChildFrame*)GetParentFrame())->IsActivate();
+
+
+		//1秒周期割り込み？
+		if(nIDEvent == m_var.n1sec)
+			{
+			UpdateSheetInfo();
+
+			//非アクティブウィンドウは、この割り込み周期で画面更新
+			if(!bActive)
+				UpdateView();
+			}
+		//100ms周期割り込み？
+		else if(nIDEvent == m_var.nTimerNum)
+			{
+			//ハートビートの寿命処理
+			DownHeartBeat();
+
+			//最前面に表示されていれば、表示物を更新
+			if(bActive)
+				UpdateView();
+
+			//周期要求要素の取り込み
+//			m_var.cycle.nCycleRequest = StockRequestTarget(true);
+
+			//周期要求の結果を確認（今回の要求結果とは限らない）
+			uint32_t nResult = m_var.thread.nResult;
+			//エラー有り？
+			if(nResult)
+				{
+				//周期送信を強制停止させる
+				CtrlButtonInterval(false);
+				//送信エラーを設定
+				theApp.SetErrorID(GetDocument()->GetID());
+				//再開
+				m_var.thread.nResult = 0;
+				}
+			}
+		//
+		m_bTimerRunning = false;
+		}
+	else
+		{
+		//
+		}
+
+	CFormView::OnTimer(nIDEvent);
+	}
+
+//周期設定が更新されると呼び出されます
+void CguicanABH3View::OnEnChangeInterval()
+	{
+	//確定した？
+	if(m_interval.IsSetData())
+		{
+		//確定したので、入力文字を取得し数値変換
+		CString sText("");
+		m_interval.GetWindowText(sText);
+		uint32_t nTimeMS = (uint32_t)::_tcstoul((LPCTSTR)sText,NULL,10);
+		//格納
+		SetInterval(nTimeMS);
+		//再表示（値の制限を考慮）
+		RestoreInterval();
+		}
+	}
+
+//指令が更新されると呼び出されます
+void CguicanABH3View::OnEnChangeEdit(UINT nUid)
+	{
+	//
+	UINT nEdit = nUid - IDC_EDIT0;
+
+	//確定した？
+	if(m_edit[nEdit].IsSetData())
+		{
+		//
+		uint8_t nID = GetDocument()->GetID();
+		//環境設定へのポインタ取得
+		CConfigDlg::pCONFIGDLG_CONFIG pConfig = theConfig.GetConfig();
+
+		//確定したので、入力文字を取得し格納
+		CString sText("");
+		m_edit[nEdit].GetWindowText(sText);
+		if(nEdit == 0)
+			pConfig->order256[nID].nA = (float)::_tcstod((LPCTSTR)sText,NULL);
+		else if(nEdit == 1)
+			pConfig->order256[nID].nB = (float)::_tcstod((LPCTSTR)sText,NULL);
+
+		//システムへ保存する
+		theConfig.reg2sys();
+		}
+	}
+
+//操作フラグのOFFボタンが押されると呼び出されます
+void CguicanABH3View::OnBnClickedOffCtrlid(UINT nUid)
+	{
+	//押されたボタン
+	UINT nBtn = nUid - IDC_OFF_CTRLID0;
+	//指定ビットを解除
+	m_var.userctrl.nRequestFlag &= ~(1 << nBtn);
+	}
+
+//操作フラグのONボタンが押されると呼び出されます
+void CguicanABH3View::OnBnClickedOnCtrlid(UINT nUid)
+	{
+	//押されたボタン
+	UINT nBtn = nUid - IDC_ON_CTRLID0;
+	//指定ビットを設定
+	m_var.userctrl.nRequestFlag |= (1 << nBtn);
+	}
+
+//ウィンドウが破棄される時に呼び出されます
+void CguicanABH3View::OnDestroy()
+	{
+	CFormView::OnDestroy();
+
+	//非同期送信スレッド停止
+	m_var.thread.bQuit = true;
+	::WaitForSingleObject(m_var.thread.hThread,INFINITE);
+	}
+
+//周期送信対象チェックボックスが操作されると呼び出されます
+void CguicanABH3View::OnBnClickedRequestTarget(UINT nUid)
+	{
+	//周期送信対象を取り込んでシステムへ保存する
+	StockRequestTarget();
+	}
+
+//指令選択を切り替えると呼び出されます
+void CguicanABH3View::OnBnClickedOrder(UINT nUid)
+	{
+	uint32_t nBtn = nUid - IDC_ORDER1;
+	if((nBtn >= 0) && (nBtn <= 1))
+		{
+		//モードを保存
+		SetOrderType(int(nBtn));
+		//指令を初期化してシステムに保存
+		SetOrder(0,0);
+		SetOrder(1,0);
+		//指令の再表示
+		RestoreOrder();
+		}
+	}
+
+//「送信開始」「送信停止」メニューが選択されると呼び出されます
+void CguicanABH3View::OnBnClickedInterval(UINT nUid)
+	{
+	//設定
+	m_var.thread.bRequest = (nUid == IDC_ON_INTERVAL) ? true : false;
+	//ボタンに反映
+	CtrlButtonInterval(m_var.thread.bRequest);
+	}
+
+//送信開始のメニュー制御の為、呼び出されます
+void CguicanABH3View::OnUpdateOnInterval(CCmdUI* pCmdUI)
+	{
+	pCmdUI->Enable((m_var.thread.bRequest != false) ? FALSE : TRUE);
+	}
+
+//送信停止のメニュー制御の為、呼び出されます
+void CguicanABH3View::OnUpdateOffInterval(CCmdUI* pCmdUI)
+	{
+	pCmdUI->Enable((m_var.thread.bRequest == false) ? FALSE : TRUE);
+	}
+

@@ -39,29 +39,13 @@
 #include "SelectID.h"
 #include "afxdialogex.h"
 
-//色テーブル
-static IDCOLOR g_selectid_color_tbl[] = {
-	//colorIndex		textColor			backColor
-	{0,					COLOR_WHITE,		COLOR_BLUE},
-	{1,					COLOR_WHITE,		COLOR_DARKGREEN},
-	{2,					COLOR_WHITE,		COLOR_DARKBLUE},
-	{3,					COLOR_WHITE,		COLOR_DARKMAGENTA},
-	{4,					COLOR_WHITE,		COLOR_SKYBLUE},
-	{5,					COLOR_WHITE,		COLOR_GREEN},
-	{6,					COLOR_BLACK,		COLOR_YELLOW},
-	{7,					COLOR_WHITE,		COLOR_RED},
-	{8,					COLOR_WHITE,		COLOR_BLACK},
-	{9,					COLOR_BLACK,		COLOR_WHITE},
-	{-1,				0,					0},
-	};
-
 //色付けテキスト
-static IDCOLOR1 g_selectid_textcolor_tbl[] = {
+static IDCOLOR g_selectid_textcolor_tbl[] = {
 	//beginID					endID					colorIndex
-	{IDC_TITLE_SELECTID,		0,						0},
-	{IDC_TITLE_SELECTGROUP,		0,						0},
-	{IDC_TITLE_SELECTTYPE,		0,						0},
-	{0,							0,						0},
+	{IDC_TITLE_SELECTID,		0,						APPCOLOR::APPC_NORMAL},
+	{IDC_TITLE_SELECTGROUP,		0,						APPCOLOR::APPC_NORMAL},
+	{IDC_TITLE_SELECTTYPE,		0,						APPCOLOR::APPC_NORMAL},
+	{0,							0,						APPCOLOR::APPC_NOCOLOR},
 	};
 
 //固定テキスト
@@ -82,16 +66,13 @@ static CConfigDlg::TBL_CONFIG g_selectid_type[] = {
 	{{NULL,				NULL},				0,			NULL},
 	};
 
-//周期設定の選択肢（一部数字に補正有り）
-static CConfigDlg::TBL_CONFIG g_selectid_interval[] = {
-	//{textEN			textJP}							value		textvalue
-	{{_T(" 250.0[ms]          "),	NULL},				250,		_T("250")},
-	{{_T(" 125.0[ms]          "),	NULL},				125,		_T("125")},
-	{{_T(" 100.0[ms]  (10 FPS)"),	NULL},				100,		_T("100")},
-	{{_T("  66.6[ms]  (15 FPS)"),	NULL},				60,			_T("60")},
-	{{_T("  33.3[ms]  (30 FPS)"),	NULL},				30,			_T("30")},
-	{{_T("  16.6[ms]  (60 FPS)"),	NULL},				15,			_T("15")},
-	{{NULL,							NULL},				0,			NULL},
+//メッセージ類
+static LANGTEXT  g_selectid_text[] = {
+	//textEN						textJP
+	{_T("Please select target-ID"),	_T("接続先IDを指定して下さい")},
+	{_T("(used)"),					_T("(使用中)")},
+	{_T("(hostID)"),				_T("(ホストID)")},
+	{NULL,							NULL},
 	};
 
 //
@@ -203,25 +184,28 @@ void CSelectID::OnCbnDropdownSelectid()
 //ID選択の選択肢を構築します
 void CSelectID::CreateIDlist()
 	{
+	CString sText("");
+
 	//現在の選択番号
 	int nCurSel = m_selectid.GetCurSel();
 	if(nCurSel < 0)
 		nCurSel = 0;
 
-	//選択肢の全消去
+	//選択肢の全消去と先頭に選択指示を追加
 	m_selectid.ResetContent();
-	m_selectid.AddString(_T("接続先IDを指定して下さい"));
+	m_selectid.AddString(theApp.GetLangText(&g_selectid_text[0]));
 
 	//選択肢の構築
-	CString sText("");
 	for(uint8_t nID = 1;nID < 255;nID++)
 		{
 		int nStatus = theApp.isUsedID(nID);
-		sText.Format(_T("ID = 0x%02X"),nID);
+		sText.Format(_T("ID = %d"),nID);
+		//USED?
 		if(nStatus == 1)
-			sText.Format(_T("%s (使用中)"),(LPCTSTR)sText);
+			sText.Format(_T("%s %s"),(LPCTSTR)sText,(LPCTSTR)theApp.GetLangText(&g_selectid_text[1]));
+		//HOSTID?
 		else if(nStatus == 2)
-			sText.Format(_T("%s (ホストID)"),(LPCTSTR)sText);
+			sText.Format(_T("%s %s"),(LPCTSTR)sText,(LPCTSTR)theApp.GetLangText(&g_selectid_text[2]));
 		m_selectid.AddString(sText);
 		}
 
@@ -272,18 +256,11 @@ void CSelectID::OnOK()
 	int nType = m_selecttype.GetCurSel();
 	if(nType < 0)
 		nType = 0;
-	////周期設定を取得
-	//int nInterval = m_selectinterval.GetCurSel();
-	//if(nInterval < 0)
-	//	nInterval = 0;
-
 	//本クラスに設定値を保存
 	m_var.nSelectID = (uint8_t)nSelectID;
 	m_var.nGroup = (uint8_t)nGroup;
 	m_var.nType = (uint8_t)nType;
-
-	//接続対象とグループ番号は環境設定へ設定し、さらにシステムへ保存
-	//周期設定は保存しない（環境設定の値以外を適用したい用途を想定）
+	//接続対象、グループ番号、機種は環境設定へ設定し、さらにシステムへ保存
 	CConfigDlg::pCONFIGDLG_CONFIG pConfig = theConfig.GetConfig();
 	pConfig->nSelectID = m_var.nSelectID;
 	pConfig->nSelectGroup = m_var.nGroup;
@@ -298,18 +275,17 @@ void CSelectID::OnOK()
 HBRUSH CSelectID::OnCtlColor(CDC* pDC,CWnd* pWnd,UINT nCtlColor)
 	{
 	bool bDraw = false;
-	COLORREF nTextColor = COLOR_BLACK;
-	COLORREF nBackColor = COLOR_WHITE;
+	COLORITEM colorItem = GetAppColor(APPCOLOR::APPC_NORMAL);
 
 	//色付け対象か？
-	if(DrawCheck(pWnd,nTextColor,nBackColor))
+	if(DrawCheck(pWnd,colorItem))
 		{
 		//
 		m_brush.DeleteObject();
-		m_brush.CreateSolidBrush(nBackColor);
+		m_brush.CreateSolidBrush(colorItem.nBack);
 		pDC->SetBkMode(TRANSPARENT);
-		pDC->SetBkColor(nBackColor);
-		pDC->SetTextColor(nTextColor);
+		pDC->SetBkColor(colorItem.nBack);
+		pDC->SetTextColor(colorItem.nText);
 		return(m_brush);
 		}
 
@@ -319,7 +295,7 @@ HBRUSH CSelectID::OnCtlColor(CDC* pDC,CWnd* pWnd,UINT nCtlColor)
 	}
 
 //色制御確認
-bool CSelectID::DrawCheck(CWnd* pWnd,COLORREF& nTextColor,COLORREF& nBackColor)
+bool CSelectID::DrawCheck(CWnd* pWnd,COLORITEM& colorItem)
 	{
 	//ID取得
 	UINT nUid = pWnd->GetDlgCtrlID();
@@ -328,16 +304,34 @@ bool CSelectID::DrawCheck(CWnd* pWnd,COLORREF& nTextColor,COLORREF& nBackColor)
 	int nLoop = 0;
 	while(-1)
 		{
-		IDCOLOR1 info = g_selectid_textcolor_tbl[nLoop];
+		IDCOLOR info = g_selectid_textcolor_tbl[nLoop];
 		if(info.nBeginUid == 0)
 			break;
 		else if(((info.nBeginUid == nUid) && (info.nEndUid == 0)) || ((info.nBeginUid <= nUid) && (info.nEndUid >= nUid)))
 			{
-			nTextColor = g_selectid_color_tbl[info.nColorIndex].nText;
-			nBackColor = g_selectid_color_tbl[info.nColorIndex].nBack;
+			colorItem = GetAppColor(info.index);
 			return(true);
 			}
 		++nLoop;
 		}
 	return(false);
+	}
+
+//機種名を取得します
+CString CSelectID::GetTypeName()
+	{
+	int nPt = 0;
+	uint8_t nType = m_var.nType;
+	while(-1)
+		{
+		CConfigDlg::TBL_CONFIG item = g_selectid_type[nPt];
+		if(item.text.pTextEN == NULL)
+			break;
+		else if(nType == 0)
+			return(theApp.GetLangText(&item.text));
+		--nType;
+		++nPt;
+		}
+	//範囲外は先頭要素を戻す
+	return(theApp.GetLangText(&g_selectid_type[0].text));
 	}

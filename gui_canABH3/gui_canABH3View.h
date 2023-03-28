@@ -40,47 +40,75 @@
 
 class CguicanABH3View : public CFormView
 {
+//===============================================================
+//内部用
+//===============================================================
 protected:
-	//
+
+	//列挙子
+	typedef enum
+		{
+		QTY_HEARTBEAT = 8,		//周期送信要素の個数
+		} ENUM;
+
+	//内部変数用構造体
 	typedef struct _VIEW_VAR
 		{
 		UINT	nTimerNum;		//周期設定で使うタイマー番号
 		UINT	n1sec;			//1秒割り込みで使うタイマー番号
-		UINT	nFPS;			//周期設定で呼び出された数（毎秒リセット）
-		UINT	nSendCounter;	//非同期スレッドで送信した回数（毎秒リセット）
 
-		struct _CYCLE
+		//ハートビート関連
+		struct _HEATBEAT
 			{
-			uint32_t	nCycleRequest;		//bit0側からbit単位で使う
-			//uint8_t	nCycleCount;		//周期要求要素数
-			//uint8_t	enableCycle[16];	//周期要素要求フラグ(0以外で要求)
-			} cycle;
-
-
+			uint8_t	lifeTime[QTY_HEARTBEAT];	//受信に対する残り寿命、表示周期(100ms)毎に1引かれ、0で寿命扱い
+			} heartbeat;
+	
 		//非同期送信スレッド関連
 		struct _THREAD
 			{
 			bool		bQuit;		//スレッド停止要求
+			bool		bRequest;	//周期送信処理の開始フラグ
 			HANDLE		hThread;	//スレッドハンドル
 			UINT		nUid;		//スレッドID
-			bool		bRequest;	//送信実行フラグ
-			uint32_t	nResult;	//実行結果（0以外の場合にタイマー割り込み側で処理される）
+			uint32_t	nResult;	//周期送信処理の実行結果（0以外の場合にタイマー割り込み側で処理される）
 			} thread;
 
 		//最終受信データ（バス上から取得したABH3データ）
 		CANABH3_LASTRECV	lastdata;
 
-		//シングルパケット用データ格納領域（周期転送の為、ローカルに保存）
-		struct _DP0R
+		//ユーザー側から制御する要素（ローカルのみで保存）
+		struct _USERCTRL
 			{
-			float nValue[2];	//0..A指令  1..B指令（文字列を数値変換しただけの値）
-			uint32_t nRequest;	//操作フラグ
-			} DP0R;
+			uint32_t	nRequestFlag;	//操作フラグ
+			} userctrl;
+
 		} VIEW_VAR,*pVIEW_VAR;
+	
+	//========================================
+	//ハートビート関連（受信の有無判断）
+	//========================================
+
+	//指定番号のハートビートが有りました
+	void UpHeartBeat(int nNum);
+
+	//全体のハートビートカウンタを減らします
+	void DownHeartBeat(void);
+
+	//ハートビート中か？
+	bool IsHeartBeat(int nNum)
+		{
+		return((bool)(m_var.heartbeat.lifeTime[nNum] != 0) ? true : false);
+		}
+
+	//========================================
+	//画面構築関連
+	//========================================
+
+	//表示画面構築
+	void CreateScreen(void);
 
 	//画面アイテムの再配置
-	void ArrangementItem(void);
-	CRect ArrangementItem_sub(UINT nBaseUID,UINT nLastUID,bool bVert = true);
+	void ArrangeScreenItem(void);
 
 	//指定IDのダイアログアイテムをクライアント座標の指定位置に移動
 	CRect MoveItem(UINT nUid,POINT clientLeftTop)
@@ -94,45 +122,39 @@ protected:
 		GetDlgItem(nUid)->MoveWindow(moveRect);
 		return(moveRect);
 		}
-
-	//画面上の周期要求要素を取り込み
-	uint32_t disp2cycle(void);
+	CRect MoveItem(UINT nUid,CPoint topLeft,CSize size)
+		{
+		CRect moveRect;
+		moveRect.left = topLeft.x;
+		moveRect.right = moveRect.left + size.cx;
+		moveRect.top = topLeft.y;
+		moveRect.bottom = moveRect.top + size.cy;
+		GetDlgItem(nUid)->MoveWindow(moveRect);
+		return(moveRect);
+		}
 
 	//ウィンドウタイトルを更新
-	void UpdateTitle(void);
+	void UpdateWindowTitle(void);
 
-	//floatから指定フォーマット文字列に変換
-	CString float2text(TCHAR* pFmt,float nValue)
-		{
-		CString sResult("");
-		sResult.Format(pFmt,nValue);
-		return(sResult);
-		}
+	//シート情報を更新
+	void UpdateSheetInfo(void);
 
-	//uintから指定フォーマット文字列に変換
-	CString uint2text(TCHAR* pFmt,uint32_t nValue)
-		{
-		CString sResult("");
-		sResult.Format(pFmt,nValue);
-		return(sResult);
-		}
-
-	//テーブルからダイアログアイテムにテキストを一括設定
+	//テーブルを元にテキストを一括設定
 	void SetTextTbl(pIDTEXT pIDtbl);
 	void SetTextTbl(pIDTEXT1 pIDtbl);
 	void SetTextTbl(pIDTEXT2 pIDtbl);
 	void SetTextTbl(pIDTEXT4 pIDtbl);
 	void SetTextTbl(pIDTEXT5 pIDtbl);
 
-	//指定テーブルのボタンを操作
+	//テーブルを元にボタンを一括操作
 	void SetButtonTbl(pIDTEXT2 pIDtbl,bool bOn);
 	void SetButtonTbl(pIDTEXT5 pIDtbl,bool bOn);
 
-	//周期転送の復帰
-	void RestoreSendButton(uint8_t nID);
+	//指令切り替えのボタン制御
+	void CtrlButtonOrder(bool bSpeed);
 
-	//周期転送の保存
-	void SaveSendButton(uint8_t nID);
+	//周期送信のボタン制御
+	void CtrlButtonInterval(bool bON);
 
 	//比較機能付きアイテムテキスト設定
 	bool FastSetText(UINT nUid,CString sNewText)
@@ -149,23 +171,22 @@ protected:
 		return(FastSetText(nUid,CString(pNewText)));
 		}
 
-	//周期要求設定の実行
-	uint32_t ExecCycleRequest(uint32_t nCycleRequest);
-
 	//色制御全体確認
-	bool DrawCheck(CWnd* pWnd,COLORREF& nTextColor,COLORREF& nBackColor);
-	//
-	bool DrawCheck_0(CWnd* pWnd,COLORREF& nTextColor,COLORREF& nBackColor);
+	bool DrawCheck(CWnd* pWnd,COLORITEM& colorItem);
+	//固定テキスト類アイテムの色制御確認
+	bool DrawCheck_0(CWnd* pWnd,COLORITEM& colorItem);
 	//入力フラグの色制御確認
-	bool DrawCheck_1(CWnd* pWnd,COLORREF& nTextColor,COLORREF& nBackColor);
+	bool DrawCheck_1(CWnd* pWnd,COLORITEM& colorItem);
 	//制御フラグの色制御確認
-	bool DrawCheck_2(CWnd* pWnd,COLORREF& nTextColor,COLORREF& nBackColor);
+	bool DrawCheck_2(CWnd* pWnd,COLORITEM& colorItem);
 	//I/Oフラグの色制御確認
-	bool DrawCheck_3(CWnd* pWnd,COLORREF& nTextColor,COLORREF& nBackColor);
+	bool DrawCheck_3(CWnd* pWnd,COLORITEM& colorItem);
 	//警告フラグの色制御確認
-	bool DrawCheck_4(CWnd* pWnd,COLORREF& nTextColor,COLORREF& nBackColor);
+	bool DrawCheck_4(CWnd* pWnd,COLORITEM& colorItem);
 	//異常フラグの色制御確認
-	bool DrawCheck_5(CWnd* pWnd,COLORREF& nTextColor,COLORREF& nBackColor);
+	bool DrawCheck_5(CWnd* pWnd,COLORITEM& colorItem);
+	//ハートビート関連
+	bool DrawCheck_6(CWnd* pWnd,COLORITEM& colorItem);
 
 	//全データ部分の更新
 	void UpdateView(bool bForce = false);
@@ -186,21 +207,83 @@ protected:
 	//モニタデータの更新(要素7)
 	void UpdateView_7(bool bForce = false);
 
+	//========================================
+	//設定関連
+	//========================================
+
+	//設定の復帰
+	void reg2disp(void);
+
+	//指令を設定しシステムへ保存
+	void SetOrder(int nNum,CString sValue);
+	void SetOrder(int nNum,float nValue);
+
+	//指令モードを設定しシステムへ保存
+	void SetOrderType(int nMode);
+	
+	//指令と指令選択の復帰
+	void RestoreOrder();
+
+	//周期設定を設定しシステムへ保存
+	void SetInterval(uint32_t nTimeMS);
+
+	//周期設定を復帰
+	void RestoreInterval(void);
+
+	//周期転送対象の保存
+	//void SaveSendButton(uint8_t nID);
+
+	//周期送信対象の復帰
+	void RestoreRequestTarget(void);
+
+	//周期送信対象の取り込み
+	uint32_t StockRequestTarget(bool bNoSave = false);
+
+	//========================================
+	//変換系
+	//========================================
+
+	//floatから指定フォーマット文字列に変換
+	CString float2text(TCHAR* pFmt,float nValue)
+		{
+		CString sResult("");
+		sResult.Format(pFmt,nValue);
+		return(sResult);
+		}
+
+	//uintから指定フォーマット文字列に変換
+	CString uint2text(TCHAR* pFmt,uint32_t nValue)
+		{
+		CString sResult("");
+		sResult.Format(pFmt,nValue);
+		return(sResult);
+		}
+
+	//========================================
+	//処理系
+	//========================================
+
+	//周期要求設定の実行
+	uint32_t ExecCycleRequest(void);
+
 public:
 	//内部変数（スレッドから利用する為、publicに置く）
 	VIEW_VAR m_var;
 
+	//コントロール変数
 	CBrush m_brush;
 	CStatic m_id;
-	CStatic m_fps;
-	CStatic m_warn_bit[32];
-	CStatic m_err_bit[32];
 	CStatic m_result_bit[32];
 	CStatic m_input_bit[32];
 	CStatic m_io_bit[32];
 	CButton m_ctrl_off_bit[32];
 	CButton m_ctrl_on_bit[32];
 	CAdvanceEdit m_edit[2];
+	CStatic m_order_title;
+	CButton m_order_value[2];
+	CAdvanceEdit m_interval;
+	CButton m_interval_btn[2];
+	CStatic m_status[8];
 
 	//非同期送信スレッド
 	static unsigned __stdcall SendThread(void* pParam);
@@ -213,61 +296,38 @@ public:
 		return(false);
 		}
 
-	//チェックボックスの状態を取得
-	bool IsCheckbox(UINT nUid)
-		{
-		CButton* pBtn = (CButton*)GetDlgItem(nUid);
-		if(pBtn->GetCheck() == 0)
-			return(false);
-		return(true);
-		}
-
-	//チェックボックスの状態を設定
-	void SetCheckbox(UINT nUid,bool bCheck)
-		{
-		CButton* pBtn = (CButton*)GetDlgItem(nUid);
-		//現在の状態を取得
-		bool bCurrent = IsCheckbox(nUid);
-		//現在の状態と異なる状態を要求しているか？
-		if(bCurrent != bCheck)
-			{
-			//チェックを付ける要求？
-			if(bCheck)
-				pBtn->SetCheck(1);
-			else
-				pBtn->SetCheck(0);
-			}
-		}
-
-public:
+	//イベントハンドラとオーバライド
+	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
     afx_msg HBRUSH OnCtlColor(CDC* pDC,CWnd* pWnd,UINT nCtlColor);
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
+	afx_msg void OnEnChangeInterval();
 	afx_msg void OnEnChangeEdit(UINT nUid);
 	afx_msg void OnBnClickedOffCtrlid(UINT nUid);
 	afx_msg void OnBnClickedOnCtrlid(UINT nUid);
+	afx_msg void OnDestroy();
+	afx_msg void OnBnClickedRequestTarget(UINT nUid);
+	afx_msg void OnBnClickedOrder(UINT nUid);
+	afx_msg void OnBnClickedInterval(UINT nUid);
+	afx_msg void OnUpdateOnInterval(CCmdUI* pCmdUI);
+	afx_msg void OnUpdateOffInterval(CCmdUI* pCmdUI);
 
-protected:
-	CguicanABH3View() noexcept;
-	virtual void DoDataExchange(CDataExchange* pDX);
-	virtual void OnInitialUpdate();
-	DECLARE_DYNCREATE(CguicanABH3View)
-	DECLARE_MESSAGE_MAP()
-
-public:
+	//その他
 	enum{ IDD = IDD_GUI_CANABH3_FORM };
 	CguicanABH3Doc* GetDocument() const;
 	virtual ~CguicanABH3View();
-	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
 #ifdef _DEBUG
 	virtual void AssertValid() const;
 	virtual void Dump(CDumpContext& dc) const;
 #endif
 
-	afx_msg void OnEnableCycle();
-	afx_msg void OnDisableCycle();
-//	afx_msg void OnClose();
-	afx_msg void OnDestroy();
-	afx_msg void OnBnClickedRequestItem();
+protected:
+	//基本構造
+	CguicanABH3View() noexcept;
+	virtual void DoDataExchange(CDataExchange* pDX);
+	virtual void OnInitialUpdate();
+	DECLARE_DYNCREATE(CguicanABH3View)
+	DECLARE_MESSAGE_MAP()
+public:
 };
 
 #ifndef _DEBUG  // gui_canABH3View.cpp のデバッグ バージョン

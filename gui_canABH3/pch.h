@@ -47,22 +47,45 @@
 #include "framework.h"
 
 //================================================================================
+//列挙子
+//================================================================================
+
+enum class APPCOLOR
+	{
+	APPC_NOCOLOR,		//指定無し
+	APPC_NORMAL,		//標準の色（背景青で白文字）
+	APPC_INFO,			//機種情報表示
+	APPC_AXISA,			//A軸の色
+	APPC_AXISB,			//B軸の色
+	APPC_POWER,			//電源系（主電源・制御電源）の色
+	APPC_ANALOG,		//アナログ系（弱電）
+	APPC_MONITOR,		//監視要素の色
+	APPC_WARNING,		//警告の色
+	APPC_ERROR,			//異常の色
+	APPC_CTRL1,			//制御フラグ用
+	APPC_CTRL2,			//入力フラグ用
+	APPC_CTRL3,			//I/Oフラグ用
+	APPC_CTRL4,			//異常/警告項目の色
+	APPC_HEARTBEAT,		//ハートビート(受信中表示)用
+	};
+
+//================================================================================
 //構造体
 //================================================================================
 
-typedef struct _IDCOLOR
+typedef struct _COLORITEM
 	{
-	int			nIndex;
+	APPCOLOR	index;
 	COLORREF	nText;
 	COLORREF	nBack;
-	} IDCOLOR,*pIDCOLOR;
+	} COLORITEM,*pCOLORITEM;;
 
-typedef struct _IDCOLOR1
+typedef struct _IDCOLOR
 	{
 	UINT		nBeginUid;
 	UINT		nEndUid;
-	int			nColorIndex;
-	} IDCOLOR1,*pIDCOLOR1;
+	APPCOLOR	index;
+	} IDCOLOR,*pIDCOLOR;
 
 //英語と日本語テキストを扱う為の構造体
 typedef struct _LANGTEXT
@@ -111,7 +134,8 @@ typedef struct _IDTEXT4
 typedef struct _IDTEXT5
 	{
 	UINT	nUid;
-	TCHAR*	pText;			//EN only
+	UINT	nSubUid;
+	LANGTEXT	text;
 	PACKETTYPE	nType;
 	uint8_t	nAdrs;
 	} IDTEXT5,*pIDTEXT5;
@@ -126,5 +150,19 @@ CString getAppMyname(void);
 //実行ファイルのリソース内からバージョン番号を取得します
 bool getAppMyversion(int& nVersion1,int& nVersion2,int& nVersion3,int& nVersion4);
 CString getAppMyversion(int nDigitCount = 4);
+
+//明るさ変更
+COLORREF brightness(COLORREF nColor,int nPercentage);
+
+//色変換(RGBからHSV)
+void rgb2hsv(COLORREF nColor,int& nH,int& nS,int& nV);
+
+//色変換(HSVからRGB)
+COLORREF hsv2rgb(int nH,int nS,int nV);
+
+//色取得
+COLORITEM GetAppColor(APPCOLOR colorIndex);
+
+
 
 #endif //PCH_H

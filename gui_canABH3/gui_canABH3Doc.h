@@ -41,23 +41,27 @@
 //
 class CguicanABH3Doc : public CDocument
 {
-protected:
+public:
 	//
 	typedef struct _IDSET
 		{
-		uint8_t		nID;		//対象ID
-		uint8_t		nGroup;		//ブロードキャスト要求に使用するグループID
-		uint8_t		nType;		//機種設定
+		uint8_t		nID;			//対象ID
+		uint8_t		nGroup;			//ブロードキャスト要求に使用するグループID
+		uint8_t		nType;			//機種設定
+		TCHAR		sType32[32];	//機種名
 		} IDSET,*pIDSET;
 
+protected:
+	//ID保存用
 	IDSET	m_idset;
 
-	//
-	void SetIDangGroup(uint8_t nID,uint8_t nGroup,uint32_t nType)
+	//ID類設定を一括設定
+	void SetIDangGroup(uint8_t nID,uint8_t nGroup,uint32_t nType,LPCTSTR pType)
 		{
 		m_idset.nID			= nID;
 		m_idset.nGroup		= nGroup;
 		m_idset.nType		= nType;
+		::_tcscpy_s(m_idset.sType32,32,pType);
 		}
 
 public:
@@ -75,6 +79,11 @@ public:
 	uint32_t GetType(void)
 		{
 		return(m_idset.nType);
+		}
+	//ID類設定を一括取得
+	pIDSET GetIDSET(void)
+		{
+		return(&m_idset);
 		}
 
 public:

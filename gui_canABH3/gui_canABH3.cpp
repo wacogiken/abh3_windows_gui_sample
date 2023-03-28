@@ -48,10 +48,10 @@
 #define new DEBUG_NEW
 #endif
 
-//
-CguicanABH3App		theApp;
-CA3_FUNCLIST		theABH3;
-CConfigDlg			theConfig;
+//各機能クラス
+CguicanABH3App		theApp;		//アプリケーションクラス
+CA3_FUNCLIST		theABH3;	//ABH3制御用関数を使う為の構造体
+CConfigDlg			theConfig;	//環境設定クラス
 
 //================================================================================
 //CAboutDlgクラス
@@ -98,16 +98,13 @@ CguicanABH3App::CguicanABH3App() noexcept
 	// ここに InitInstance 中の重要な初期化処理をすべて記述してください。
 	}
 
+//メッセージマップ
 BEGIN_MESSAGE_MAP(CguicanABH3App,CWinAppEx)
 	ON_COMMAND(ID_APP_ABOUT,&CguicanABH3App::OnAppAbout)
-	// 標準のファイル基本ドキュメント コマンド
 	ON_COMMAND(ID_FILE_NEW,&CWinAppEx::OnFileNew)
-	ON_COMMAND(ID_FILE_OPEN,&CWinAppEx::OnFileOpen)
-	// 標準の印刷セットアップ コマンド
-	ON_COMMAND(ID_FILE_PRINT_SETUP,&CWinAppEx::OnFilePrintSetup)
 END_MESSAGE_MAP()
 
-// CguicanABH3App の初期化
+//アプリケーション初期化時に呼び出されます
 BOOL CguicanABH3App::InitInstance()
 	{
 	//================================================================================
@@ -149,6 +146,14 @@ BOOL CguicanABH3App::InitInstance()
 					}
 				}
 			}
+		}
+
+	//2重起動チェック
+	m_var.hMutex = ::CreateMutex(FALSE,0,_T("gui_canABH3"));	//2重起動チェック用Mutex
+	if(::GetLastError() == ERROR_ALREADY_EXISTS)
+		{
+		//2重起動の為、起動させずに終了
+		exit(1);
 		}
 
 	// アプリケーション マニフェストが visual スタイルを有効にするために、
@@ -304,7 +309,7 @@ BOOL CguicanABH3App::InitInstance()
 	return TRUE;
 	}
 
-//
+//アプリケーション終了時に呼び出されます
 int CguicanABH3App::ExitInstance()
 	{
 	//スレッド停止
@@ -314,6 +319,10 @@ int CguicanABH3App::ExitInstance()
 		::WaitForSingleObject(m_var.thread.hHandle,INFINITE);
 		m_var.thread.hHandle = NULL;
 		}
+
+	//Mutex
+	::CloseHandle(m_var.hMutex);
+	m_var.hMutex = NULL;
 
 	//DLL解放
 	if(m_var.hDLL)
@@ -473,3 +482,4 @@ int CguicanABH3App::RestartApplication()
 	//完了
 	return(0);
 	}
+

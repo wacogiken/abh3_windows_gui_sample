@@ -62,10 +62,8 @@ BEGIN_MESSAGE_MAP(CMainFrame,CMDIFrameWndEx)
     ON_COMMAND(IDC_RECONNECT,&CMainFrame::OnReconnect)
 	ON_UPDATE_COMMAND_UI(IDC_RECONNECT,&CMainFrame::OnUpdateReconnect)
 	ON_WM_TIMER()
-    ON_COMMAND(IDC_INFO_RECVCOUNTER,&CMainFrame::OnInfoRecvcounter)
-	ON_UPDATE_COMMAND_UI(IDC_INFO_RECVCOUNTER,&CMainFrame::OnUpdateInfoRecvcounter)
-    ON_COMMAND(IDC_INFO_FPS,&CMainFrame::OnInfoFps)
-	ON_UPDATE_COMMAND_UI(IDC_INFO_FPS,&CMainFrame::OnUpdateInfoFps)
+    ON_COMMAND(IDC_INFO_CANRATIO,&CMainFrame::OnInfoCanratio)
+	ON_UPDATE_COMMAND_UI(IDC_INFO_CANRATIO,&CMainFrame::OnUpdateInfoCanratio)
 END_MESSAGE_MAP()
 
 //
@@ -95,16 +93,17 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	if(CMDIFrameWndEx::OnCreate(lpCreateStruct) == -1)
 		return -1;
 
-	//MDI制御
+	//MDIタブグループで作成
 	//	注意点：mdiTabParams.m_bDocumentMenuをTRUEにすると右端にボタンが出るが、押したらアサートされる
+	//	注意点：タブをドラッグして縦配置、横配置にする機能は制御できない（disable不可）
 	CMDITabInfo mdiTabParams;
 	mdiTabParams.m_style = CMFCTabCtrl::STYLE_3D_ONENOTE; // 使用可能なその他の視覚スタイル...
 	mdiTabParams.m_bActiveTabCloseButton = TRUE;      // タブ領域の右部に [閉じる] ボタンを配置するには、FALSE に設定します
 	mdiTabParams.m_bTabIcons = FALSE;    // MDI タブでドキュメント アイコンを有効にするには、TRUE に設定します
 	mdiTabParams.m_bAutoColor = TRUE;    // MDI タブの自動色設定を無効にするには、FALSE に設定します
 	mdiTabParams.m_bDocumentMenu = FALSE; // タブ領域の右端にあるドキュメント メニューを無効にします
-	EnableMDITabbedGroups(TRUE,mdiTabParams);
 
+	EnableMDITabbedGroups(TRUE,mdiTabParams);	//TRUEでタブ、FALSEでマルチウィンドウ
 	//
 	if(!m_wndStatusBar.Create(this))
 		{
@@ -162,26 +161,6 @@ void CMainFrame::OnConfig()
 			theApp.RestartApplication();
 		}
 	}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 //「インターフェースの利用開始」メニューが選択されると呼び出されます
 void CMainFrame::OnConnect()
@@ -246,9 +225,9 @@ void CMainFrame::UpdateTitle()
 	//
 	if(theABH3.IsOpenInterface())
 		{
-		sText.Format(_T("Connected  HostID(%02Xh)"),theABH3.GetHostID());
+		sText.Format(_T("Connected  HostID(%d)"),theABH3.GetHostID());
 		//
-		if(pConfig->nRecvCounter)
+		if(pConfig->nCanRatio)
 			{
 			uint32_t nBaudrate = theConfig.getBaudrate();	//[kbps]
 			m_var.nLastBitCounter = theABH3.GetCounter();	//bit(s)
@@ -260,10 +239,6 @@ void CMainFrame::UpdateTitle()
 		}
 	else
 		sText.Format(_T("Disconnect"));
-
-	//ブロードキャストモード？
-	if(theConfig.getBr())
-		sText = sText + _T(" BROADCAST mode");
 
 	//タイトル設定
 	SetWindowText(sText);
@@ -278,41 +253,23 @@ void CMainFrame::OnTimer(UINT_PTR nIDEvent)
 	CMDIFrameWndEx::OnTimer(nIDEvent);
 	}
 
-//「受信カウンタの表示」が選択されると呼び出されます
-void CMainFrame::OnInfoRecvcounter()
+//「CAN-busの利用率表示」が選択されると呼び出されます
+void CMainFrame::OnInfoCanratio()
     {
 	CConfigDlg::pCONFIGDLG_CONFIG pConfig = theConfig.GetConfig();
-	if(pConfig->nRecvCounter == 0)
-		pConfig->nRecvCounter = 1;
+	if(pConfig->nCanRatio == 0)
+		pConfig->nCanRatio = 1;
 	else
-		pConfig->nRecvCounter = 0;
+		pConfig->nCanRatio = 0;
 	//システムへ保存
 	theConfig.reg2sys();
     }
-void CMainFrame::OnUpdateInfoRecvcounter(CCmdUI* pCmdUI)
+void CMainFrame::OnUpdateInfoCanratio(CCmdUI* pCmdUI)
 	{
-	if(theConfig.GetConfig()->nRecvCounter)
+	if(theConfig.GetConfig()->nCanRatio)
 		pCmdUI->SetCheck(1);
 	else
 		pCmdUI->SetCheck(0);
 	}
 
-//「フレームレートの表示」が選択されると呼び出されます
-void CMainFrame::OnInfoFps()
-    {
-	CConfigDlg::pCONFIGDLG_CONFIG pConfig = theConfig.GetConfig();
-	if(pConfig->nFPS == 0)
-		pConfig->nFPS = 1;
-	else
-		pConfig->nFPS = 0;
-	//システムへ保存
-	theConfig.reg2sys();
-	}
-void CMainFrame::OnUpdateInfoFps(CCmdUI* pCmdUI)
-	{
-	if(theConfig.GetConfig()->nFPS)
-		pCmdUI->SetCheck(1);
-	else
-		pCmdUI->SetCheck(0);
-	}
 

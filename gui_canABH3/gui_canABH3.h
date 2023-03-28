@@ -58,28 +58,32 @@ public:
 };
 
 
-//APPクラス
+//アプリケーションクラス
 class CguicanABH3App : public CWinAppEx
 {
 protected:
-	//
+
+	//内部変数用構造体
 	typedef struct _GUICANABH3_VAR
 		{
 		//
 		HMODULE		hDLL;			//DLLのハンドル
-
-		int			nCodePage;		//現在のWindows表示言語
+		HANDLE		hMutex;			//2重起動チェック用
 		int			nLastTimerNum;	//タイマー割り込みに使う値
-		uint8_t		usedID[256];	//bit0..client  bit1..notuse  bit2..error
-		uint8_t		nRequestID;		//ウィンドウを開く時に要求したID
 
+		//接続先IDに対する利用用途とエラー状態
+		uint8_t		usedID[256];	//bit0..ウィンドウ有り  bit1..未使用  bit2..エラー状態
+
+		//スレッド関連
 		struct _VAR_THREAD
 			{
-			HANDLE	hHandle;
-			UINT	nUid;
-			bool	bQuit;
+			HANDLE	hHandle;		//スレッドハンドル
+			UINT	nUid;			//スレッドID
+			bool	bQuit;			//スレッド動作制御
 			} thread;
 		} GUICANABH3_VAR,*pGUICANABH3_VAR;
+
+		//内部変数
 		GUICANABH3_VAR m_var;
 
 	//スレッド
@@ -90,16 +94,20 @@ public:
 	//本ソフトの再起動
 	int RestartApplication(void);
 
-
+	//インターフェースの利用開始
 	int32_t Connect(void);
+
+	//インターフェースの利用終了
 	int32_t Disconnect(void);
+
+	//インターフェースの再接続
 	int32_t Reconnect(void);
+
+	//基本構造
 	CguicanABH3App() noexcept;
 	virtual BOOL InitInstance();
 	virtual int ExitInstance();
 	afx_msg void OnAppAbout();
-
-//	HMODULE m_hDLL;
 
 	//現在の表示言語指定に合う文字列を戻す
 	TCHAR* GetLangText(pLANGTEXT pText);
@@ -109,19 +117,6 @@ public:
 		{
 		m_var.nLastTimerNum++;
 		return(m_var.nLastTimerNum);
-		}
-
-	//1つ以上ウィンドウを開いているか？
-	bool isUsedClientWindow(void)
-		{
-		for(int nLoop = 1;nLoop < 256;nLoop++)
-			{
-			//bit0が成立しているか？（ID利用中のウィンドウが有るか？）
-			if(isUsedID(nLoop) & 1)
-				return(true);
-			}
-		//開いてない
-		return(false);
 		}
 
 	//指定接続先のウィンドウでエラーが出ているか？
@@ -162,18 +157,10 @@ public:
 			m_var.usedID[nID] = 0;
 		}
 
-	//
-
-
-
-
-
-
-
-
 	DECLARE_MESSAGE_MAP()
 };
 
+//
 extern CguicanABH3App	theApp;
 extern CA3_FUNCLIST		theABH3;
 extern CConfigDlg		theConfig;

@@ -52,12 +52,11 @@ IMPLEMENT_DYNCREATE(CguicanABH3Doc,CDocument)
 BEGIN_MESSAGE_MAP(CguicanABH3Doc,CDocument)
 END_MESSAGE_MAP()
 
-
 //
 CguicanABH3Doc::CguicanABH3Doc() noexcept
 	{
 	//ID未指定状態
-	SetIDangGroup(0xFF,0x00,0);
+	SetIDangGroup(0xFF,0x00,0,_T(""));
 	}
 
 //
@@ -82,7 +81,7 @@ void CguicanABH3Doc::Dump(CDumpContext& dc) const
 //
 BOOL CguicanABH3Doc::OnNewDocument()
 	{
-	//接続先IDを選択
+	//接続先情報をダイアログを開いて設定させる
 	CSelectID SELID;
 	if(SELID.DoModal() != IDOK)
 		return(FALSE);
@@ -91,7 +90,9 @@ BOOL CguicanABH3Doc::OnNewDocument()
 	uint8_t nSelectID = SELID.GetID();
 	uint8_t nGroup = SELID.GetGroup();
 	uint32_t nType = SELID.GetType();
-	SetIDangGroup(nSelectID,nGroup,nType);
+	CString sType = SELID.GetTypeName();
+
+	SetIDangGroup(nSelectID,nGroup,nType,sType);
 
 	//アプリケーションクラスにこのIDの利用を開始した事を通知
 	theApp.SetID(nSelectID,true);
