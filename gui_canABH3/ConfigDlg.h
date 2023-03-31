@@ -81,6 +81,7 @@ public:
 		uint8_t		nSelectID;			//ウィンドウを開く時のダイアログで使うID(0..ID1)
 		uint8_t		nSelectGroup;		//ウィンドウを開く時のダイアログで使うグループ(0..GROUP0)
 		uint8_t		nCanRatio;			//CAN-bus利用率表示
+		uint8_t		nTransmitCounter;	//送受信カウンタ表示
 		uint8_t		type256[256];		//機種設定(0..標準  1..小型)、要素1がID1なので要素0は使わない
 		uint32_t	send256[256];		//周期転送フラグ(ビット単位)
 		uint32_t	interval256[256];	//周期時間[ms]

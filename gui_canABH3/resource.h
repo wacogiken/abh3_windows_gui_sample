@@ -512,13 +512,16 @@
 #define ID_32790                        32790
 #define IDC_INFO_FPS                    32791
 #define IDC_INFO_CANRATIO               32798
+#define ID_32799                        32799
+#define IDC_INFO_COUNTER                32800
+#define ID_INFORMATION_SHOWCOUNTERFORTRANSMIT 32801
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        316
-#define _APS_NEXT_COMMAND_VALUE         32799
+#define _APS_NEXT_COMMAND_VALUE         32802
 #define _APS_NEXT_CONTROL_VALUE         4001
 #define _APS_NEXT_SYMED_VALUE           310
 #endif

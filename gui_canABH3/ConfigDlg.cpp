@@ -269,6 +269,7 @@ void CConfigDlg::sys2reg()
 	m_pConfig->nSelectID		= (uint8_t)theApp.GetProfileInt(sSection,_T("selectid"),0x0);
 	m_pConfig->nSelectGroup		= (uint8_t)theApp.GetProfileInt(sSection,_T("selectgroup"),0x0);
 	m_pConfig->nCanRatio		= (uint8_t)theApp.GetProfileInt(sSection,_T("canratio"),0x0);
+	m_pConfig->nTransmitCounter	= (uint8_t)theApp.GetProfileInt(sSection,_T("transmitcounter"),0x0);
 	for(int nLoop = 0;nLoop < 256;nLoop++)
 		{
 		//機種設定
@@ -279,7 +280,7 @@ void CConfigDlg::sys2reg()
 		m_pConfig->send256[nLoop] = (uint8_t)theApp.GetProfileInt(sSection,sItem,0);
 		//周期時間
 		sItem.Format(_T("time_interval%d"),nLoop);
-		m_pConfig->interval256[nLoop] = (uint8_t)theApp.GetProfileInt(sSection,sItem,0);
+		m_pConfig->interval256[nLoop] = (uint8_t)theApp.GetProfileInt(sSection,sItem,100);
 		//指令関連
 		sItem.Format(_T("struct_order%d"),nLoop);
 		UINT nLength = 0;
@@ -309,6 +310,7 @@ void CConfigDlg::reg2sys()
 	theApp.WriteProfileInt(sSection,_T("selectid"),int(m_pConfig->nSelectID));
 	theApp.WriteProfileInt(sSection,_T("selectgroup"),int(m_pConfig->nSelectGroup));
 	theApp.WriteProfileInt(sSection,_T("canratio"),int(m_pConfig->nCanRatio));
+	theApp.WriteProfileInt(sSection,_T("transmitcounter"),int(m_pConfig->nTransmitCounter));
 	for(int nLoop = 0;nLoop < 256;nLoop++)
 		{
 		//機種設定

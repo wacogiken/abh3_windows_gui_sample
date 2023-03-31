@@ -163,6 +163,8 @@ COLORREF hsv2rgb(int nH,int nS,int nV);
 //色取得
 COLORITEM GetAppColor(APPCOLOR colorIndex);
 
+//4bit以上同じビットが続く数を算出
+uint32_t CalcBitStuff(uint8_t* pValue,uint8_t nLength);
 
 
 #endif //PCH_H

@@ -69,7 +69,9 @@ BOOL CAdvanceEdit::PreTranslateMessage(MSG* pMsg)
 	{
 	if(pMsg->message == WM_KEYDOWN)
 		{
-		//何かキー入力
+		//何かキー入力有り
+
+		//リターンキー？
 		if(pMsg->wParam == VK_RETURN)
 			{
 			//リターンキー入力
@@ -78,6 +80,13 @@ BOOL CAdvanceEdit::PreTranslateMessage(MSG* pMsg)
 			SetWindowText(m_sOldText);	//通知及び表示色の変更に必要
 			SetSel(0,-1);
 			}
+		//ESCキー？
+		else if(pMsg->wParam == VK_ESCAPE)
+			{
+			SetWindowText(m_sOldText);	//最後のデータに戻す
+			SetModify(FALSE);
+			}
+
 		}
 	return CEdit::PreTranslateMessage(pMsg);
 	}

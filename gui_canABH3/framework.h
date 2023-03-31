@@ -63,8 +63,10 @@
 #include "../../CANabh3/CANabh3/CANabh3dll.h"
 
 //
+#include <stdint.h>
 #include "AdvanceEdit.h"
 #include "ColorDefine.h"
+
 
 #ifdef _UNICODE
 #if defined _M_IX86

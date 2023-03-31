@@ -281,4 +281,42 @@ COLORREF hsv2rgb(int nH,int nS,int nV)
 	return(nColor);
 	}
 
+//4bit以上同じビットが続く数を算出
+uint32_t CalcBitStuff(uint8_t* pValue,uint8_t nLength)
+	{
+	//
+	if(nLength == 0)
+		return(0);
+	//
+	uint32_t nResult = 0;
+	uint32_t nBit = 0;
+	uint32_t nCount = 0;
+	uint8_t nLastBit = ~*pValue & 1;
+	//
+	while(nLength)
+		{
+		uint8_t nBitData = (*pValue >> nBit) & 1;
+		if(nBitData == nLastBit)
+			{
+			if(++nCount >= 3)
+				{
+				nCount = 0;
+				nLastBit = ~nLastBit & 1;
+				++nResult;
+				}
+			}
+		else
+			{
+			nLastBit = nBitData;
+			nCount = 0;
+			}
+		if(++nBit >= 8)
+			{
+			nBit = 0;
+			++pValue;
+			--nLength;
+			}
+		}
+	return(nResult);
+	}
 

@@ -48,9 +48,12 @@ protected:
 	//内部変数用構造体
 	typedef struct _MAIN_VAR
 		{
-		uint32_t	nLastBitCounter;	//インターフェース層の送受信bit(s)サイズ
-		double		nIFoccupancy;		//インターフェースの占有率[%]
+		uint32_t	nLastBitCounter;
+		uint32_t	nLastCounterSend;
+		uint32_t	nLastCounterRecv;
+
 		} MAIN_VAR,*pMAIN_VAR;
+
 	//内部変数
 	MAIN_VAR m_var;
 
@@ -85,4 +88,7 @@ protected:
 	CStatusBar        m_wndStatusBar;
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	DECLARE_MESSAGE_MAP()
-};
+public:
+    afx_msg void OnInfoCounter();
+    afx_msg void OnUpdateInfoCounter(CCmdUI* pCmdUI);
+    };

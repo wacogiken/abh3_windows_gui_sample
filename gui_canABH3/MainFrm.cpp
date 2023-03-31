@@ -64,6 +64,8 @@ BEGIN_MESSAGE_MAP(CMainFrame,CMDIFrameWndEx)
 	ON_WM_TIMER()
     ON_COMMAND(IDC_INFO_CANRATIO,&CMainFrame::OnInfoCanratio)
 	ON_UPDATE_COMMAND_UI(IDC_INFO_CANRATIO,&CMainFrame::OnUpdateInfoCanratio)
+    ON_COMMAND(IDC_INFO_COUNTER,&CMainFrame::OnInfoCounter)
+	ON_UPDATE_COMMAND_UI(IDC_INFO_COUNTER,&CMainFrame::OnUpdateInfoCounter)
 END_MESSAGE_MAP()
 
 //
@@ -217,25 +219,53 @@ void CMainFrame::OnUpdateReconnect(CCmdUI* pCmdUI)
 //メインフレームのタイトル変更
 void CMainFrame::UpdateTitle()
 	{
-	CString sText("");
+	CString sText(""),sTmp("");
 
-	//
+	//環境設定へのポインタ
 	CConfigDlg::pCONFIGDLG_CONFIG pConfig = theConfig.GetConfig();
+
+	//CANバス占有率
+	uint32_t nBaudrate = theConfig.getBaudrate();	//[kbps]
+	uint32_t nBitCounter = theABH3.GetCounter();	//bit(s)
+	double nIFoccupancy = double(nBitCounter) / double(nBaudrate) / 10.0;
+
+	//送受信カウンタ
+	uint32_t nCounterSend = theABH3.GetTransmitCounter(0);
+	uint32_t nCounterRecv = theABH3.GetTransmitCounter(1);
 
 	//
 	if(theABH3.IsOpenInterface())
 		{
+		//ホストID
 		sText.Format(_T("Connected  HostID(%d)"),theABH3.GetHostID());
-		//
+
+		//バス利用率の表示指定？
 		if(pConfig->nCanRatio)
 			{
-			uint32_t nBaudrate = theConfig.getBaudrate();	//[kbps]
-			m_var.nLastBitCounter = theABH3.GetCounter();	//bit(s)
-			m_var.nIFoccupancy = double(m_var.nLastBitCounter) / double(nBaudrate) / 10.0;
-			CString sTmp("");
-			sTmp.Format(_T("  BUS(%.2f[%%])"),m_var.nIFoccupancy);
+			sTmp.Format(_T("  BUS(%.2f[%%])"),nIFoccupancy);
 			sText += sTmp;
 			}
+
+		//送受信カウンタの表示指定？
+		if(pConfig->nTransmitCounter)
+			{
+			sTmp.Format(_T("  SEND(%d)  RECV(%d)"),nCounterSend,nCounterRecv);
+			sText += sTmp;
+			}
+
+		//
+#ifdef _DEBUG
+		uint32_t nSendSec = nCounterSend - m_var.nLastCounterSend;
+		uint32_t nRecvSec = nCounterRecv - m_var.nLastCounterRecv;
+		uint32_t nAvg = nBitCounter / (nSendSec + nRecvSec + 1);
+		sTmp.Format(_T("  XS(%d)  XR(%d)  XA(%d)"),nSendSec,nRecvSec,nAvg);
+		sText += sTmp;
+#endif
+
+		//最終データ格納
+		m_var.nLastBitCounter = nBitCounter;
+		m_var.nLastCounterSend = nCounterSend;
+		m_var.nLastCounterRecv = nCounterRecv;
 		}
 	else
 		sText.Format(_T("Disconnect"));
@@ -272,4 +302,21 @@ void CMainFrame::OnUpdateInfoCanratio(CCmdUI* pCmdUI)
 		pCmdUI->SetCheck(0);
 	}
 
-
+//「送受信カウンタの表示」が選択されると呼び出されます
+void CMainFrame::OnInfoCounter()
+    {
+	CConfigDlg::pCONFIGDLG_CONFIG pConfig = theConfig.GetConfig();
+	if(pConfig->nTransmitCounter == 0)
+		pConfig->nTransmitCounter = 1;
+	else
+		pConfig->nTransmitCounter = 0;
+	//システムへ保存
+	theConfig.reg2sys();
+    }
+void CMainFrame::OnUpdateInfoCounter(CCmdUI* pCmdUI)
+	{
+	if(theConfig.GetConfig()->nTransmitCounter)
+		pCmdUI->SetCheck(1);
+	else
+		pCmdUI->SetCheck(0);
+	}

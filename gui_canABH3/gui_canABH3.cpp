@@ -44,6 +44,9 @@
 #include "gui_canABH3Doc.h"
 #include "gui_canABH3View.h"
 
+//#include "bitstuff.h"
+
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -96,6 +99,7 @@ CguicanABH3App::CguicanABH3App() noexcept
 
 	// TODO: この位置に構築用コードを追加してください。
 	// ここに InitInstance 中の重要な初期化処理をすべて記述してください。
+
 	}
 
 //メッセージマップ
