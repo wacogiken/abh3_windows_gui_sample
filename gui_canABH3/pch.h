@@ -50,6 +50,7 @@
 //列挙子
 //================================================================================
 
+//色を適用する為の分類
 enum class APPCOLOR
 	{
 	APPC_NOCOLOR,		//指定無し
@@ -68,6 +69,15 @@ enum class APPCOLOR
 	APPC_CTRL4,			//異常/警告項目の色
 	APPC_HEARTBEAT,		//ハートビート(受信中表示)用
 	};
+
+//接続先機種
+enum class MTYPE
+	{
+	MTYPE_NORMAL = 0,	//標準
+	MTYPE_SMALL	= 1,	//小型
+	MTYPE_HOST = 2,		//ホスト
+	};
+
 
 //================================================================================
 //構造体
@@ -140,6 +150,23 @@ typedef struct _IDTEXT5
 	uint8_t	nAdrs;
 	} IDTEXT5,*pIDTEXT5;
 
+//文字列と数値をペアで扱う為の構造体
+typedef struct _TEXTARRAY
+	{
+	LANGTEXT	text;			//日英のテキスト
+	int32_t		nValue;			//数値としての値
+	TCHAR*		pValue;			//文字列としての値
+	} TEXTARRAY,*pTEXTARRAY;
+
+//接続先情報を扱う構造体
+typedef struct _IDSET
+	{
+	uint8_t		nID;			//対象ID
+	uint8_t		nGroup;			//ブロードキャスト要求に使用するグループID
+	MTYPE		type;			//機種設定
+	TCHAR		sType32[32];	//機種名
+	} IDSET,*pIDSET;
+
 //================================================================================
 //全体から利用可能な関数
 //================================================================================
@@ -165,6 +192,12 @@ COLORITEM GetAppColor(APPCOLOR colorIndex);
 
 //4bit以上同じビットが続く数を算出
 uint32_t CalcBitStuff(uint8_t* pValue,uint8_t nLength);
+
+//指定値に対する特定ビットが成立しているか取得
+bool IsBit(uint32_t nValue,int nBit);
+
+//文字列テーブルから値に一致するエントリを取得
+int FindValueFromTextArray(pTEXTARRAY pSrc,int nFindValue);
 
 
 #endif //PCH_H

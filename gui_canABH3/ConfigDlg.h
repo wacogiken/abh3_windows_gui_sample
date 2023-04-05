@@ -48,12 +48,12 @@ class CConfigDlg : public CDialogEx
 public:
 	
 	//
-	typedef struct _TBL_CONFIG
-		{
-		LANGTEXT	text;
-		uint32_t	nValue;			//数値としての値
-		TCHAR*		pValue;			//文字列としての値
-		} TBL_CONFIG,*pTBL_CONFIG;
+	//typedef struct _TBL_CONFIG
+	//	{
+	//	LANGTEXT	text;
+	//	uint32_t	nValue;			//数値としての値
+	//	TCHAR*		pValue;			//文字列としての値
+	//	} TBL_CONFIG,*pTBL_CONFIG;
 
 	//指令関連
 	typedef struct _CFG_ORDER
@@ -107,10 +107,14 @@ protected:
 	void initScreen(void);
 
 	//テーブルを元にコンボボックスを初期化
-	void InitCombobox(CComboBox* pCombo,pTBL_CONFIG pTbl);
+	//void InitCombobox(CComboBox* pCombo,pTBL_CONFIG pTbl);
 
 	//DLLオプションの選択肢を構築する
 	void CreateDLLoption(CComboBox* pCombo,int nMode,int nSetSel = -1);
+
+	//DLL選択による注意書き表示設定
+	void CreateNotice(int nMode);
+
 
 public:
 	//
@@ -148,9 +152,6 @@ public:
 
 	//ボーレート設定値[Kbps]取得
 	uint32_t getBaudrate(void);
-
-	//機種設定を取得
-	uint8_t getABH3type(uint8_t nDevice);
 
 	//周期設定を取得
 	//uint32_t getInterval(void);

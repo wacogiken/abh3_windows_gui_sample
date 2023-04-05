@@ -49,6 +49,14 @@ static IDTEXT1 g_menu_tr1[] = {
 	{ID_APP_ABOUT,			{_T("EN"),				_T("JP")}},
 	};
 
+//その他文字列
+static LANGTEXT g_mainframe_text[] = {
+	//textEN							textJP
+	{_T("Connection failed. code(%d)"),	_T("接続に失敗しました。(code:%d)")},
+	{NULL,								NULL},
+	};
+
+
 
 IMPLEMENT_DYNAMIC(CMainFrame,CMDIFrameWndEx)
 
@@ -206,7 +214,7 @@ void CMainFrame::OnReconnect()
 	if(nResult)
 		{
 		CString sText("");
-		sText.Format(_T("接続に失敗しました。(code:%d)"),nResult);
+		sText.Format(theApp.GetLangText(&g_mainframe_text[0]),nResult);
 		AfxMessageBox(sText,MB_ICONERROR);
 		}
     }
@@ -228,6 +236,8 @@ void CMainFrame::UpdateTitle()
 	uint32_t nBaudrate = theConfig.getBaudrate();	//[kbps]
 	uint32_t nBitCounter = theABH3.GetCounter();	//bit(s)
 	double nIFoccupancy = double(nBitCounter) / double(nBaudrate) / 10.0;
+	if(nIFoccupancy > 100.0)
+		nIFoccupancy = 100.0;
 
 	//送受信カウンタ
 	uint32_t nCounterSend = theABH3.GetTransmitCounter(0);

@@ -286,6 +286,7 @@
 #define IDC_TITLE13                     2813
 #define IDC_TITLE14                     2814
 #define IDC_TITLE15                     2815
+#define IDC_NOTICE4                     2815
 #define IDC_TITLE16                     2816
 #define IDC_TITLE17                     2817
 #define IDC_TITLE18                     2818
@@ -492,6 +493,7 @@
 #define IDC_TITLE_VALUE31               3831
 #define IDC_INFO                        4000
 #define IDC_INFO2                       4001
+#define IDC_BUTTON1                     4002
 #define ID_32771                        32771
 #define IDC_CONFIG                      32772
 #define ID_32773                        32773
@@ -522,7 +524,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        316
 #define _APS_NEXT_COMMAND_VALUE         32802
-#define _APS_NEXT_CONTROL_VALUE         4001
+#define _APS_NEXT_CONTROL_VALUE         4003
 #define _APS_NEXT_SYMED_VALUE           310
 #endif
 #endif

@@ -49,8 +49,8 @@ typedef enum _ENUM_CONFIG
 //固定表示文字列
 static IDTEXT1 g_config_title[] = {
 	//ID			{textEN					testJP}
-	{IDC_TITLE1,	{_T("I/F select"),		_T("I/F選択")}},
-	{IDC_TITLE2,	{_T("I/F ootion"),		_T("I/F番号指定")}},
+	{IDC_TITLE1,	{_T("I/F select"),		_T("インターフェース選択")}},
+	{IDC_TITLE2,	{_T("I/F ootion"),		_T("インターフェース番号指定")}},
 	{IDC_TITLE3,	{_T("Host adrs"),		_T("ホストアドレス")}},
 	{IDC_TITLE4,	{_T("Baudrate"),		_T("ボーレート")}},
 	{IDC_TITLE13,	{_T("Language"),		_T("表示言語")}},
@@ -68,39 +68,42 @@ static LANGTEXT g_config_text[] = {
 				_T("インターフェース設定が変更された為、本ソフトを再起動します")},
 	{_T("language settings have been changed. Restart this software."),
 				_T("言語設定が変更された為、本ソフトを再起動します")},
+	{_T("Must be check DIPSW."),
+				_T("ディップスイッチ要確認")},
+
 	{NULL,
 				NULL},
 	};
 	
 //言語選択肢
-static CConfigDlg::TBL_CONFIG g_config_language[] = {
-	//textEN			textJP				value		textvalue
-	{{_T("English"),	_T("英語")},		0,			_T("0")},
-	{{_T("Japanese"),	_T("日本語")},		1,			_T("1")},
-	{{NULL,				NULL},				0,			NULL},
+static TEXTARRAY g_config_language[] = {
+	//textEN						textJP			value	textvalue
+	{{_T("English"),				_T("英語")},	0,		_T("")},
+	{{_T("Japanese"),				_T("日本語")},	1,		_T("")},
+	{{NULL,							NULL},			0,		NULL},
 	};
 
 //DLL選択肢
-static CConfigDlg::TBL_CONFIG g_config_dll[] = {
-	//textEN						textJP		value		textvalue
-	{{_T("IXXAT USB-to-CAN V2"),	NULL},		0,		_T("CANabh3.dll")},
-	{{_T("WACOGIKEN usbcan"),		NULL},		1,		_T("canwacousb.dll")},
-	{{NULL,							NULL},		0,		NULL},
+static TEXTARRAY g_config_dll[] = {
+	//textEN						textJP			value	textvalue
+	{{_T("IXXAT USB-to-CAN V2"),	NULL},			0,		_T("CANabh3.dll")},
+	{{_T("WACOGIKEN usbcan"),		NULL},			1,		_T("canwacousb.dll")},
+	{{NULL,							NULL},			0,		NULL},
 	};
 
 //ボーレート選択肢
-static CConfigDlg::TBL_CONFIG g_config_baudrate[] = {
-	//{textEN			textJP}		value		textvalue
-	{{_T("1000[Kbps]"),	NULL},		1000,		_T("1000")},
-	{{_T(" 800[Kbps]"),	NULL},		800,		_T("800")},
-	{{_T(" 500[Kbps]"),	NULL},		500,		_T("500")},
-	{{_T(" 250[Kbps]"),	NULL},		250,		_T("250")},
-	{{_T(" 125[Kbps]"),	NULL},		125,		_T("125")},
-	{{_T(" 100[Kbps]"),	NULL},		100,		_T("100")},
-	{{_T("  50[Kbps]"),	NULL},		50,			_T("50")},
-	{{_T("  20[Kbps]"),	NULL},		20,			_T("20")},
-	{{_T("  10[Kbps]"),	NULL},		10,			_T("10")},
-	{{NULL,				NULL},		0,			NULL},
+static TEXTARRAY g_config_baudrate[] = {
+	//{textEN						textJP}			value	textvalue
+	{{_T("1000[Kbps]"),				NULL},			1000,	_T("1000")},
+	{{_T(" 800[Kbps]"),				NULL},			800,	_T("800")},
+	{{_T(" 500[Kbps]"),				NULL},			500,	_T("500")},
+	{{_T(" 250[Kbps]"),				NULL},			250,	_T("250")},
+	{{_T(" 125[Kbps]"),				NULL},			125,	_T("125")},
+	{{_T(" 100[Kbps]"),				NULL},			100,	_T("100")},
+	{{_T("  50[Kbps]"),				NULL},			50,		_T("50")},
+	{{_T("  20[Kbps]"),				NULL},			20,		_T("20")},
+	{{_T("  10[Kbps]"),				NULL},			10,		_T("10")},
+	{{NULL,							NULL},			0,		NULL},
 	};
 
 //
@@ -183,9 +186,9 @@ void CConfigDlg::initScreen()
 	//選択肢構築
 	//	DLLオプションは、m_dll選択状態に対して動的構築する
 	//	ホストIDはテーブルを使わない
-	InitCombobox(&m_dll,g_config_dll);
-	InitCombobox(&m_baudrate,g_config_baudrate);
-	InitCombobox(&m_language,g_config_language);
+	theApp.InitCombobox(&m_dll,g_config_dll);
+	theApp.InitCombobox(&m_baudrate,g_config_baudrate);
+	theApp.InitCombobox(&m_language,g_config_language);
 
 	//選択肢構築・ホストID
 	m_hostid.ResetContent();
@@ -200,6 +203,9 @@ void CConfigDlg::initScreen()
 
 	//選択肢構築・DLLオプション
 	CreateDLLoption(&m_dlloption,m_pConfig->nDLL,m_pConfig->nDLLoption);
+
+	//現在の選択
+	OnCbnDropdownConfigDll();
 	}
 
 //
@@ -207,6 +213,7 @@ void CConfigDlg::OnCbnDropdownConfigDll()
 	{
 	int nSel = m_dll.GetCurSel();
 	CreateDLLoption(&m_dlloption,nSel);
+	CreateNotice(nSel);
 	}
 
 //
@@ -240,18 +247,29 @@ void CConfigDlg::CreateDLLoption(CComboBox* pCombo,int nMode,int nSetSel /* -1 *
 		}
 	}
 
-//テーブルを元にコンボボックスを初期化
-void CConfigDlg::InitCombobox(CComboBox* pCombo,pTBL_CONFIG pTbl)
+//DLL選択による注意書き表示設定
+void CConfigDlg::CreateNotice(int nMode)
 	{
-	pCombo->ResetContent();
-	int nLoop = 0;
-	while(pTbl[nLoop].text.pTextEN)
-		{
-		pCombo->AddString(theApp.GetLangText(&pTbl[nLoop].text));
-		++nLoop;
-		}
-	pCombo->SetCurSel(0);
+	//ボーレートの注意書き
+	if(nMode == 0)
+		GetDlgItem(IDC_NOTICE4)->SetWindowTextW(_T(""));
+	else
+		GetDlgItem(IDC_NOTICE4)->SetWindowText(theApp.GetLangText(&g_config_text[3]));
 	}
+
+
+////テーブルを元にコンボボックスを初期化
+//void CConfigDlg::InitCombobox(CComboBox* pCombo,pTBL_CONFIG pTbl)
+//	{
+//	pCombo->ResetContent();
+//	int nLoop = 0;
+//	while(pTbl[nLoop].text.pTextEN)
+//		{
+//		pCombo->AddString(theApp.GetLangText(&pTbl[nLoop].text));
+//		++nLoop;
+//		}
+//	pCombo->SetCurSel(0);
+//	}
 
 //システムから環境設定を取得
 void CConfigDlg::sys2reg()
@@ -383,12 +401,6 @@ uint32_t CConfigDlg::getBaudrate()
 	return(nResult);
 	}
 
-//機種設定を取得
-uint8_t CConfigDlg::getABH3type(uint8_t nDevice)
-	{
-	return(m_pConfig->type256[nDevice]);
-	}
-
 //ダイアログ表示中にリターンキーが押されると呼び出されます
 void CConfigDlg::OnOK()
 	{
@@ -446,6 +458,16 @@ HBRUSH CConfigDlg::OnCtlColor(CDC* pDC,CWnd* pWnd,UINT nCtlColor)
 		pDC->SetBkColor(COLOR_BLUE);
 		return(m_brush);
 		}
+	else if(nUid == IDC_NOTICE4)
+		{
+		m_brush.DeleteObject();
+		m_brush.CreateSolidBrush(::GetSysColor(COLOR_3DFACE));
+		pDC->SetBkMode(TRANSPARENT);
+		pDC->SetTextColor(COLOR_RED);
+		pDC->SetBkColor(::GetSysColor(COLOR_3DFACE));
+		return(m_brush);
+		}
+
 
 	HBRUSH hbr = CDialogEx::OnCtlColor(pDC,pWnd,nCtlColor);
 	return hbr;

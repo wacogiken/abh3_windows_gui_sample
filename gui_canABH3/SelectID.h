@@ -42,64 +42,71 @@
 //
 class CSelectID : public CDialogEx
 {
-	DECLARE_DYNAMIC(CSelectID)
 protected:
-	//
-	typedef struct _SELECTID_VAR
-		{
-		uint8_t		nSelectID;
-		uint8_t		nGroup;
-		uint8_t		nType;		//0..標準
-		} SELECTID_VAR,*pSELECTID_VAR;
-	//内部変数
-	SELECTID_VAR m_var;
+
+	//選択結果の格納先
+	IDSET m_var;
+
 	//描画用ブラシ
 	CBrush m_brush;
+
 	//ID選択の選択肢を構築します
 	void CreateIDlist(void);
-	//機種の選択状態を更新します
+
+	//現在のID設定を元に、機種を選択します
 	void UpdateType(void);
+
 	//ボタンの有効無効を設定します
 	void UpdateButton(void);
+
 	//色制御確認
 	bool DrawCheck(CWnd* pWnd,COLORITEM& colorItem);
 
+	//ID類設定を一括設定
+	void SetIDSET(uint8_t nID,uint8_t nGroup,MTYPE type,LPCTSTR pType)
+		{
+		IDSET info;
+		::ZeroMemory(&info,sizeof(IDSET));
+		info.nID		= nID;
+		info.nGroup		= nGroup;
+		info.type		= type;
+		::_tcscpy_s(info.sType32,32,pType);
+		SetIDSET(&info);
+		}
+	void SetIDSET(pIDSET pInfo)
+		{
+		::CopyMemory(&m_var,pInfo,sizeof(IDSET));
+		}
+
+	//DDE
+	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV サポート
+
+	//
+	DECLARE_DYNAMIC(CSelectID)
+	DECLARE_MESSAGE_MAP()
+
 public:
-	//選択IDを取得します
-	uint8_t GetID(void)
+	//ID類設定を一括取得
+	pIDSET GetIDSET(void)
 		{
-		//指定されたIDがそのままの値で戻る
-		return(m_var.nSelectID);
+		return(&m_var);
 		}
-	//選択グループを取得します
-	uint8_t GetGroup(void)
-		{
-		return(m_var.nGroup);
-		}
-	//機種設定を取得します
-	uint32_t GetType(void)
-		{
-		return(m_var.nType);
-		}
-	//機種名を取得します
-	CString GetTypeName(void);
 
-
+	//コントロール変数
 	CComboBox m_selectid;
 	CComboBox m_selectgroup;
 	CComboBox m_selecttype;
 
-public:
-	CSelectID(CWnd* pParent = nullptr);   // 標準コンストラクター
-	virtual ~CSelectID();
-	enum { IDD = IDD_SELECTID };
+	//仮想関数とイベントハンドラ
 	virtual BOOL OnInitDialog();
     afx_msg void OnCbnDropdownSelectid();
 	afx_msg void OnCbnSelchangeSelectid();
 	virtual void OnOK();
     afx_msg HBRUSH OnCtlColor(CDC* pDC,CWnd* pWnd,UINT nCtlColor);
 
-protected:
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV サポート
-	DECLARE_MESSAGE_MAP()
-    };
+public:
+	//基本構造
+	CSelectID(CWnd* pParent = nullptr);   // 標準コンストラクター
+	virtual ~CSelectID();
+	enum { IDD = IDD_SELECTID };
+};

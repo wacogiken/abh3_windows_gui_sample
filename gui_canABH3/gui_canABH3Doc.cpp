@@ -52,18 +52,18 @@ IMPLEMENT_DYNCREATE(CguicanABH3Doc,CDocument)
 BEGIN_MESSAGE_MAP(CguicanABH3Doc,CDocument)
 END_MESSAGE_MAP()
 
-//
+//コンストラクタ
 CguicanABH3Doc::CguicanABH3Doc() noexcept
 	{
-	//ID未指定状態
-	SetIDangGroup(0xFF,0x00,0,_T(""));
+	//初期化(ID未指定,グループ0,機種標準,機種名無し)
+	SetIDSET(0xFF,0x00,MTYPE::MTYPE_NORMAL,_T(""));
 	}
 
-//
+//デストラクタ
 CguicanABH3Doc::~CguicanABH3Doc()
 	{
 	//アプリケーションクラスにこのIDの利用を終了した事を通知
-	theApp.SetID(GetID(),false);
+	theApp.SetID(GetIDSET()->nID,false);
 	}
 
 // CguicanABH3Doc の診断
@@ -78,7 +78,7 @@ void CguicanABH3Doc::Dump(CDumpContext& dc) const
 	}
 #endif //_DEBUG
 
-//
+//新規ウィンドウを開く時に呼び出されます
 BOOL CguicanABH3Doc::OnNewDocument()
 	{
 	//接続先情報をダイアログを開いて設定させる
@@ -87,15 +87,11 @@ BOOL CguicanABH3Doc::OnNewDocument()
 		return(FALSE);
 
 	//選択したIDとグループを取得し、ドキュメントクラス内に登録
-	uint8_t nSelectID = SELID.GetID();
-	uint8_t nGroup = SELID.GetGroup();
-	uint32_t nType = SELID.GetType();
-	CString sType = SELID.GetTypeName();
-
-	SetIDangGroup(nSelectID,nGroup,nType,sType);
+	pIDSET pInfo = SELID.GetIDSET();
+	SetIDSET(pInfo);
 
 	//アプリケーションクラスにこのIDの利用を開始した事を通知
-	theApp.SetID(nSelectID,true);
+	theApp.SetID(pInfo->nID,true);
 
 /*
 	if(!CDocument::OnNewDocument())
@@ -107,7 +103,7 @@ BOOL CguicanABH3Doc::OnNewDocument()
 	return TRUE;
 	}
 
-//
+//シリアライズ（ファイルを扱わないので現時点では未使用）
 void CguicanABH3Doc::Serialize(CArchive& ar)
 	{
 	if(ar.IsStoring())
@@ -121,7 +117,6 @@ void CguicanABH3Doc::Serialize(CArchive& ar)
 	}
 
 #ifdef SHARED_HANDLERS
-
 //縮小版のサポート
 void CguicanABH3Doc::OnDrawThumbnail(CDC& dc,LPRECT lprcBounds)
 	{

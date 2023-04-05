@@ -57,6 +57,21 @@ protected:
 		UINT	nTimerNum;		//周期設定で使うタイマー番号
 		UINT	n1sec;			//1秒割り込みで使うタイマー番号
 
+		//ウィンドウに対する設定
+		struct _VIEW_CONFIG
+			{
+			uint8_t		nID;
+			uint8_t		nGroup;
+			MTYPE		nType;
+			TCHAR		sType[32];
+			} config;
+
+		//処理要求関連
+		struct _VIEW_REQUEST
+			{
+			bool	bAutoConnect;	//インターフェース繋いで周期送信開始
+			} request;
+
 		//ハートビート関連
 		struct _HEATBEAT
 			{
@@ -84,6 +99,35 @@ protected:
 
 		} VIEW_VAR,*pVIEW_VAR;
 	
+	//========================================
+	//ウィンドウの設定取得
+	//========================================
+
+	//ID取得
+	uint8_t GetID(void)
+		{
+		return(m_var.config.nID);
+		}
+
+	//グループ番号取得
+	uint8_t GetGroup(void)
+		{
+		return(m_var.config.nGroup);
+		}
+
+	//機種設定取得
+	MTYPE GetType(void)
+		{
+		return(m_var.config.nType);
+		}
+
+	//機種設定を文字列で取得
+	CString GetTypeName(void)
+		{
+		return(CString(m_var.config.sType));
+		}
+
+
 	//========================================
 	//ハートビート関連（受信の有無判断）
 	//========================================
@@ -122,6 +166,8 @@ protected:
 		GetDlgItem(nUid)->MoveWindow(moveRect);
 		return(moveRect);
 		}
+
+	//指定IDのダイアログアイテムをクライアント座標の指定位置に高さと幅を指定して移動
 	CRect MoveItem(UINT nUid,CPoint topLeft,CSize size)
 		{
 		CRect moveRect;
@@ -161,9 +207,20 @@ protected:
 		{
 		CString sOldText("");
 		GetDlgItem(nUid)->GetWindowText(sOldText);
+
+		//文字列に変化が無い？
 		if(sOldText == sNewText)
+			{
+			//再描画だけ行う
+			GetDlgItem(nUid)->Invalidate();
 			return(false);
-		GetDlgItem(nUid)->SetWindowText(sNewText);
+			}
+		else
+			{
+			//文字列に変化が有るので設定する。（自動的に再描画対象となる）
+			GetDlgItem(nUid)->SetWindowText(sNewText);
+			}
+		//設定扱い
 		return(true);
 		}
 	bool FastSetText(UINT nUid,TCHAR* pNewText)
@@ -174,19 +231,17 @@ protected:
 	//色制御全体確認
 	bool DrawCheck(CWnd* pWnd,COLORITEM& colorItem);
 	//固定テキスト類アイテムの色制御確認
-	bool DrawCheck_0(CWnd* pWnd,COLORITEM& colorItem);
+	bool DrawCheck_0(UINT nItemID,COLORITEM& colorItem);
 	//入力フラグの色制御確認
-	bool DrawCheck_1(CWnd* pWnd,COLORITEM& colorItem);
+	bool DrawCheck_1(UINT nItemID,COLORITEM& colorItem);
 	//制御フラグの色制御確認
-	bool DrawCheck_2(CWnd* pWnd,COLORITEM& colorItem);
+	bool DrawCheck_2(UINT nItemID,COLORITEM& colorItem);
 	//I/Oフラグの色制御確認
-	bool DrawCheck_3(CWnd* pWnd,COLORITEM& colorItem);
-	//警告フラグの色制御確認
-	bool DrawCheck_4(CWnd* pWnd,COLORITEM& colorItem);
-	//異常フラグの色制御確認
-	bool DrawCheck_5(CWnd* pWnd,COLORITEM& colorItem);
+	bool DrawCheck_3(UINT nItemID,COLORITEM& colorItem);
+	//警告と異常フラグの色制御確認
+	bool DrawCheck_4(UINT nItemID,COLORITEM& colorItem);
 	//ハートビート関連
-	bool DrawCheck_6(CWnd* pWnd,COLORITEM& colorItem);
+	bool DrawCheck_5(UINT nItemID,COLORITEM& colorItem);
 
 	//全データ部分の更新
 	void UpdateView(bool bForce = false);
@@ -211,6 +266,9 @@ protected:
 	//設定関連
 	//========================================
 
+	//現在の設定機種を取得
+//	uint8_t GetCurrentType(void);
+
 	//設定の復帰
 	void reg2disp(void);
 
@@ -221,6 +279,9 @@ protected:
 	//指令モードを設定しシステムへ保存
 	void SetOrderType(int nMode);
 	
+	//現在の指令モードを取得
+	int GetOrderType(void);
+
 	//指令と指令選択の復帰
 	void RestoreOrder();
 
@@ -272,32 +333,18 @@ public:
 
 	//コントロール変数
 	CBrush m_brush;
-	CStatic m_id;
-	CStatic m_result_bit[32];
-	CStatic m_input_bit[32];
-	CStatic m_io_bit[32];
-	CButton m_ctrl_off_bit[32];
-	CButton m_ctrl_on_bit[32];
 	CAdvanceEdit m_edit[2];
-	CStatic m_order_title;
-	CButton m_order_value[2];
 	CAdvanceEdit m_interval;
+	CButton m_order_value[2];
 	CButton m_interval_btn[2];
-	CStatic m_status[8];
 
 	//非同期送信スレッド
 	static unsigned __stdcall SendThread(void* pParam);
 
-	//指定値に対する特定ビットが成立しているか取得
-	bool IsBit(uint32_t nValue,int nBit)
-		{
-		if(nValue & (1 << nBit))
-			return(true);
-		return(false);
-		}
-
 	//イベントハンドラとオーバライド
+	virtual void DoDataExchange(CDataExchange* pDX);
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
+	virtual void OnInitialUpdate();
     afx_msg HBRUSH OnCtlColor(CDC* pDC,CWnd* pWnd,UINT nCtlColor);
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	afx_msg void OnEnChangeInterval();
@@ -323,11 +370,8 @@ public:
 protected:
 	//基本構造
 	CguicanABH3View() noexcept;
-	virtual void DoDataExchange(CDataExchange* pDX);
-	virtual void OnInitialUpdate();
 	DECLARE_DYNCREATE(CguicanABH3View)
 	DECLARE_MESSAGE_MAP()
-public:
 };
 
 #ifndef _DEBUG  // gui_canABH3View.cpp のデバッグ バージョン

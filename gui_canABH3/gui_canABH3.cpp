@@ -487,3 +487,4 @@ int CguicanABH3App::RestartApplication()
 	return(0);
 	}
 
+//

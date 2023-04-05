@@ -157,6 +157,62 @@ public:
 			m_var.usedID[nID] = 0;
 		}
 
+	//コンボボックスにTEXTARRAY形式のテーブル文字列を設定
+	int InitCombobox(CComboBox* pCombo,pTEXTARRAY pTbl,int nFirstSel = 0)
+		{
+		//前の選択肢を指定？
+		if(nFirstSel < 0)
+			nFirstSel = pCombo->GetCurSel();
+
+		//選択肢構築
+		pCombo->ResetContent();
+		int nPt = 0;
+		while(pTbl[nPt].text.pTextEN)
+			{
+			pCombo->AddString(GetLangText(&pTbl[nPt].text));
+			++nPt;
+			}
+		//選択状態
+		if(nFirstSel >= nPt)
+			nFirstSel = 0;
+		pCombo->SetCurSel(nFirstSel);
+		//
+		return(nFirstSel);
+		}
+
+	//指定コンボボックスの選択状態をテーブルの値が一致する項目に設定
+	int SetCombobox(CComboBox* pCombo,pTEXTARRAY pTbl,int32_t nValue)
+		{
+		int nPt = 0;
+		while(pTbl[nPt].text.pTextEN)
+			{
+			if(pTbl[nPt].nValue == nValue)
+				{
+				//値が一致する項目
+				pCombo->SetCurSel(nPt);
+				return(nPt);
+				}
+			++nPt;
+			}
+		//見つからない
+		pCombo->SetCurSel(0);
+		}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	DECLARE_MESSAGE_MAP()
 };
 

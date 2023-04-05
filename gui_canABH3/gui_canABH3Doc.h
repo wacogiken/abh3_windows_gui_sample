@@ -41,53 +41,39 @@
 //
 class CguicanABH3Doc : public CDocument
 {
-public:
-	//
-	typedef struct _IDSET
-		{
-		uint8_t		nID;			//対象ID
-		uint8_t		nGroup;			//ブロードキャスト要求に使用するグループID
-		uint8_t		nType;			//機種設定
-		TCHAR		sType32[32];	//機種名
-		} IDSET,*pIDSET;
-
 protected:
 	//ID保存用
 	IDSET	m_idset;
 
 	//ID類設定を一括設定
-	void SetIDangGroup(uint8_t nID,uint8_t nGroup,uint32_t nType,LPCTSTR pType)
+	void SetIDSET(uint8_t nID,uint8_t nGroup,MTYPE type,LPCTSTR pType)
 		{
-		m_idset.nID			= nID;
-		m_idset.nGroup		= nGroup;
-		m_idset.nType		= nType;
-		::_tcscpy_s(m_idset.sType32,32,pType);
+		IDSET info;
+		::ZeroMemory(&info,sizeof(IDSET));
+		info.nID		= nID;
+		info.nGroup		= nGroup;
+		info.type		= type;
+		::_tcscpy_s(info.sType32,32,pType);
+		SetIDSET(&info);
+		}
+	void SetIDSET(pIDSET pInfo)
+		{
+		::CopyMemory(&m_idset,pInfo,sizeof(IDSET));
 		}
 
+	//
+	CguicanABH3Doc() noexcept;
+	DECLARE_DYNCREATE(CguicanABH3Doc)
+	DECLARE_MESSAGE_MAP()
+
 public:
-	//接続先IDを取得
-	uint8_t GetID(void)
-		{
-		return(m_idset.nID);
-		}
-	//接続先グループ番号を取得
-	uint8_t GetGroup(void)
-		{
-		return(m_idset.nGroup);
-		}
-	//ビューの周期を取得
-	uint32_t GetType(void)
-		{
-		return(m_idset.nType);
-		}
 	//ID類設定を一括取得
 	pIDSET GetIDSET(void)
 		{
 		return(&m_idset);
 		}
 
-public:
-	virtual ~CguicanABH3Doc();
+	//仮想関数とイベントハンドラ
 	virtual BOOL OnNewDocument();
 	virtual void Serialize(CArchive& ar);
 #ifdef SHARED_HANDLERS
@@ -99,11 +85,10 @@ public:
 	virtual void Dump(CDumpContext& dc) const;
 #endif
 
-protected:
-	CguicanABH3Doc() noexcept;
-	DECLARE_DYNCREATE(CguicanABH3Doc)
-	DECLARE_MESSAGE_MAP()
+	//基本構造
+	virtual ~CguicanABH3Doc();
 
+protected:
 #ifdef SHARED_HANDLERS
 	// 検索ハンドラーの検索コンテンツを設定するヘルパー関数
 	void SetSearchContent(const CString& value);
