@@ -4,6 +4,16 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 16.0.32510.428
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gui_canABH3", "gui_canABH3\gui_canABH3.vcxproj", "{65443608-A68E-4BB6-94EB-61B2DB3C0507}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BE3EBB3D-1DE8-4FBB-94CE-4969A3EBFF6F} = {BE3EBB3D-1DE8-4FBB-94CE-4969A3EBFF6F}
+		{96C12A57-6A4F-4436-9FC7-3865061F9B99} = {96C12A57-6A4F-4436-9FC7-3865061F9B99}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CANabh3", "..\CANabh3\CANabh3\CANabh3.vcxproj", "{96C12A57-6A4F-4436-9FC7-3865061F9B99}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CANwacousb", "..\CANwacousb\CANwacousb\CANwacousb.vcxproj", "{BE3EBB3D-1DE8-4FBB-94CE-4969A3EBFF6F}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Setup", "Setup\Setup.vdproj", "{52D9AA90-EB90-4D72-A8FC-D2A7061A8DBA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +25,16 @@ Global
 		{65443608-A68E-4BB6-94EB-61B2DB3C0507}.Debug|x86.Build.0 = Debug|Win32
 		{65443608-A68E-4BB6-94EB-61B2DB3C0507}.Release|x86.ActiveCfg = Release|Win32
 		{65443608-A68E-4BB6-94EB-61B2DB3C0507}.Release|x86.Build.0 = Release|Win32
+		{96C12A57-6A4F-4436-9FC7-3865061F9B99}.Debug|x86.ActiveCfg = Debug|Win32
+		{96C12A57-6A4F-4436-9FC7-3865061F9B99}.Debug|x86.Build.0 = Debug|Win32
+		{96C12A57-6A4F-4436-9FC7-3865061F9B99}.Release|x86.ActiveCfg = Release|Win32
+		{96C12A57-6A4F-4436-9FC7-3865061F9B99}.Release|x86.Build.0 = Release|Win32
+		{BE3EBB3D-1DE8-4FBB-94CE-4969A3EBFF6F}.Debug|x86.ActiveCfg = Debug|Win32
+		{BE3EBB3D-1DE8-4FBB-94CE-4969A3EBFF6F}.Debug|x86.Build.0 = Debug|Win32
+		{BE3EBB3D-1DE8-4FBB-94CE-4969A3EBFF6F}.Release|x86.ActiveCfg = Release|Win32
+		{BE3EBB3D-1DE8-4FBB-94CE-4969A3EBFF6F}.Release|x86.Build.0 = Release|Win32
+		{52D9AA90-EB90-4D72-A8FC-D2A7061A8DBA}.Debug|x86.ActiveCfg = Release
+		{52D9AA90-EB90-4D72-A8FC-D2A7061A8DBA}.Release|x86.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
