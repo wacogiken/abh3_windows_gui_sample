@@ -1449,9 +1449,9 @@ void CguicanABH3View::UpdateView_0(bool bForce /* false */)
 		while(pTbl->nUid)
 			{
 			if(IsBit(nValue,pTbl->nBit))
-				FastSetText(pTbl->nUid,theApp.GetLangText(&pTbl->offtext));		//ON
+				FastSetText(pTbl->nUid,theApp.GetLangText(&pTbl->ontext));		//ON
 			else
-				FastSetText(pTbl->nUid,theApp.GetLangText(&pTbl->ontext));	//OFF
+				FastSetText(pTbl->nUid,theApp.GetLangText(&pTbl->offtext));	//OFF
 			++pTbl;
 			}
 		}
