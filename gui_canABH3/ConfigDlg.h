@@ -72,7 +72,11 @@ public:
 
 		//環境設定で設定する要素
 		uint8_t		nDLL;				//DLL番号
-		uint8_t		nDLLoption;			//USB-to-CAN v2の場合はケーブル番号、WACOCANの場合はCOMポート番号、どちらも0開始
+		//廃止
+		//uint8_t		nDLLoption;			//USB-to-CAN v2の場合はケーブル番号、WACOCANの場合はCOMポート番号、どちらも0開始
+		//代替
+		uint8_t		nDLLoption2[16];	//DLL番号に対応したオプション値（初期値0）
+
 		uint8_t		nHostID;			//ホストのID
 		uint8_t		nBaudrate;			//ボーレート(選択肢番号)
 		uint8_t		nLanguage;			//0..英語  1..日本語

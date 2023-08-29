@@ -1,5 +1,4 @@
 # gui_canABH3 (Sample for CANabh3.DLL)
-ROS Package for <a href="https://www.wacogiken.co.jp/agv/abh3.html">ABH3</a> Driver
 
 <table width="100%" border="0">
 <tr><th align="center" valign="center" bgcolor="blue"><font color="white">Software detail</font></th></tr>
@@ -37,6 +36,12 @@ ROS Package for <a href="https://www.wacogiken.co.jp/agv/abh3.html">ABH3</a> Dri
             <th bgcolor="blue"><font color="white">Date</font></th>
             <th bgcolor="blue"><font color="white">Auth</font></th>
             <th bgcolor="blue"><font color="white">Notice</font></th>
+        </tr>
+        <tr>
+            <td>1.0.0.10</td>
+            <td>2023/04/26</td>
+            <td>Y.OGAWA</td>
+            <td>7th release<br>Change preference dialog.</td>
         </tr>
         <tr>
             <td>1.0.0.9</td>

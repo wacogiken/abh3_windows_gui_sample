@@ -83,7 +83,7 @@ static TEXTARRAY g_config_language[] = {
 	{{NULL,							NULL},			0,		NULL},
 	};
 
-//DLL選択肢
+//DLL選択肢（最大16）
 static TEXTARRAY g_config_dll[] = {
 	//textEN						textJP			value	textvalue
 	{{_T("IXXAT USB-to-CAN V2"),	NULL},			0,		_T("CANabh3.dll")},
@@ -202,7 +202,7 @@ void CConfigDlg::initScreen()
 	reg2disp();
 
 	//選択肢構築・DLLオプション
-	CreateDLLoption(&m_dlloption,m_pConfig->nDLL,m_pConfig->nDLLoption);
+	CreateDLLoption(&m_dlloption,m_pConfig->nDLL,m_pConfig->nDLLoption2[m_pConfig->nDLL]);
 
 	//現在の選択
 	OnCbnDropdownConfigDll();
@@ -212,7 +212,7 @@ void CConfigDlg::initScreen()
 void CConfigDlg::OnCbnDropdownConfigDll()
 	{
 	int nSel = m_dll.GetCurSel();
-	CreateDLLoption(&m_dlloption,nSel);
+	CreateDLLoption(&m_dlloption,nSel,m_pConfig->nDLLoption2[nSel]);
 	CreateNotice(nSel);
 	}
 
@@ -279,7 +279,12 @@ void CConfigDlg::sys2reg()
 
 	//環境設定の項目
 	m_pConfig->nDLL				= (uint8_t)theApp.GetProfileInt(sSection,_T("dll"),0x0);
-	m_pConfig->nDLLoption		= (uint8_t)theApp.GetProfileInt(sSection,_T("dlloption"),0x0);
+	for(int nLoop = 0;nLoop < 16;nLoop++)
+		{
+		sItem.Format(_T("dlloption%d"),nLoop);
+		m_pConfig->nDLLoption2[nLoop] = (uint8_t)theApp.GetProfileInt(sSection,sItem,0);
+		}
+	//m_pConfig->nDLLoption		= (uint8_t)theApp.GetProfileInt(sSection,_T("dlloption"),0x0);
 	m_pConfig->nHostID			= (uint8_t)theApp.GetProfileInt(sSection,_T("hostid"),0);
 	m_pConfig->nBaudrate		= (uint8_t)theApp.GetProfileInt(sSection,_T("baudrate"),0);
 	m_pConfig->nLanguage		= (uint8_t)theApp.GetProfileInt(sSection,_T("language"),0);
@@ -320,7 +325,12 @@ void CConfigDlg::reg2sys()
 	CString sSection("base"),sItem("");
 	//環境設定の項目
 	theApp.WriteProfileInt(sSection,_T("dll"),int(m_pConfig->nDLL));
-	theApp.WriteProfileInt(sSection,_T("dlloption"),int(m_pConfig->nDLLoption));
+	for(int nLoop = 0;nLoop < 16;nLoop++)
+		{
+		sItem.Format(_T("dlloption%d"),nLoop);
+		theApp.WriteProfileInt(sSection,sItem,int(m_pConfig->nDLLoption2[nLoop]));
+		}
+	//theApp.WriteProfileInt(sSection,_T("dlloption"),int(m_pConfig->nDLLoption));
 	theApp.WriteProfileInt(sSection,_T("hostid"),int(m_pConfig->nHostID));
 	theApp.WriteProfileInt(sSection,_T("baudrate"),int(m_pConfig->nBaudrate));
 	theApp.WriteProfileInt(sSection,_T("language"),int(m_pConfig->nLanguage));
@@ -350,7 +360,7 @@ void CConfigDlg::reg2sys()
 void CConfigDlg::reg2disp()
 	{
 	m_dll.SetCurSel(m_pConfig->nDLL);
-	m_dlloption.SetCurSel(m_pConfig->nDLLoption);
+	m_dlloption.SetCurSel(m_pConfig->nDLLoption2[m_pConfig->nDLL]);
 	m_hostid.SetCurSel(m_pConfig->nHostID);
 	m_baudrate.SetCurSel(m_pConfig->nBaudrate);
 	m_language.SetCurSel(m_pConfig->nLanguage);
@@ -360,7 +370,7 @@ void CConfigDlg::reg2disp()
 void CConfigDlg::disp2reg()
 	{
 	m_pConfig->nDLL = (uint8_t)m_dll.GetCurSel();
-	m_pConfig->nDLLoption = (uint8_t)m_dlloption.GetCurSel();
+	m_pConfig->nDLLoption2[m_pConfig->nDLL] = (uint8_t)m_dlloption.GetCurSel();
 	m_pConfig->nHostID = (uint8_t)m_hostid.GetCurSel();
 	m_pConfig->nBaudrate = (uint8_t)m_baudrate.GetCurSel();
 	m_pConfig->nLanguage = (uint8_t)m_language.GetCurSel();
@@ -385,7 +395,7 @@ uint8_t CConfigDlg::getDllOption()
 	//	USB-to-CAN v2 (dll == 0) の場合は、何本目のケーブルを使うかを指定（0開始:0..1本目）
 	//	WACOCAN (dll == 1) の場合は、COMポート番号を指定（0開始:0..COM1)
 
-	return(m_pConfig->nDLLoption);
+	return(m_pConfig->nDLLoption2[m_pConfig->nDLL]);
 	}
 
 //ホスト設定番号を取得
