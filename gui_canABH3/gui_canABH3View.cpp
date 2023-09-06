@@ -1883,7 +1883,12 @@ void CguicanABH3View::RestoreRequestTarget()
 		if(item.nUid == 0)
 			break;
 		CButton* pBtn = (CButton*)GetDlgItem(item.nUid);
-		pBtn->SetCheck(((nValue & (1 << nLoop)) != 0) ? 1 : 0);
+		//現在の機種設定がホスト以外？
+		if(GetType() != MTYPE::MTYPE_HOST)
+			pBtn->SetCheck(((nValue & (1 << nLoop)) != 0) ? 1 : 0);
+		else
+			pBtn->SetCheck(0);	//ホストモードではチェック非表示
+
 		++nLoop;
 		}
 	}
