@@ -63,13 +63,15 @@ static IDTEXT1 g_config_title[] = {
 static LANGTEXT g_config_text[] = {
 	//textEN	textJP
 	{_T("No.%d"),
-				_T("%d 本目")},
+		_T("%d 本目")},
 	{_T("Interface settings have been changed. Restart this software."),
-				_T("インターフェース設定が変更された為、本ソフトを再起動します")},
+			_T("インターフェース設定が変更された為、本ソフトを再起動します")},
 	{_T("language settings have been changed. Restart this software."),
-				_T("言語設定が変更された為、本ソフトを再起動します")},
+			_T("言語設定が変更された為、本ソフトを再起動します")},
 	{_T("Must be check DIPSW."),
-				_T("ディップスイッチ要確認")},
+			_T("ディップスイッチ要確認")},
+	{_T("Preference"),
+			_T("環境設定")},
 
 	{NULL,
 				NULL},
@@ -182,6 +184,10 @@ void CConfigDlg::initScreen()
 		GetDlgItem(item.nUid)->SetWindowText(theApp.GetLangText(&item.text));
 		++nLoop;
 		}
+
+	//ウィンドウタイトル
+	SetWindowText(theApp.GetLangText(&g_config_text[4]));
+
 
 	//選択肢構築
 	//	DLLオプションは、m_dll選択状態に対して動的構築する

@@ -54,6 +54,9 @@ static IDTEXT1 g_selectid_tbl[] = {
 	{IDC_TITLE_SELECTID,	{_T("ABH3 adrs"),		_T("ABH3 アドレス")}},
 	{IDC_TITLE_SELECTGROUP,	{_T("Group number"),	_T("グループ番号")}},
 	{IDC_TITLE_SELECTTYPE,	{_T("Device type"),		_T("機種")}},
+	{IDOK,					{_T("OK"),				_T("OK")}},
+	{IDCANCEL,				{_T("Cancel"),			_T("キャンセル")}},
+
 	{0,						{NULL,					NULL}},
 	};
 
