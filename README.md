@@ -38,6 +38,12 @@
             <th bgcolor="blue"><font color="white">Notice</font></th>
         </tr>
         <tr>
+            <td>1.0.0.12</td>
+            <td>2023/09/11</td>
+            <td>Y.OGAWA</td>
+            <td>9th release<br>Update minor.</td>
+        </tr>
+        <tr>
             <td>1.0.0.11</td>
             <td>2023/08/31</td>
             <td>Y.OGAWA</td>
