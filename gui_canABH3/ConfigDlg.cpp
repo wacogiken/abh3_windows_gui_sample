@@ -121,6 +121,7 @@ CConfigDlg::CConfigDlg(CWnd* pParent /*=nullptr*/)
 
 	//描画用ブラシの構築
 	m_brush.CreateSolidBrush(COLOR_BLACK);
+
 	}
 
 //

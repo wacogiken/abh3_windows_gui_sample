@@ -156,6 +156,7 @@ static IDTEXT5 g_request_tbl[] = {
 //	並び替え禁止
 //	文字列以外変更禁止
 //	値の表示は表示フォーマットを含め、プログラム側で個別実装している事に注意
+//	標準・小型共通
 //================================================================================
 static IDTEXT4 g_valueid_tbl[] = {
 	//titleID			textEN						textJP					valueID
@@ -181,7 +182,7 @@ static IDTEXT4 g_valueid_tbl[] = {
 	};
 
 //================================================================================
-//操作フラグ定義
+//操作フラグ定義（標準ABH3用）
 //
 //概要
 //	シングルパケットで送信される操作フラグの定義
@@ -189,7 +190,7 @@ static IDTEXT4 g_valueid_tbl[] = {
 //注意点
 //	並びを変えたい場合は、IDの順を変えずに他の項目を入れ替える事。
 //================================================================================
-static IDTEXT2 g_ctrlid_ctrl[] =	{
+static IDTEXT2 g_ctrlid_normal_ctrl[] =	{
 	//bit	btnOffID			offTextEN					offTextJP}					btnOnID				onTextEN				onTextJP}
 	{0,		IDC_OFF_CTRLID0,	{_T("A/Y servoOFF"),		_T("A/YサーボOFF")},		IDC_ON_CTRLID0,		{_T("A/Y servoON"),		_T("A/YサーボON")}},
 	{1,		IDC_OFF_CTRLID1,	{_T("A/Y stop"),			_T("A/Yストップ")},			IDC_ON_CTRLID1,		{_T("A/Y start"),		_T("A/Yスタート")}},
@@ -227,7 +228,53 @@ static IDTEXT2 g_ctrlid_ctrl[] =	{
 	};
 
 //================================================================================
-//入力フラグ定義
+//操作フラグ定義（小型ABH3用）
+//
+//概要
+//	シングルパケットで送信される操作フラグの定義
+//
+//注意点
+//	並びを変えたい場合は、IDの順を変えずに他の項目を入れ替える事。
+//================================================================================
+static IDTEXT2 g_ctrlid_small_ctrl[] =	{
+	//bit	btnOffID			offTextEN					offTextJP}					btnOnID				onTextEN				onTextJP}
+	{0,		IDC_OFF_CTRLID0,	{_T("A/Y servoOFF"),		_T("A/YサーボOFF")},		IDC_ON_CTRLID0,		{_T("A/Y servoON"),		_T("A/YサーボON")}},
+	{1,		IDC_OFF_CTRLID1,	{_T("A/Y stop"),			_T("A/Yストップ")},			IDC_ON_CTRLID1,		{_T("A/Y start"),		_T("A/Yスタート")}},
+	{2,		IDC_OFF_CTRLID2,	{_T("A/Y fwd.order"),		_T("A/Y指令正転")},			IDC_ON_CTRLID2,		{_T("A/Y rev.order"),	_T("A/Y指令反転")}},
+	{3,		IDC_OFF_CTRLID3,	{_T(""),					_T("")},					IDC_ON_CTRLID3,		{_T(""),				_T("")}},
+	{4,		IDC_OFF_CTRLID4,	{_T("A/Y sel0=0"),			_T("A/Y選択0=0")},			IDC_ON_CTRLID4,		{_T("A/Y sel0=1"),		_T("A/Y選択0=1")}},
+	{5,		IDC_OFF_CTRLID5,	{_T("A/Y sel1=0"),			_T("A/Y選択1=0")},			IDC_ON_CTRLID5,		{_T("A/Y sel1=1"),		_T("A/Y選択1=1")}},
+	{6,		IDC_OFF_CTRLID6,	{_T("A/Y sel2=0"),			_T("A/Y選択2=0")},			IDC_ON_CTRLID6,		{_T("A/Y sel2=1"),		_T("A/Y選択2=1")}},
+	{7,		IDC_OFF_CTRLID7,	{_T(""),					_T("")},					IDC_ON_CTRLID7,		{_T(""),				_T("")}},
+	{8,		IDC_OFF_CTRLID8,	{_T("B/X servoOFF"),		_T("B/XサーボOFF")},		IDC_ON_CTRLID8,		{_T("B/X servoON"),		_T("B/XサーボON")}},
+	{9,		IDC_OFF_CTRLID9,	{_T("B/X stop"),			_T("B/Xストップ")},			IDC_ON_CTRLID9,		{_T("B/X start"),		_T("B/Xスタート")}},
+	{10,	IDC_OFF_CTRLID10,	{_T("B/X fwd.order"),		_T("B/X指令正転")},			IDC_ON_CTRLID10,	{_T("B/X rev.order"),	_T("B/X指令反転")}},
+	{11,	IDC_OFF_CTRLID11,	{_T(""),					_T("")},					IDC_ON_CTRLID11,	{_T(""),				_T("")}},
+	{12,	IDC_OFF_CTRLID12,	{_T("B/X sel0=0"),			_T("B/X選択0=0")},			IDC_ON_CTRLID12,	{_T("B/X sel0=1"),		_T("B/X選択0=1")}},
+	{13,	IDC_OFF_CTRLID13,	{_T("B/X sel1=0"),			_T("B/X選択1=0")},			IDC_ON_CTRLID13,	{_T("B/X sel1=1"),		_T("B/X選択1=1")}},
+	{14,	IDC_OFF_CTRLID14,	{_T("B/X sel2=0"),			_T("B/X選択2=0")},			IDC_ON_CTRLID14,	{_T("B/X sel2=1"),		_T("B/X選択2=1")}},
+	{15,	IDC_OFF_CTRLID15,	{_T(""),					_T("")},					IDC_ON_CTRLID15,	{_T(""),				_T("")}},
+	{16,	IDC_OFF_CTRLID16,	{_T("A/Y speed"),			_T("A/Y速度")},				IDC_ON_CTRLID16,	{_T("A/Y torque"),		_T("A/Yトルク")}},
+	{17,	IDC_OFF_CTRLID17,	{_T("B/X speed"),			_T("B/X速度")},				IDC_ON_CTRLID17,	{_T("B/X torque"),		_T("B/Xトルク")}},
+	{18,	IDC_OFF_CTRLID18,	{_T("Disable mst/slv"),		_T("マスタ/スレーブ無効")},	IDC_ON_CTRLID18,	{_T("Enable mst/slv"),	_T("マスタ/スレーブ有効")}},
+	{19,	IDC_OFF_CTRLID19,	{_T("Lock break"),			_T("ブレーキ保持")},		IDC_ON_CTRLID19,	{_T("Release break"),	_T("ブレーキ解放")}},
+	{20,	IDC_OFF_CTRLID20,	{_T("Never"),				_T("非動作")},				IDC_ON_CTRLID20,	{_T("AxisA clear"),		_T("A軸積算クリア")}},
+	{21,	IDC_OFF_CTRLID21,	{_T("Never"),				_T("非動作")},				IDC_ON_CTRLID21,	{_T("AxisB clear"),		_T("B軸積算クリア")}},
+	{22,	IDC_OFF_CTRLID22,	{_T("Never"),				_T("非動作")},				IDC_ON_CTRLID22,	{_T("Reset error"),		_T("エラーリセット")}},
+	{23,	IDC_OFF_CTRLID23,	{_T(""),					_T("")},					IDC_ON_CTRLID23,	{_T(""),				_T("")}},
+	{24,	IDC_OFF_CTRLID24,	{_T(""),					_T("")},					IDC_ON_CTRLID24,	{_T(""),				_T("")}},
+	{25,	IDC_OFF_CTRLID25,	{_T(""),					_T("")},					IDC_ON_CTRLID25,	{_T(""),				_T("")}},
+	{26,	IDC_OFF_CTRLID26,	{_T(""),					_T("")},					IDC_ON_CTRLID26,	{_T(""),				_T("")}},
+	{27,	IDC_OFF_CTRLID27,	{_T(""),					_T("")},					IDC_ON_CTRLID27,	{_T(""),				_T("")}},
+	{28,	IDC_OFF_CTRLID28,	{_T(""),					_T("")},					IDC_ON_CTRLID28,	{_T(""),				_T("")}},
+	{29,	IDC_OFF_CTRLID29,	{_T(""),					_T("")},					IDC_ON_CTRLID29,	{_T(""),				_T("")}},
+	{30,	IDC_OFF_CTRLID30,	{_T(""),					_T("")},					IDC_ON_CTRLID30,	{_T(""),				_T("")}},
+	{31,	IDC_OFF_CTRLID31,	{_T(""),					_T("")},					IDC_ON_CTRLID31,	{_T(""),				_T("")}},
+	{0,		0,					{NULL,						NULL},						0,					{NULL,					NULL}},
+	};
+
+//================================================================================
+//入力フラグ定義（標準ABH3用）
 //
 //概要
 //	ブロードキャストパケットで取得する、入力フラグの定義
@@ -236,7 +283,7 @@ static IDTEXT2 g_ctrlid_ctrl[] =	{
 //	並びを変えたい場合は、IDの順を変えずに他の項目を入れ替える事。
 //	但し、操作フラグ定義とビットの並びを同一にする事
 //================================================================================
-static IDTEXT3 g_inputid_tbl[] =	{
+static IDTEXT3 g_inputid_normal_tbl[] =	{
 	//bit	ID				offTextEN					offTextJP						onTextEN				onTextJP
 	{0,		IDC_INPUTID0,	{_T("A.Y servoOFF"),		_T("A/YサーボOFF")},			{_T("A/Y servoON"),		_T("A/YサーボON")}},
 	{1,		IDC_INPUTID1,	{_T("A/Y stop"),			_T("A/Yストップ")},				{_T("A/Y start"),		_T("A/Yスタート")}},
@@ -274,7 +321,54 @@ static IDTEXT3 g_inputid_tbl[] =	{
 	};
 
 //================================================================================
-//制御フラグ定義
+//入力フラグ定義（小型ABH3用）
+//
+//概要
+//	ブロードキャストパケットで取得する、入力フラグの定義
+//
+//注意点
+//	並びを変えたい場合は、IDの順を変えずに他の項目を入れ替える事。
+//	但し、操作フラグ定義とビットの並びを同一にする事
+//================================================================================
+static IDTEXT3 g_inputid_small_tbl[] =	{
+	//bit	ID				offTextEN					offTextJP						onTextEN				onTextJP
+	{0,		IDC_INPUTID0,	{_T("A.Y servoOFF"),		_T("A/YサーボOFF")},			{_T("A/Y servoON"),		_T("A/YサーボON")}},
+	{1,		IDC_INPUTID1,	{_T("A/Y stop"),			_T("A/Yストップ")},				{_T("A/Y start"),		_T("A/Yスタート")}},
+	{2,		IDC_INPUTID2,	{_T("A/Y fwd.order"),		_T("A/Y指令正転")},				{_T("A/Y rev.order"),	_T("A/Y指令反転")}},
+	{3,		IDC_INPUTID3,	{_T(""),					_T("")},						{_T(""),				_T("")}},
+	{4,		IDC_INPUTID4,	{_T("A/Y sel0=0"),			_T("A/Y選択0=0")},				{_T("A/Y sel0=1"),		_T("A/Y選択0=1")}},
+	{5,		IDC_INPUTID5,	{_T("A/Y sel1=0"),			_T("A/Y選択1=0")},				{_T("A/Y sel1=1"),		_T("A/Y選択1=1")}},
+	{6,		IDC_INPUTID6,	{_T("A/Y sel2=0"),			_T("A/Y選択2=0")},				{_T("A/Y sel2=1"),		_T("A/Y選択2=1")}},
+	{7,		IDC_INPUTID7,	{_T(""),					_T("")},						{_T(""),				_T("")}},
+	{8,		IDC_INPUTID8,	{_T("B/X servoOFF"),		_T("B/XサーボOFF")},			{_T("B/X servoON"),		_T("B/XサーボON")}},
+	{9,		IDC_INPUTID9,	{_T("B/X stop"),			_T("B/Xストップ")},				{_T("B/X start"),		_T("B/Xスタート")}},
+	{10,	IDC_INPUTID10,	{_T("B/X fwd.order"),		_T("B/X指令正転")},				{_T("B/X rev.order"),	_T("B/X指令反転")}},
+	{11,	IDC_INPUTID11,	{_T(""),					_T("")},						{_T(""),				_T("")}},
+	{12,	IDC_INPUTID12,	{_T("B/X sel0=0"),			_T("B/X選択0=0")},				{_T("B/X sel0=1"),		_T("B/X選択0=1")}},
+	{13,	IDC_INPUTID13,	{_T("B/X sel1=0"),			_T("B/X選択1=0")},				{_T("B/X sel1=1"),		_T("B/X選択1=1")}},
+	{14,	IDC_INPUTID14,	{_T("B/X sel2=0"),			_T("B/X選択2=0")},				{_T("B/X sel2=1"),		_T("B/X選択2=1")}},
+	{15,	IDC_INPUTID15,	{_T(""),					_T("")},						{_T(""),				_T("")}},
+	{16,	IDC_INPUTID16,	{_T("A/Y speed"),			_T("A/Y速度")},					{_T("A/Y torque"),		_T("A/Yトルク")}},
+	{17,	IDC_INPUTID17,	{_T("B/X speed"),			_T("B/X速度")},					{_T("B/X torque"),		_T("B/Xトルク")}},
+	{18,	IDC_INPUTID18,	{_T("Disable mst/slv"),		_T("マスタ/スレーブ無効")},		{_T("Enable mst/slv"),	_T("マスタ/スレーブ有効")}},
+	{19,	IDC_INPUTID19,	{_T("Lock break"),			_T("ブレーキ保持")},			{_T("Release break"),	_T("ブレーキ解放")}},
+	{20,	IDC_INPUTID20,	{_T("Never"),				_T("非動作")},					{_T("AxisA clear"),		_T("A軸積算クリア")}},
+	{21,	IDC_INPUTID21,	{_T("Never"),				_T("非動作")},					{_T("AxisB clear"),		_T("B軸積算クリア")}},
+	{22,	IDC_INPUTID22,	{_T("Never"),				_T("非動作")},					{_T("Reset error"),		_T("エラーリセット")}},
+	{23,	IDC_INPUTID23,	{_T(""),					_T("")},						{_T(""),				_T("")}},
+	{24,	IDC_INPUTID24,	{_T(""),					_T("")},						{_T(""),				_T("")}},
+	{25,	IDC_INPUTID25,	{_T(""),					_T("")},						{_T(""),				_T("")}},
+	{26,	IDC_INPUTID26,	{_T(""),					_T("")},						{_T(""),				_T("")}},
+	{27,	IDC_INPUTID27,	{_T(""),					_T("")},						{_T(""),				_T("")}},
+	{28,	IDC_INPUTID28,	{_T(""),					_T("")},						{_T(""),				_T("")}},
+	{29,	IDC_INPUTID29,	{_T(""),					_T("")},						{_T(""),				_T("")}},
+	{30,	IDC_INPUTID30,	{_T(""),					_T("")},						{_T(""),				_T("")}},
+	{31,	IDC_INPUTID31,	{_T(""),					_T("")},						{_T(""),				_T("")}},
+	{0,		0,				{NULL,						NULL},							{NULL,					NULL}},
+	};
+
+//================================================================================
+//制御フラグ定義（標準ABH3用）
 //
 //概要
 //	シングルパケットで取得する、制御フラグの定義
@@ -283,7 +377,7 @@ static IDTEXT3 g_inputid_tbl[] =	{
 //	並びを変えたい場合は、IDの順を変えずに他の項目を入れ替える事。
 //	但し、操作フラグ定義とビットの並びを同一にする事
 //================================================================================
-static IDTEXT3 g_resultid_tbl[] =	{
+static IDTEXT3 g_resultid_normal_tbl[] =	{
 	//bit	ID				offTextEN					offTextJP						onTextEN				onTextJP
 	{0,		IDC_RESULTID0,	{_T("A.Y servoOFF"),		_T("A/YサーボOFF")},			{_T("A/Y servoON"),		_T("A/YサーボON")}},
 	{1,		IDC_RESULTID1,	{_T("A/Y stop"),			_T("A/Yストップ")},				{_T("A/Y start"),		_T("A/Yスタート")}},
@@ -301,6 +395,53 @@ static IDTEXT3 g_resultid_tbl[] =	{
 	{13,	IDC_RESULTID13,	{_T("B/X sel1=0"),			_T("B/X選択1=0")},				{_T("B/X sel1=1"),		_T("B/X選択1=1")}},
 	{14,	IDC_RESULTID14,	{_T("B/X sel2=0"),			_T("B/X選択2=0")},				{_T("B/X sel2=1"),		_T("B/X選択2=1")}},
 	{15,	IDC_RESULTID15,	{_T("B/X adj.add"),			_T("B/X補正加算")},				{_T("B/X adj.sub"),		_T("B/X補正減算")}},
+	{16,	IDC_RESULTID16,	{_T("A/Y speed"),			_T("A/Y速度")},					{_T("A/Y torque"),		_T("A/Yトルク")}},
+	{17,	IDC_RESULTID17,	{_T("B/X speed"),			_T("B/X速度")},					{_T("B/X torque"),		_T("B/Xトルク")}},
+	{18,	IDC_RESULTID18,	{_T("Disable mst/slv"),		_T("マスタ/スレーブ無効")},		{_T("Enable mst/slv"),	_T("マスタ/スレーブ有効")}},
+	{19,	IDC_RESULTID19,	{_T("Lock break"),			_T("ブレーキ保持")},			{_T("Release break"),	_T("ブレーキ解放")}},
+	{20,	IDC_RESULTID20,	{_T("Never"),				_T("非動作")},					{_T("AxisA clear"),		_T("A軸積算クリア")}},
+	{21,	IDC_RESULTID21,	{_T("Never"),				_T("非動作")},					{_T("AxisB clear"),		_T("B軸積算クリア")}},
+	{22,	IDC_RESULTID22,	{_T("Never"),				_T("非動作")},					{_T("Reset error"),		_T("エラーリセット")}},
+	{23,	IDC_RESULTID23,	{_T(""),					_T("")},						{_T(""),				_T("")}},
+	{24,	IDC_RESULTID24,	{_T(""),					_T("")},						{_T(""),				_T("")}},
+	{25,	IDC_RESULTID25,	{_T("A/Y servoOFF"),		_T("A/YサーボOFF")},			{_T("A/Y servoON"),		_T("A/YサーボON")}},
+	{26,	IDC_RESULTID26,	{_T("A/Y order=0"),			_T("A/Y指令=0")},				{_T("A/X order"),		_T("A/Y指令≠0")}},
+	{27,	IDC_RESULTID27,	{_T("B/X servoOFF"),		_T("B/XサーボOFF")},			{_T("B/X servoON"),		_T("B/XサーボON")}},
+	{28,	IDC_RESULTID28,	{_T("B/X order=0"),			_T("B/X指令=0")},				{_T("B/X order"),		_T("B/X指令≠0")}},
+	{29,	IDC_RESULTID29,	{_T("Control motor"),		_T("モータ軸制御")},			{_T("Control tire"),	_T("走行軸制御")}},
+	{30,	IDC_RESULTID30,	{_T("Lock break"),		_T("ブレーキ解除出力OFF")},			{_T("Release break"),	_T("ブレーキ解放出力ON")}},
+	{31,	IDC_RESULTID31,	{_T("Normal"),				_T("異常なし")},				{_T("Abnormal"),		_T("異常発生")}},
+	{0,		0,				{NULL,						NULL},							{NULL,					NULL}},
+	};
+
+//================================================================================
+//制御フラグ定義（小型ABH3用）
+//
+//概要
+//	シングルパケットで取得する、制御フラグの定義
+//
+//注意点
+//	並びを変えたい場合は、IDの順を変えずに他の項目を入れ替える事。
+//	但し、操作フラグ定義とビットの並びを同一にする事
+//================================================================================
+static IDTEXT3 g_resultid_small_tbl[] =	{
+	//bit	ID				offTextEN					offTextJP						onTextEN				onTextJP
+	{0,		IDC_RESULTID0,	{_T("A.Y servoOFF"),		_T("A/YサーボOFF")},			{_T("A/Y servoON"),		_T("A/YサーボON")}},
+	{1,		IDC_RESULTID1,	{_T("A/Y stop"),			_T("A/Yストップ")},				{_T("A/Y start"),		_T("A/Yスタート")}},
+	{2,		IDC_RESULTID2,	{_T("A/Y fwd.order"),		_T("A/Y指令正転")},				{_T("A/Y rev.order"),	_T("A/Y指令反転")}},
+	{3,		IDC_RESULTID3,	{_T(""),					_T("")},						{_T(""),				_T("")}},
+	{4,		IDC_RESULTID4,	{_T("A/Y sel0=0"),			_T("A/Y選択0=0")},				{_T("A/Y sel0=1"),		_T("A/Y選択0=1")}},
+	{5,		IDC_RESULTID5,	{_T("A/Y sel1=0"),			_T("A/Y選択1=0")},				{_T("A/Y sel1=1"),		_T("A/Y選択1=1")}},
+	{6,		IDC_RESULTID6,	{_T("A/Y sel2=0"),			_T("A/Y選択2=0")},				{_T("A/Y sel2=1"),		_T("A/Y選択2=1")}},
+	{7,		IDC_RESULTID7,	{_T(""),					_T("")},						{_T(""),				_T("")}},
+	{8,		IDC_RESULTID8,	{_T("B/X servoOFF"),		_T("B/XサーボOFF")},			{_T("B/X servoON"),		_T("B/XサーボON")}},
+	{9,		IDC_RESULTID9,	{_T("B/X stop"),			_T("B/Xストップ")},				{_T("B/X start"),		_T("B/Xスタート")}},
+	{10,	IDC_RESULTID10,	{_T("B/X fwd.order"),		_T("B/X指令正転")},				{_T("B/X rev.order"),	_T("B/X指令反転")}},
+	{11,	IDC_RESULTID11,	{_T(""),					_T("")},						{_T(""),				_T("")}},
+	{12,	IDC_RESULTID12,	{_T("B/X sel0=0"),			_T("B/X選択0=0")},				{_T("B/X sel0=1"),		_T("B/X選択0=1")}},
+	{13,	IDC_RESULTID13,	{_T("B/X sel1=0"),			_T("B/X選択1=0")},				{_T("B/X sel1=1"),		_T("B/X選択1=1")}},
+	{14,	IDC_RESULTID14,	{_T("B/X sel2=0"),			_T("B/X選択2=0")},				{_T("B/X sel2=1"),		_T("B/X選択2=1")}},
+	{15,	IDC_RESULTID15,	{_T(""),					_T("")},						{_T(""),				_T("")}},
 	{16,	IDC_RESULTID16,	{_T("A/Y speed"),			_T("A/Y速度")},					{_T("A/Y torque"),		_T("A/Yトルク")}},
 	{17,	IDC_RESULTID17,	{_T("B/X speed"),			_T("B/X速度")},					{_T("B/X torque"),		_T("B/Xトルク")}},
 	{18,	IDC_RESULTID18,	{_T("Disable mst/slv"),		_T("マスタ/スレーブ無効")},		{_T("Enable mst/slv"),	_T("マスタ/スレーブ有効")}},
@@ -350,16 +491,16 @@ static IDTEXT g_io_normal_tbl[] =	{
 	{15,	IDC_IO15,			{_T("Input #7"),			_T("汎用入力 #7")}},
 	{16,	IDC_IO16,			{_T("Input #8"),			_T("汎用入力 #8")}},
 	{17,	IDC_IO17,			{_T("Input #9"),			_T("汎用入力 #9")}},
-	{18,	IDC_IO18,			{_T("Input #10"),			_T("汎用入力 #0")}},
-	{19,	IDC_IO19,			{_T("Input #11"),			_T("汎用入力 #1")}},
-	{20,	IDC_IO20,			{_T("Input #12"),			_T("汎用入力 #2")}},
-	{21,	IDC_IO21,			{_T("Input #13"),			_T("汎用入力 #3")}},
-	{22,	IDC_IO22,			{_T("Input #14"),			_T("汎用入力 #4")}},
-	{23,	IDC_IO23,			{_T("Input #15"),			_T("汎用入力 #5")}},
-	{24,	IDC_IO24,			{_T("Input #16"),			_T("汎用入力 #6")}},
-	{25,	IDC_IO25,			{_T("Input #17"),			_T("汎用入力 #7")}},
-	{26,	IDC_IO26,			{_T("Input #18"),			_T("汎用入力 #8")}},
-	{27,	IDC_IO27,			{_T("Input #19"),			_T("汎用入力 #9")}},
+	{18,	IDC_IO18,			{_T("Input #10"),			_T("汎用入力 #10")}},
+	{19,	IDC_IO19,			{_T("Input #11"),			_T("汎用入力 #11")}},
+	{20,	IDC_IO20,			{_T("Input #12"),			_T("汎用入力 #12")}},
+	{21,	IDC_IO21,			{_T("Input #13"),			_T("汎用入力 #13")}},
+	{22,	IDC_IO22,			{_T("Input #14"),			_T("汎用入力 #14")}},
+	{23,	IDC_IO23,			{_T("Input #15"),			_T("汎用入力 #15")}},
+	{24,	IDC_IO24,			{_T("Input #16"),			_T("汎用入力 #16")}},
+	{25,	IDC_IO25,			{_T("Input #17"),			_T("汎用入力 #17")}},
+	{26,	IDC_IO26,			{_T("Input #18"),			_T("汎用入力 #18")}},
+	{27,	IDC_IO27,			{_T("Input #19"),			_T("汎用入力 #19")}},
 	{28,	IDC_IO28,			{_T(""),					_T("")}},
 	{29,	IDC_IO29,			{_T(""),					_T("")}},
 	{30,	IDC_IO30,			{_T(""),					_T("")}},
@@ -410,7 +551,7 @@ static IDTEXT g_io_small_tbl[] =	{
 	{28,	IDC_IO28,			{_T(""),					_T("")}},
 	{29,	IDC_IO29,			{_T(""),					_T("")}},
 	{30,	IDC_IO30,			{_T(""),					_T("")}},
-	{31,	IDC_IO31,			{_T(""),					_T("")}},
+	{31,	IDC_IO31,			{_T("Input reset-error"),	_T("エラーリセット入力")}},
 	{0,		0,					{NULL,						NULL}},
 	};
 
@@ -709,8 +850,18 @@ void CguicanABH3View::CreateScreen()
 	SetTextTbl(g_valueid_tbl);
 
 	//操作フラグのボタンに文字列設定し、ボタンをOFF側に設定
-	SetTextTbl(g_ctrlid_ctrl);
-	SetButtonTbl(g_ctrlid_ctrl,false);
+	if(nType != MTYPE::MTYPE_SMALL)
+		{
+		//標準タイプとホストモード
+		SetTextTbl(g_ctrlid_normal_ctrl);
+		SetButtonTbl(g_ctrlid_normal_ctrl,false);
+		}
+	else
+		{
+		//小型タイプ
+		SetTextTbl(g_ctrlid_small_ctrl);
+		SetButtonTbl(g_ctrlid_small_ctrl,false);
+		}
 
 	//I/Oフラグの表示領域に文字列設定
 	if(nType == MTYPE::MTYPE_NORMAL)
@@ -913,7 +1064,7 @@ void CguicanABH3View::ArrangeScreenItem()
 	//タイトル
 	MoveItem(IDC_TITLE_CTRL,CPoint(posX[2],posY[nRow++]),CSize(baseSize.cx * 2,baseSize.cy));
 	//ボタン
-	pIDTEXT2 pTbl2 = g_ctrlid_ctrl;
+	pIDTEXT2 pTbl2 = g_ctrlid_normal_ctrl;
 	while(pTbl2->nOffUid)
 		{
 		MoveItem(pTbl2->nOffUid,CPoint(posX[2],posY[nRow]),baseSize);
@@ -929,7 +1080,7 @@ void CguicanABH3View::ArrangeScreenItem()
 	//タイトル
 	MoveItem(IDC_TITLE_REQUEST,CPoint(posX[4],posY[nRow++]),baseSize);
 	//表示領域
-	pIDTEXT3 pTbl3 = g_resultid_tbl;
+	pIDTEXT3 pTbl3 = g_resultid_normal_tbl;
 	while(pTbl3->nUid)
 		{
 		MoveItem(pTbl3->nUid,CPoint(posX[4],posY[nRow++]),baseSize);
@@ -951,7 +1102,7 @@ void CguicanABH3View::ArrangeScreenItem()
 	MoveItem(IDC_TITLE_INPUT,CPoint(posX[5],posY[nRow]),baseSize);
 	MoveItem(IDC_TITLE_IO,CPoint(posX[6],posY[nRow++]),baseSize);
 	//表示領域
-	pTbl3 = g_inputid_tbl;
+	pTbl3 = g_inputid_normal_tbl;
 	pIDTEXT pTbl = g_io_normal_tbl;
 	while(pTbl3->nUid)
 		{
@@ -1222,7 +1373,7 @@ bool CguicanABH3View::DrawCheck_0(UINT nItemID,COLORITEM& colorItem)
 bool CguicanABH3View::DrawCheck_1(UINT nItemID,COLORITEM& colorItem)
 	{
 	//比較対象のテーブル
-	pIDTEXT3 pTbl = g_inputid_tbl;
+	pIDTEXT3 pTbl = g_inputid_normal_tbl;
 
 	//該当するかチェック
 	while(pTbl->nUid)
@@ -1253,7 +1404,7 @@ bool CguicanABH3View::DrawCheck_1(UINT nItemID,COLORITEM& colorItem)
 bool CguicanABH3View::DrawCheck_2(UINT nItemID,COLORITEM& colorItem)
 	{
 	//比較対象のテーブル
-	pIDTEXT3 pTbl = g_resultid_tbl;
+	pIDTEXT3 pTbl = g_resultid_normal_tbl;
 
 	//該当するかチェック
 	while(pTbl->nUid)
@@ -1445,7 +1596,10 @@ void CguicanABH3View::UpdateView_0(bool bForce /* false */)
 		//制御フラグ
 		//========================================
 		uint32_t nValue = m_var.lastdata.DP0R.nCtrlBit;
-		pIDTEXT3 pTbl = g_resultid_tbl;
+		//使用テーブルの切り替え
+		pIDTEXT3 pTbl = g_resultid_normal_tbl;
+		if(nType != MTYPE::MTYPE_NORMAL)
+			pTbl = g_resultid_small_tbl;
 		while(pTbl->nUid)
 			{
 			if(IsBit(nValue,pTbl->nBit))
@@ -1485,8 +1639,8 @@ void CguicanABH3View::UpdateView_0(bool bForce /* false */)
 		//テーブルのID順が一致（IDC_*0 -> IDC_*31）になっている事が前提となっている
 		//========================================
 		uint32_t nValue = m_var.lastdata.DP0R.nCtrlBit;
-		pIDTEXT3 pTbl3 = g_resultid_tbl;
-		pIDTEXT2 pTbl2 = g_ctrlid_ctrl;
+		pIDTEXT3 pTbl3 = g_resultid_normal_tbl;
+		pIDTEXT2 pTbl2 = g_ctrlid_normal_ctrl;
 		while(pTbl3->nUid)
 			{
 			CButton* pON = (CButton*)GetDlgItem(pTbl2->nOnUid);
@@ -1570,7 +1724,8 @@ void CguicanABH3View::UpdateView_2(bool bForce /* false */)
 	//========================================
 	//再描画処理
 	pIDTEXT pTbl = g_io_normal_tbl;
-	if(GetType() != MTYPE::MTYPE_NORMAL)
+	//機種切り替え
+	if(GetType() == MTYPE::MTYPE_SMALL)
 		pTbl = g_io_small_tbl;
 	while(pTbl->nUid)
 		{
@@ -1583,7 +1738,10 @@ void CguicanABH3View::UpdateView_2(bool bForce /* false */)
 	//========================================
 	//現在の値を取得して適切な文字を設定
 	uint32_t nValue = m_var.lastdata.BR1.nCtrlBit;
-	pIDTEXT3 pTbl2 = g_inputid_tbl;
+	//機種切り替え
+	pIDTEXT3 pTbl2 = g_inputid_normal_tbl;
+	if(GetType() == MTYPE::MTYPE_SMALL)
+		pTbl2 = g_inputid_small_tbl;
 	while(pTbl2->nUid)
 		{
 		if(IsBit(nValue,pTbl2->nBit))
