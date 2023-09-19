@@ -20,9 +20,9 @@
     <tr><td><h2>Prerequisites</h2>
     <table border="1">
         <tr><th bgcolor="blue"><font color="white">Item</font></th><th bgcolor="blue"><font color="white">Information</font></th></tr>
-        <tr><td align="center">OS</td><td align="center">Windows 10 (x64) or Windows 11 (x64)</td></tr>
+        <tr><td align="center">OS</td><td align="center">Windows 10 or Windows 11</td></tr>
         <tr><td align="center">Compiler</td><td align="center">Microsoft Visual Studio 2019 or later.</td></tr>
-        <tr><td align="center">DLL</td><td align="center">CANabh3.DLL or CANWACOUSB.DLL</td></tr>
+        <tr><td align="center">DLL</td><td align="center">CANabh3.DLL , CANWACOUSB.DLL</td></tr>
     </table>
     </td></tr>
 </table>
@@ -36,6 +36,12 @@
             <th bgcolor="blue"><font color="white">Date</font></th>
             <th bgcolor="blue"><font color="white">Auth</font></th>
             <th bgcolor="blue"><font color="white">Notice</font></th>
+        </tr>
+        <tr>
+            <td>1.0.0.14</td>
+            <td>2023/09/19</td>
+            <td>Y.OGAWA</td>
+            <td>11th release<br>Changed to display only DLLs in the application folder.</td>
         </tr>
         <tr>
             <td>1.0.0.13</td>
