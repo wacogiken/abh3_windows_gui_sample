@@ -63,6 +63,9 @@
     <ClInclude Include="ColorDefine.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="EnumFile.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="gui_canABH3.cpp">
@@ -93,6 +96,9 @@
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="AdvanceEdit.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="EnumFile.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>

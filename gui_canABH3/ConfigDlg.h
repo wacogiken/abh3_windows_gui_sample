@@ -46,14 +46,11 @@ class CConfigDlg : public CDialogEx
 	DECLARE_DYNAMIC(CConfigDlg)
 
 public:
-	
 	//
-	//typedef struct _TBL_CONFIG
-	//	{
-	//	LANGTEXT	text;
-	//	uint32_t	nValue;			//数値としての値
-	//	TCHAR*		pValue;			//文字列としての値
-	//	} TBL_CONFIG,*pTBL_CONFIG;
+	typedef enum
+		{
+		MAX_DLLCOUNT	= 32
+		} ENUM;
 
 	//指令関連
 	typedef struct _CFG_ORDER
@@ -67,15 +64,19 @@ public:
 	typedef struct _CONFIGDLG_CONFIG
 		{
 		//ダイアログ初期化時のDLL設定（変化を調べる為に保存）
-		uint8_t		nOldDLL;
+		int			nOldDLLnum;
+//		TCHAR		sOldDLLname[32];
+		//uint8_t		nOldDLL;
 		uint8_t		nOldLanguage;
 
 		//環境設定で設定する要素
-		uint8_t		nDLL;				//DLL番号
-		//廃止
-		//uint8_t		nDLLoption;			//USB-to-CAN v2の場合はケーブル番号、WACOCANの場合はCOMポート番号、どちらも0開始
+
+		TCHAR		sDLLname[32];		//選択されたDLLファイル名
+		uint8_t		nDLLoption;			//DLLオプション（ケーブル番号等）
+
+		//uint8_t		nDLL;				//DLL番号
 		//代替
-		uint8_t		nDLLoption2[16];	//DLL番号に対応したオプション値（初期値0）
+		//uint8_t		nDLLoption2[16];	//DLL番号に対応したオプション値（初期値0）
 
 		uint8_t		nHostID;			//ホストのID
 		uint8_t		nBaudrate;			//ボーレート(選択肢番号)
@@ -94,12 +95,26 @@ public:
 		uint8_t		nRestart;			//設定変更に伴うソフト再起動要求
 		} CONFIGDLG_CONFIG,*pCONFIGDLG_CONFIG;
 
+	//
+	typedef struct _DLLTABLE_SGL
+		{
+		TCHAR	sFilename[32];			//ファイル名
+		TCHAR	sDispname[64];			//表示用名称
+		uint8_t	nWarning;				//警告表示（bit0..ボーレート設定)
+		uint8_t	nUseCOM;				//オプションはCOMポート番号？
+		} DLLTABLE_SGL,*pDLLTABLE_SGL;
+	DLLTABLE_SGL m_dlltable[ENUM::MAX_DLLCOUNT];
+
+
 protected:
 	//内部変数へのポインタ（動的確保）
 	pCONFIGDLG_CONFIG m_pConfig;
 
 	//描画用ブラシ
 	CBrush m_brush;
+
+	//DLL検索用フォルダ指定
+	CString m_dllfolder;
 
 	//環境設定を表示物に設定
 	void reg2disp(void);
@@ -114,10 +129,26 @@ protected:
 	//void InitCombobox(CComboBox* pCombo,pTBL_CONFIG pTbl);
 
 	//DLLオプションの選択肢を構築する
-	void CreateDLLoption(CComboBox* pCombo,int nMode,int nSetSel = -1);
+	void CreateDLLoption(CComboBox* pCombo,int nUseCOM);
 
 	//DLL選択による注意書き表示設定
 	void CreateNotice(int nMode);
+
+	//
+	CString fullname2filename(CString sFullname)
+		{
+		PTCHAR pFilename = new TCHAR[_MAX_FNAME]();
+		PTCHAR pExt = new TCHAR[_MAX_EXT]();
+		_tsplitpath_s(sFullname,NULL,0,NULL,0,pFilename,_MAX_FNAME,pExt,_MAX_EXT);
+		CString sResult = CString(pFilename) + CString(pExt);
+		delete[] pExt;
+		delete[] pFilename;
+		return(sResult);
+		}
+
+	//
+	bool filename2dllinfo(CString& sDispname,uint8_t& nWarning,uint8_t& nUseCOM,CString sFilename);
+
 
 
 public:
@@ -129,6 +160,25 @@ public:
 	CComboBox m_type;
 	CComboBox m_language;
 
+	//DLLを探すフォルダを指定
+	bool SetDLLfolder(CString sFolder)
+		{
+		//末尾にパス記号が無い場合は追加する
+		if(sFolder.Right(1) != _T("\\"))
+			sFolder += _T("\\");
+		//格納
+		m_dllfolder = sFolder;
+		return(GetDLLlist());
+		}
+
+	//DLLを探すフォルダを取得
+	CString GetDLLfolder(void)
+		{
+		return(m_dllfolder);
+		}
+
+	//DLLを探して一覧を作成
+	bool GetDLLlist(void);
 
 	//環境設定をシステムに保存
 	void reg2sys(void);
@@ -143,10 +193,10 @@ public:
 		}
 
 	//DLLファイル名を取得
-	TCHAR* getDllname(void);
+	CString getDllname(void);
 
 	//DLLの番号を取得
-	uint8_t getDll(void);
+	//uint8_t getDll(void);
 
 	//DLLオプション番号を取得
 	uint8_t getDllOption(void);
@@ -164,6 +214,57 @@ public:
 	bool IsRestartRequire(void)
 		{
 		return((m_pConfig->nRestart != 0) ? true : false);
+		}
+
+	//現在指定されているDLLに対して、表示用名称を取得
+	CString GetDispnameFromDLL(void)
+		{
+		pDLLTABLE_SGL pCurrentInfo = GetCurrentDLLinfo();
+		if(pCurrentInfo == NULL)
+			return(CString(m_pConfig->sDLLname));	//該当無しは現在のファイル名が戻る
+		return(CString(pCurrentInfo->sDispname));
+		}
+
+	//現在指定されているDLLに対して、Warningフラグを取得
+	uint8_t GetWarningFromDLL(void)
+		{
+		pDLLTABLE_SGL pCurrentInfo = GetCurrentDLLinfo();
+		if(pCurrentInfo == NULL)
+			return(0);
+		return(pCurrentInfo->nWarning);
+		}
+
+	//現在指定されているDLLに対して、UseCOMフラグを取得
+	uint8_t GetUseCOMfromDLL(void)
+		{
+		pDLLTABLE_SGL pCurrentInfo = GetCurrentDLLinfo();
+		if(pCurrentInfo == NULL)
+			return(0);
+		return(pCurrentInfo->nUseCOM);
+		}
+
+	//現在指定されているDLLに対して、情報を取得
+	pDLLTABLE_SGL GetCurrentDLLinfo(void)
+		{
+		int nNum = GetCurrentDLLnum();
+		if(nNum < 0)
+			return(NULL);
+		return(&m_dlltable[nNum]);
+		}
+
+	//現在ファイル名が指定されているDLLに対して、テーブルの要素番号を取得
+	int GetCurrentDLLnum(void)
+		{
+		CString sCurrent(m_pConfig->sDLLname);
+		sCurrent.MakeLower();
+		for(int nLoop = 0;nLoop < ENUM::MAX_DLLCOUNT;nLoop++)
+			{
+			CString sTable(m_dlltable[nLoop].sFilename);
+			sTable.MakeLower();
+			if(sCurrent == sTable)
+				return(nLoop);
+			}
+		return(-1);
 		}
 
 public:

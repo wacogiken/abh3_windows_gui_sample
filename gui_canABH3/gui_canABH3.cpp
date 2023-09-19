@@ -199,16 +199,6 @@ BOOL CguicanABH3App::InitInstance()
 	//環境設定を管理する
 	//====================
 
-	//システムから値を取得する
-	theConfig.sys2reg();
-
-	//設定へのポインタ
-	CConfigDlg::pCONFIGDLG_CONFIG pConfig = theConfig.GetConfig();
-
-	//====================
-	//DLLを利用可能にする
-	//====================
-
 	//実行ファイル名から実行フォルダ名を抽出する
 	PTCHAR pFullMyName = new TCHAR[_MAX_PATH]();
 	PTCHAR pDrive = new TCHAR[_MAX_DRIVE]();
@@ -219,6 +209,28 @@ BOOL CguicanABH3App::InitInstance()
 	delete[] pDir;
 	delete[] pDrive;
 	delete[] pFullMyName;
+
+	//環境設定に、現在の実行ファイルフォルダ名を設定する（同時にDLL検索が行われる）
+	if(!theConfig.SetDLLfolder(sExecFolder))
+		{
+		//エラー表示
+		if(theConfig.GetConfig()->nLanguage == 0)
+			AfxMessageBox(_T("Not found DLL.(CAN-I/F DLL)."),MB_ICONSTOP);
+		else
+			AfxMessageBox(_T("CAN-I/Fに使用するDLLが見つかりません"),MB_ICONSTOP);
+		return(FALSE);
+		}
+
+	//システムから値を取得する
+	theConfig.sys2reg();
+
+	//設定へのポインタ
+	CConfigDlg::pCONFIGDLG_CONFIG pConfig = theConfig.GetConfig();
+
+	//====================
+	//DLLを利用可能にする
+	//====================
+
 
 	//DLL読み込み
 	//　読み込みに失敗した場合はエラーを表示し、次の画面として環境設定を表示する

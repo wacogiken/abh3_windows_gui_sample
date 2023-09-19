@@ -107,6 +107,7 @@
     <ClInclude Include="ChildFrm.h" />
     <ClInclude Include="ColorDefine.h" />
     <ClInclude Include="ConfigDlg.h" />
+    <ClInclude Include="EnumFile.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="gui_canABH3.h" />
     <ClInclude Include="gui_canABH3Doc.h" />
@@ -122,6 +123,7 @@
     <ClCompile Include="AdvanceEdit.cpp" />
     <ClCompile Include="ChildFrm.cpp" />
     <ClCompile Include="ConfigDlg.cpp" />
+    <ClCompile Include="EnumFile.cpp" />
     <ClCompile Include="gui_canABH3.cpp" />
     <ClCompile Include="gui_canABH3Doc.cpp" />
     <ClCompile Include="gui_canABH3View.cpp" />

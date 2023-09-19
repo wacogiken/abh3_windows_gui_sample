@@ -37,14 +37,16 @@
 #include "pch.h"
 #include "gui_canABH3.h"
 #include "ConfigDlg.h"
+#include "EnumFile.h"
 #include "afxdialogex.h"
 
-//
-typedef enum _ENUM_CONFIG
-	{
-	DLLOPTION	= 0,
-	} ENUM_CONFIG;
-
+//DLL情報
+static CConfigDlg::DLLTABLE_SGL g_config_dllinfo[] = {
+	//Filename				Dispname					Notice		UseCOMport
+	{_T("canwacousb.dll"),	_T("WACOGIKEN usbcan"),		1,			1},
+	{_T("CANabh3.dll"),		_T("IXXAT USB-to-CAN V2"),	0,			0},
+	{_T(""),				_T(""),						0,			0},
+	};
 
 //固定表示文字列
 static IDTEXT1 g_config_title[] = {
@@ -61,18 +63,24 @@ static IDTEXT1 g_config_title[] = {
 
 //その他文字列
 static LANGTEXT g_config_text[] = {
-	//textEN	textJP
+	//textEN
+	//		textJP
+	//0
 	{_T("No.%d"),
 		_T("%d 本目")},
+	//1
 	{_T("Interface settings have been changed. Restart this software."),
 			_T("インターフェース設定が変更された為、本ソフトを再起動します")},
-	{_T("language settings have been changed. Restart this software."),
+	//2
+	{_T("Language settings have been changed. Restart this software."),
 			_T("言語設定が変更された為、本ソフトを再起動します")},
+	//3
 	{_T("Must be check DIPSW."),
 			_T("ディップスイッチ要確認")},
+	//4
 	{_T("Preference"),
 			_T("環境設定")},
-
+	//
 	{NULL,
 				NULL},
 	};
@@ -82,14 +90,6 @@ static TEXTARRAY g_config_language[] = {
 	//textEN						textJP			value	textvalue
 	{{_T("English"),				_T("英語")},	0,		_T("")},
 	{{_T("Japanese"),				_T("日本語")},	1,		_T("")},
-	{{NULL,							NULL},			0,		NULL},
-	};
-
-//DLL選択肢（最大16）
-static TEXTARRAY g_config_dll[] = {
-	//textEN						textJP			value	textvalue
-	{{_T("IXXAT USB-to-CAN V2"),	NULL},			0,		_T("CANabh3.dll")},
-	{{_T("WACOGIKEN usbcan"),		NULL},			1,		_T("canwacousb.dll")},
 	{{NULL,							NULL},			0,		NULL},
 	};
 
@@ -158,14 +158,12 @@ BOOL CConfigDlg::OnInitDialog()
 	{
 	CDialogEx::OnInitDialog();
 
-	//後で比較が必要な要素は、この時点の設定を保存しておく
-	m_pConfig->nOldDLL = m_pConfig->nDLL;
-	//m_pConfig->nOldInterval = m_pConfig->nInterval;
-	m_pConfig->nOldLanguage = m_pConfig->nLanguage;
-
 	//画面構築
 	initScreen();
 
+	//後で比較が必要な要素は、この時点の設定を保存しておく
+	m_pConfig->nOldLanguage = m_pConfig->nLanguage;
+	m_pConfig->nOldDLLnum = m_dll.GetCurSel();
 	//
 	return TRUE;
 	}
@@ -189,12 +187,23 @@ void CConfigDlg::initScreen()
 	//ウィンドウタイトル
 	SetWindowText(theApp.GetLangText(&g_config_text[4]));
 
-
-	//選択肢構築
-	//	DLLオプションは、m_dll選択状態に対して動的構築する
-	//	ホストIDはテーブルを使わない
-	theApp.InitCombobox(&m_dll,g_config_dll);
+	//DLLの選択肢構築
+	m_dll.ResetContent();
+	for(nLoop = 0;nLoop < ENUM::MAX_DLLCOUNT;nLoop++)
+		{
+		pDLLTABLE_SGL pInfo = &m_dlltable[nLoop];
+		if(CString(pInfo->sFilename).IsEmpty())
+			break;
+		m_dll.AddString(pInfo->sDispname);
+		}
+	m_dll.SetCurSel(0);
+	//DLLオプションの選択肢構築
+	int nUseCOM = GetUseCOMfromDLL();
+	CreateDLLoption(&m_dlloption,nUseCOM);
+	m_dlloption.SetCurSel(m_pConfig->nDLLoption);
+	//
 	theApp.InitCombobox(&m_baudrate,g_config_baudrate);
+	//
 	theApp.InitCombobox(&m_language,g_config_language);
 
 	//選択肢構築・ホストID
@@ -208,23 +217,21 @@ void CConfigDlg::initScreen()
 	//環境設定を表示物に設定
 	reg2disp();
 
-	//選択肢構築・DLLオプション
-	CreateDLLoption(&m_dlloption,m_pConfig->nDLL,m_pConfig->nDLLoption2[m_pConfig->nDLL]);
-
 	//現在の選択
-	OnCbnDropdownConfigDll();
+//	OnCbnDropdownConfigDll();
 	}
 
 //
 void CConfigDlg::OnCbnDropdownConfigDll()
 	{
 	int nSel = m_dll.GetCurSel();
-	CreateDLLoption(&m_dlloption,nSel,m_pConfig->nDLLoption2[nSel]);
-	CreateNotice(nSel);
+	pDLLTABLE_SGL pInfo = &m_dlltable[nSel];
+	CreateDLLoption(&m_dlloption,pInfo->nUseCOM);
+	CreateNotice(pInfo->nWarning);
 	}
 
 //
-void CConfigDlg::CreateDLLoption(CComboBox* pCombo,int nMode,int nSetSel /* -1 */)
+void CConfigDlg::CreateDLLoption(CComboBox* pCombo,int nUseCOM)
 	{
 	//現在の選択番号を取得
 	int nSel = pCombo->GetCurSel();
@@ -234,9 +241,9 @@ void CConfigDlg::CreateDLLoption(CComboBox* pCombo,int nMode,int nSetSel /* -1 *
 	CString sText("");
 	for(int nLoop = 0;nLoop < 32;nLoop++)
 		{
-		if(nMode == 0)
+		if(nUseCOM == 0)
 			{
-			CString sFmt(theApp.GetLangText(&g_config_text[ENUM_CONFIG::DLLOPTION]));
+			CString sFmt(theApp.GetLangText(&g_config_text[0]));
 			sText.Format((LPCTSTR)sFmt,nLoop + 1);
 			}
 		else
@@ -245,13 +252,9 @@ void CConfigDlg::CreateDLLoption(CComboBox* pCombo,int nMode,int nSetSel /* -1 *
 		}
 
 	//
-	if(nSetSel >= 0)
-		pCombo->SetCurSel(nSetSel);
-	else
-		{
-		//元の選択に戻す
-		pCombo->SetCurSel(nSel);
-		}
+	if(nSel < 0)
+		nSel = 0;
+	pCombo->SetCurSel(nSel);
 	}
 
 //DLL選択による注意書き表示設定
@@ -259,24 +262,10 @@ void CConfigDlg::CreateNotice(int nMode)
 	{
 	//ボーレートの注意書き
 	if(nMode == 0)
-		GetDlgItem(IDC_NOTICE4)->SetWindowTextW(_T(""));
+		GetDlgItem(IDC_NOTICE4)->SetWindowText(_T(""));
 	else
 		GetDlgItem(IDC_NOTICE4)->SetWindowText(theApp.GetLangText(&g_config_text[3]));
 	}
-
-
-////テーブルを元にコンボボックスを初期化
-//void CConfigDlg::InitCombobox(CComboBox* pCombo,pTBL_CONFIG pTbl)
-//	{
-//	pCombo->ResetContent();
-//	int nLoop = 0;
-//	while(pTbl[nLoop].text.pTextEN)
-//		{
-//		pCombo->AddString(theApp.GetLangText(&pTbl[nLoop].text));
-//		++nLoop;
-//		}
-//	pCombo->SetCurSel(0);
-//	}
 
 //システムから環境設定を取得
 void CConfigDlg::sys2reg()
@@ -285,13 +274,12 @@ void CConfigDlg::sys2reg()
 	CString sSection("base"),sItem("");
 
 	//環境設定の項目
-	m_pConfig->nDLL				= (uint8_t)theApp.GetProfileInt(sSection,_T("dll"),0x0);
-	for(int nLoop = 0;nLoop < 16;nLoop++)
-		{
-		sItem.Format(_T("dlloption%d"),nLoop);
-		m_pConfig->nDLLoption2[nLoop] = (uint8_t)theApp.GetProfileInt(sSection,sItem,0);
-		}
-	//m_pConfig->nDLLoption		= (uint8_t)theApp.GetProfileInt(sSection,_T("dlloption"),0x0);
+
+	//設定されたDLLファイル名
+	CString sDLLname = theApp.GetProfileString(sSection,_T("dllname"),CString(g_config_dllinfo[0].sFilename));
+	::_tcscpy_s(m_pConfig->sDLLname,32,sDLLname);
+	//DLLオプション
+	m_pConfig->nDLLoption		= (uint8_t)theApp.GetProfileInt(sSection,_T("dlloption"),0);
 	m_pConfig->nHostID			= (uint8_t)theApp.GetProfileInt(sSection,_T("hostid"),0);
 	m_pConfig->nBaudrate		= (uint8_t)theApp.GetProfileInt(sSection,_T("baudrate"),0);
 	m_pConfig->nLanguage		= (uint8_t)theApp.GetProfileInt(sSection,_T("language"),0);
@@ -331,13 +319,10 @@ void CConfigDlg::reg2sys()
 	//
 	CString sSection("base"),sItem("");
 	//環境設定の項目
-	theApp.WriteProfileInt(sSection,_T("dll"),int(m_pConfig->nDLL));
-	for(int nLoop = 0;nLoop < 16;nLoop++)
-		{
-		sItem.Format(_T("dlloption%d"),nLoop);
-		theApp.WriteProfileInt(sSection,sItem,int(m_pConfig->nDLLoption2[nLoop]));
-		}
-	//theApp.WriteProfileInt(sSection,_T("dlloption"),int(m_pConfig->nDLLoption));
+
+	//設定されたDLLファイル名
+	theApp.WriteProfileString(sSection,_T("dllname"),m_pConfig->sDLLname);
+	theApp.WriteProfileInt(sSection,_T("dlloption"),m_pConfig->nDLLoption);
 	theApp.WriteProfileInt(sSection,_T("hostid"),int(m_pConfig->nHostID));
 	theApp.WriteProfileInt(sSection,_T("baudrate"),int(m_pConfig->nBaudrate));
 	theApp.WriteProfileInt(sSection,_T("language"),int(m_pConfig->nLanguage));
@@ -366,8 +351,15 @@ void CConfigDlg::reg2sys()
 //環境設定を表示物に設定
 void CConfigDlg::reg2disp()
 	{
-	m_dll.SetCurSel(m_pConfig->nDLL);
-	m_dlloption.SetCurSel(m_pConfig->nDLLoption2[m_pConfig->nDLL]);
+	//DLL選択
+	int nSel = GetCurrentDLLnum();
+	if(nSel < 0)
+		nSel = 0;
+	m_dll.SetCurSel(nSel);
+int x = m_dll.GetCurSel();
+	//DLLオプション選択
+	m_dlloption.SetCurSel(m_pConfig->nDLLoption);
+	//
 	m_hostid.SetCurSel(m_pConfig->nHostID);
 	m_baudrate.SetCurSel(m_pConfig->nBaudrate);
 	m_language.SetCurSel(m_pConfig->nLanguage);
@@ -376,24 +368,28 @@ void CConfigDlg::reg2disp()
 //表示を環境設定に取り込み
 void CConfigDlg::disp2reg()
 	{
-	m_pConfig->nDLL = (uint8_t)m_dll.GetCurSel();
-	m_pConfig->nDLLoption2[m_pConfig->nDLL] = (uint8_t)m_dlloption.GetCurSel();
+	//DLL選択
+	int nSel = m_dll.GetCurSel();
+	::_tcscpy_s(m_pConfig->sDLLname,32,m_dlltable[nSel].sFilename);
+	//DLLオプション
+	m_pConfig->nDLLoption = (uint8_t)m_dlloption.GetCurSel();
+	//
 	m_pConfig->nHostID = (uint8_t)m_hostid.GetCurSel();
 	m_pConfig->nBaudrate = (uint8_t)m_baudrate.GetCurSel();
 	m_pConfig->nLanguage = (uint8_t)m_language.GetCurSel();
 	}
 
 //DLLファイル名を取得
-TCHAR* CConfigDlg::getDllname()
+CString CConfigDlg::getDllname()
 	{
-	return(g_config_dll[m_pConfig->nDLL].pValue);
+	return(CString(m_pConfig->sDLLname));
 	}
 
 //DLLの番号を取得
-uint8_t CConfigDlg::getDll()
-	{
-	return(m_pConfig->nDLL);
-	}
+//uint8_t CConfigDlg::getDll()
+//	{
+//	return(m_pConfig->nDLL);
+//	}
 
 //DLLオプション番号を取得
 uint8_t CConfigDlg::getDllOption()
@@ -402,7 +398,7 @@ uint8_t CConfigDlg::getDllOption()
 	//	USB-to-CAN v2 (dll == 0) の場合は、何本目のケーブルを使うかを指定（0開始:0..1本目）
 	//	WACOCAN (dll == 1) の場合は、COMポート番号を指定（0開始:0..COM1)
 
-	return(m_pConfig->nDLLoption2[m_pConfig->nDLL]);
+	return(m_pConfig->nDLLoption);
 	}
 
 //ホスト設定番号を取得
@@ -435,7 +431,8 @@ void CConfigDlg::OnBnClickedSave()
 	m_pConfig->nRestart = 0;
 
 	//DLL設定が前と異なる？
-	if(m_pConfig->nOldDLL != m_pConfig->nDLL)
+	if(m_pConfig->nOldDLLnum != GetCurrentDLLnum())
+//	if(CString(m_pConfig->sOldDLLname).MakeLower() != CString(m_pConfig->sDLLname).MakeLower())
 		{
 		//再起動要求設定
 		m_pConfig->nRestart = 1;
@@ -488,5 +485,78 @@ HBRUSH CConfigDlg::OnCtlColor(CDC* pDC,CWnd* pWnd,UINT nCtlColor)
 
 	HBRUSH hbr = CDialogEx::OnCtlColor(pDC,pWnd,nCtlColor);
 	return hbr;
+	}
+
+//DLLを探して一覧を作成
+bool CConfigDlg::GetDLLlist()
+	{
+	//DLLを列挙する
+	CStringArray dlllist;
+	CEnumFile EF;
+	EF.EnumFile(dlllist,m_dllfolder,_T("*.dll"));
+
+	//DLLが全く見つからない？
+	if(dlllist.GetCount() < 1)
+		return(false);
+	
+	//格納先初期化
+	::ZeroMemory(m_dlltable,sizeof(DLLTABLE_SGL) * ENUM::MAX_DLLCOUNT);
+	int nCount = dlllist.GetCount();
+	for(int nLoop = 0;nLoop < nCount;nLoop++)
+		{
+		//絶対パスで取得
+		CString sDLLfullname = dlllist.GetAt(nLoop);
+		//ファイル名を抽出
+		CString sDLLfilename = fullname2filename(sDLLfullname);
+
+		//既知のDLL情報を一致する物があるか？
+		CString sDispname("");
+		uint8_t nWarning = 0;
+		uint8_t nUseCOM = 0;
+		filename2dllinfo(sDispname,nWarning,nUseCOM,sDLLfilename);
+		//
+		pDLLTABLE_SGL pInfo = &m_dlltable[nLoop];
+		::_tcscpy_s(pInfo->sFilename,32,sDLLfilename);
+		::_tcscpy_s(pInfo->sDispname,64,sDispname);
+		pInfo->nWarning = nWarning;
+		pInfo->nUseCOM = nUseCOM;
+		}
+
+	//
+	return(true);
+	}
+
+//
+bool CConfigDlg::filename2dllinfo(CString& sDispname,uint8_t& nWarning,uint8_t& nUseCOM,CString sFilename)
+	{
+	sDispname.Empty();
+	nWarning = 0;
+	nUseCOM = 0;
+	int nLoop = 0;
+	while(-1)
+		{
+		pDLLTABLE_SGL pInfo = &g_config_dllinfo[nLoop];
+		CString sF = CString(pInfo->sFilename);
+		CString sD = CString(pInfo->sDispname);
+		uint8_t nW = pInfo->nWarning;
+		uint8_t nU = pInfo->nUseCOM;
+		if(sF.IsEmpty())
+			{
+			//既知のDLLとは合致しなかった
+			sDispname.Format(_T("%s"),(LPCTSTR)sFilename);
+			nWarning = 0;
+			break;
+			}
+		else if(sF.MakeLower() == sFilename.MakeLower())
+			{
+			//一致した
+			sDispname.SetString(sD);
+			nWarning = nW;
+			nUseCOM = nU;
+			return(true);
+			}
+		nLoop++;
+		}
+	return(false);
 	}
 

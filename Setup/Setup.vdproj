@@ -21,12 +21,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_22AB81BCF8F44D5A9D3305DE70EF2068"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_2FEC2126838A4E1B8E96DA7F7F7FF49A"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -100,11 +94,6 @@
             "ComponentsUrl" = "8:"
                 "Items"
                 {
-                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:Microsoft.Visual.C++.14.0.x64"
-                    {
-                    "Name" = "8:Visual C++ \"14\" Runtime Libraries (x64)"
-                    "ProductCode" = "8:Microsoft.Visual.C++.14.0.x64"
-                    }
                     "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:Microsoft.Visual.C++.14.0.x86"
                     {
                     "Name" = "8:Visual C++ \"14\" Runtime Libraries (x86)"
@@ -150,26 +139,6 @@
             "PackageAs" = "3:1"
             "Register" = "3:1"
             "Exclude" = "11:TRUE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_22AB81BCF8F44D5A9D3305DE70EF2068"
-            {
-            "SourcePath" = "8:..\\Release\\CANabh3.dll"
-            "TargetName" = "8:CANabh3.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_400965BD2CEC48B8885E773517854A25"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
@@ -401,7 +370,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:gui_canABH3"
         "ProductCode" = "8:{474B347C-498B-46C4-BC89-FD30E37DC453}"
-        "PackageCode" = "8:{5F1D1923-503E-47DE-AC18-C1CAD4F1DB26}"
+        "PackageCode" = "8:{E6894742-85A3-4711-A2DA-14C3CFFEE185}"
         "UpgradeCode" = "8:{3DD04958-C7EC-4724-B0B6-18A82B6716E5}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
