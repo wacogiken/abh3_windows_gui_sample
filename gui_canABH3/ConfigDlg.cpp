@@ -218,7 +218,7 @@ void CConfigDlg::initScreen()
 	reg2disp();
 
 	//現在の選択
-//	OnCbnDropdownConfigDll();
+	OnCbnDropdownConfigDll();
 	}
 
 //
@@ -356,7 +356,6 @@ void CConfigDlg::reg2disp()
 	if(nSel < 0)
 		nSel = 0;
 	m_dll.SetCurSel(nSel);
-int x = m_dll.GetCurSel();
 	//DLLオプション選択
 	m_dlloption.SetCurSel(m_pConfig->nDLLoption);
 	//

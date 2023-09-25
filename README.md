@@ -38,6 +38,12 @@
             <th bgcolor="blue"><font color="white">Notice</font></th>
         </tr>
         <tr>
+            <td>1.0.0.15</td>
+            <td>2023/09/25</td>
+            <td>Y.OGAWA</td>
+            <td>12th release<br>Bugfix preference dialog.</td>
+        </tr>
+        <tr>
             <td>1.0.0.14</td>
             <td>2023/09/19</td>
             <td>Y.OGAWA</td>
