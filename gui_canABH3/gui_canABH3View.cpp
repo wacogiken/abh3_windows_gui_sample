@@ -911,6 +911,16 @@ void CguicanABH3View::ArrangeScreenItem()
 	posX[8] = posX[7] + ((baseSize.cx * 2) * 70 / 100);
 	posX[9] = posX[8] + ((baseSize.cx * 2) * 15 / 100);
 	posY[0] = nSepa;
+
+	//2023/09/27 yo0043 ステータス表示を最上段左に移動 （伊佐地殿リクエスト）
+	if(nType == MTYPE::MTYPE_HOST)
+		{
+		//Y位置の開始位置を2段移動
+		//nRowを操作しようかと思ったが、指令モーdに影響した為保留
+		posY[0] = nSepa + (baseSize.cy * 2);
+		}
+
+
 	posY[1] = posY[0] + baseSize.cy + (nSepa * 2);
 	for(int nLoop = 2;nLoop < 64;nLoop++)
 		posY[nLoop] = posY[nLoop - 1] + baseSize.cy;
@@ -946,6 +956,10 @@ void CguicanABH3View::ArrangeScreenItem()
 
 	if(nType == MTYPE::MTYPE_HOST)
 		{
+		//2023/09/27 yo0043 ステータス表示を最上段左に移動 （伊佐地殿リクエスト）
+		MoveItem(IDC_INFO,CPoint(posX[1],nSepa),CSize(posX[4] - posX[1] - nSepa2 ,baseSize.cy));
+		MoveItem(IDC_INFO2,CPoint(posX[1],nSepa + baseSize.cy),CSize(posX[4] - posX[1] - nSepa2 ,baseSize.cy));
+
 		//帰還を指令扱いにする（表示用）
 		MoveItem(IDC_TITLE_A,CPoint(posX[0],posY[nRow]),baseSize);
 		MoveItem(IDC_VALUE0,CPoint(posX[1],posY[nRow++]),baseSize);

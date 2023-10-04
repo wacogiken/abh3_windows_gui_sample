@@ -38,6 +38,12 @@
             <th bgcolor="blue"><font color="white">Notice</font></th>
         </tr>
         <tr>
+            <td>1.0.0.16</td>
+            <td>2023/09/29</td>
+            <td>Y.OGAWA</td>
+            <td>13th release<br>Changed some positions of displayed objects in host mode.</td>
+        </tr>
+        <tr>
             <td>1.0.0.15</td>
             <td>2023/09/25</td>
             <td>Y.OGAWA</td>
