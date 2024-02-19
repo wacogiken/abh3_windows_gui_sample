@@ -81,6 +81,7 @@ public:
 		uint8_t		nHostID;			//ホストのID
 		uint8_t		nBaudrate;			//ボーレート(選択肢番号)
 		uint8_t		nLanguage;			//0..英語  1..日本語
+		uint8_t		nRawdata;			//0..非表示　1..表示
 
 		//他の場所で設定する要素
 		uint8_t		nSelectID;			//ウィンドウを開く時のダイアログで使うID(0..ID1)
@@ -159,6 +160,7 @@ public:
 	CComboBox m_baudrate;
 	CComboBox m_type;
 	CComboBox m_language;
+	CComboBox m_rawdata;
 
 	//DLLを探すフォルダを指定
 	bool SetDLLfolder(CString sFolder)
@@ -266,6 +268,13 @@ public:
 			}
 		return(-1);
 		}
+
+	//RAWDATA表示機能が有効か？
+	bool IsRawdata(void)
+		{
+		return((bool)(m_pConfig->nRawdata != 0));	
+		}
+
 
 public:
 	CConfigDlg(CWnd* pParent = nullptr);   // 標準コンストラクター

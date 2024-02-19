@@ -96,6 +96,8 @@ static IDCOLOR g_textcolor_tbl[] = {
 	{IDC_TITLE_INTERVAL,	0,						APPCOLOR::APPC_NORMAL},
 	{IDC_TITLE_WARNERR0,	IDC_TITLE_WARNERR31,	APPCOLOR::APPC_CTRL4},
 	{IDC_INFO,				0,						APPCOLOR::APPC_INFO},
+	{IDC_TITLE_RAWDATA8,	IDC_TITLE_RAWDATA15,	APPCOLOR::APPC_NORMAL},
+
 	{0,						0,						APPCOLOR::APPC_NOCOLOR},
 	};
 
@@ -121,6 +123,24 @@ static IDTEXT1 g_anyitem_tbl[] = {
 	{IDC_TITLE_WARNERR,	{_T("Warn/Err"),			_T("警告/異常")}},
 	{IDC_TITLE_WARN,	{_T("Warn"),				_T("警告")}},
 	{IDC_TITLE_ERR,		{_T("Err"),					_T("異常")}},
+
+	{IDC_TITLE_RAWDATA0,	{_T("Singlepacket"),_T("受信シングルパケット")}},
+	{IDC_TITLE_RAWDATA1,	{_T("(R)Broadcast0"),	_T("受信ブロードキャスト0")}},
+	{IDC_TITLE_RAWDATA2,	{_T("(R)Broadcast1"),	_T("受信ブロードキャスト1")}},
+	{IDC_TITLE_RAWDATA3,	{_T("(R)Broadcast2"),	_T("受信ブロードキャスト2")}},
+	{IDC_TITLE_RAWDATA4,	{_T("(R)Broadcast3"),	_T("受信ブロードキャスト3")}},
+	{IDC_TITLE_RAWDATA5,	{_T("(R)Broadcast4"),	_T("受信ブロードキャスト4")}},
+	{IDC_TITLE_RAWDATA6,	{_T("(R)Broadcast5"),	_T("受信ブロードキャスト5")}},
+	{IDC_TITLE_RAWDATA7,	{_T("(R)Broadcast6"),	_T("受信ブロードキャスト6")}},
+	{IDC_TITLE_RAWDATA8,	{_T("(W)Singlepacket"),	_T("送信シングルパケット")}},
+	{IDC_TITLE_RAWDATA9,	{_T("(W)Broadcast0"),	_T("送信ブロードキャスト0")}},
+	{IDC_TITLE_RAWDATA10,	{_T("(W)Broadcast1"),	_T("送信ブロードキャスト1")}},
+	{IDC_TITLE_RAWDATA11,	{_T("(W)Broadcast2"),	_T("送信ブロードキャスト2")}},
+	{IDC_TITLE_RAWDATA12,	{_T("(W)Broadcast3"),	_T("送信ブロードキャスト3")}},
+	{IDC_TITLE_RAWDATA13,	{_T("(W)Broadcast4"),	_T("送信ブロードキャスト4")}},
+	{IDC_TITLE_RAWDATA14,	{_T("(W)Broadcast5"),	_T("送信ブロードキャスト5")}},
+	{IDC_TITLE_RAWDATA15,	{_T("(W)Broadcast6"),	_T("送信ブロードキャスト6")}},
+
 	{0,					{NULL,						NULL}},
 	};
 
@@ -684,11 +704,21 @@ CguicanABH3View::CguicanABH3View() noexcept
 
 	//描画用ブラシ構築
 	m_brush.CreateSolidBrush(COLOR_BLUE);
+
+	//
+	LOGFONT logfont;
+	GetObject(GetStockObject(ANSI_FIXED_FONT),sizeof(LOGFONT),&logfont);
+	logfont.lfCharSet = ANSI_CHARSET;
+	logfont.lfPitchAndFamily = FIXED_PITCH | FF_DONTCARE;
+	m_fixedfont.CreateFontIndirect(&logfont);
 	}
 
 //デストラクタ
 CguicanABH3View::~CguicanABH3View()
 	{
+	//
+	m_fixedfont.DeleteObject();
+
 	//描画用ブラシ解放
 	m_brush.DeleteObject();
 	}
@@ -779,6 +809,13 @@ void CguicanABH3View::UpHeartBeat(int nNum)
 			CStatic* pStatic = (CStatic*)GetDlgItem(g_request_tbl[nNum].nSubUid);
 			pStatic->SetWindowText(theApp.GetLangText(&g_heartbeat_text[0]));
 			pStatic->Invalidate();
+
+			//RAWDATA関連
+			if(theConfig.IsRawdata())
+				{
+				pStatic = (CStatic*)GetDlgItem(IDC_TITLE_RAWDATA0 + nNum);
+				pStatic->Invalidate();
+				}
 			}
 		m_var.heartbeat.lifeTime[nNum] = 10;
 		}
@@ -799,6 +836,13 @@ void CguicanABH3View::DownHeartBeat()
 				CStatic* pStatic = (CStatic*)GetDlgItem(g_request_tbl[nNum].nSubUid);
 				pStatic->SetWindowText(theApp.GetLangText(&g_heartbeat_text[1]));
 				pStatic->Invalidate();
+
+				//RAWDATA関連
+				if(theConfig.IsRawdata())
+					{
+					pStatic = (CStatic*)GetDlgItem(IDC_TITLE_RAWDATA0 + nNum);
+					pStatic->Invalidate();
+					}
 				}
 			m_var.heartbeat.lifeTime[nNum] = nOld;
 			}
@@ -899,7 +943,7 @@ void CguicanABH3View::ArrangeScreenItem()
 	int nSepa4 = (nSepa * 4);
 
 	//配置位置の計算
-	int posX[10],posY[64];
+	int posX[10],posY[96];
 	posX[0] = nSepa;
 	posX[1] = posX[0] + baseSize.cx + nSepa;
 	posX[2] = posX[1] + baseSize.cx + (nSepa * 2);
@@ -916,13 +960,13 @@ void CguicanABH3View::ArrangeScreenItem()
 	if(nType == MTYPE::MTYPE_HOST)
 		{
 		//Y位置の開始位置を2段移動
-		//nRowを操作しようかと思ったが、指令モーdに影響した為保留
+		//nRowを操作しようかと思ったが、指令モードに影響した為保留
 		posY[0] = nSepa + (baseSize.cy * 2);
 		}
 
 
 	posY[1] = posY[0] + baseSize.cy + (nSepa * 2);
-	for(int nLoop = 2;nLoop < 64;nLoop++)
+	for(int nLoop = 2;nLoop < 96;nLoop++)
 		posY[nLoop] = posY[nLoop - 1] + baseSize.cy;
 	int nLen1 = posX[8] - posX[7];	//異常/警告タイトルの幅
 	int nLen2 = posX[9] - posX[8];	//異常/警告表示部の幅
@@ -1155,18 +1199,91 @@ void CguicanABH3View::ArrangeScreenItem()
 		++nErrID;
 		}
 
+	//RAWDATA表示用の行位置
+	int nRawdataRow = nRow;
+
+	//========================================
+	//RAWDATA表示
+	//========================================
+
+	//RAWDATAオプション
+	bool bRawdata = theConfig.IsRawdata();	//環境設定内のRAWDATA表示設定
+	if(bRawdata)
+		{
+		//RAWDATA表示数指定（nCountX * nCountY が 16 になる事）
+		int nCountX = 4;
+		int nCountY = 4;
+		int nMul = 9;
+		int nDiv = 5;
+
+		//ホスト以外？
+		if(nType != MTYPE::MTYPE_HOST)
+			{
+			//ホストモード以外では、横4列、縦4行で表示
+			nCountX = 4;
+			nCountY = 4;
+			}
+		else
+			{
+			//ホストモードでは、横2列、縦8行で表示
+			nCountX = 2;
+			nCountY = 8;
+			}
+
+		//RAWDATA表示
+		for(int y = 0;y < nCountY;y++)
+			{
+			int y0 = posY[nRawdataRow] + (baseSize.cy / 2) + ((baseSize.cy) * y);
+			for(int x = 0;x < nCountX;x++)
+				{
+				int x0 = posX[0] + ((baseSize.cx + nSepa + (baseSize.cx * nMul / nDiv)) * x);
+				int x1 = x0 + baseSize.cx;
+				UINT nUid1 = IDC_TITLE_RAWDATA0 + x + (y * nCountX);
+				UINT nUid2 = IDC_DATA_RAWDATA0 + x + (y * nCountX);
+				MoveItem(nUid1,CPoint(x0,y0),baseSize);
+				MoveItem(nUid2,CPoint(x1,y0),CSize(baseSize.cx * nMul / nDiv,baseSize.cy));
+				}
+			}					
+		}
+
+	//========================================
+	//RAWDATA表示フォント
+	//========================================
+	for(int nLoop = 0;nLoop < 16;nLoop++)
+		{
+		CWnd* pWnd = GetDlgItem(IDC_DATA_RAWDATA0 + nLoop);
+		pWnd->SetFont(&m_fixedfont);
+		}
+
+
 	//========================================
 	//表示処理
 	//========================================
+
 	//ホスト以外？
 	if(nType != MTYPE::MTYPE_HOST)
 		{
-
 		//フォームの全アイテムを表示する（フォーム上のアイテムは、初期状態が非表示設定）
 		CWnd* pWnd = GetTopWindow();
 		while(pWnd)
 			{
-			pWnd->ShowWindow(SW_SHOW);
+			//表示フラグ（初期値：表示）
+			bool bVisible = true;
+
+			//RAWDATAオプション無効？
+			if(!bRawdata)
+				{
+				//評価対象のIDを取得
+				UINT nUid = pWnd->GetDlgCtrlID();
+				//RAWDATA関連？
+				if(((nUid >= IDC_TITLE_RAWDATA0) && (nUid <= IDC_TITLE_RAWDATA15))
+					|| ((nUid >= IDC_DATA_RAWDATA0) && (nUid <= IDC_DATA_RAWDATA15)))
+					bVisible = false;	//表示しない
+				}
+			//表示指定？
+			if(bVisible)
+				pWnd->ShowWindow(SW_SHOW);
+			//次アイテム
 			pWnd = pWnd->GetNextWindow();
 			}
 		}
@@ -1186,6 +1303,18 @@ void CguicanABH3View::ArrangeScreenItem()
 				pWnd->ShowWindow(SW_SHOW);
 				}
 			++nPt;
+			}
+		//RAWDATA表示有り？
+		if(bRawdata)
+			{
+			for(int nLoop = 0;nLoop < 8;nLoop++)
+				{
+				//ホストモードでは送信しないので、受信側だけ表示する
+				CWnd* pWnd = GetDlgItem(IDC_TITLE_RAWDATA0 + nLoop);
+				pWnd->ShowWindow(SW_SHOW);
+				pWnd = GetDlgItem(IDC_DATA_RAWDATA0 + nLoop);
+				pWnd->ShowWindow(SW_SHOW);
+				}		
 			}
 		}
 	}
@@ -1344,6 +1473,8 @@ bool CguicanABH3View::DrawCheck(CWnd* pWnd,COLORITEM& colorItem)
 		return(true);
 	else if(DrawCheck_5(nItemID,colorItem))
 		return(true);
+	else if(DrawCheck_6(nItemID,colorItem))
+		return(true);
 	return(false);
 	}
 
@@ -1396,7 +1527,7 @@ bool CguicanABH3View::DrawCheck_1(UINT nItemID,COLORITEM& colorItem)
 		if(pTbl->nUid == nItemID)
 			{
 			//評価用の値を取得
-			uint32_t nValue = m_var.lastdata.BR1.nCtrlBit;
+			uint32_t nValue = m_var.lastdata.recv.BR1.nCtrlBit;
 			//成立中？
 			if(IsBit(nValue,pTbl->nBit))
 				{
@@ -1425,7 +1556,7 @@ bool CguicanABH3View::DrawCheck_2(UINT nItemID,COLORITEM& colorItem)
 		{
 		if(pTbl->nUid == nItemID)
 			{
-			uint32_t nValue = m_var.lastdata.DP0R.nCtrlBit;
+			uint32_t nValue = m_var.lastdata.recv.DP0R.nCtrlBit;
 			//成立中？
 			if(IsBit(nValue,pTbl->nBit))
 				{
@@ -1459,7 +1590,7 @@ bool CguicanABH3View::DrawCheck_3(UINT nItemID,COLORITEM& colorItem)
 		if(pTbl->nUid == nItemID)
 			{
 			//比較対象の値
-			uint32_t nValue = m_var.lastdata.BR1.nIoBit;
+			uint32_t nValue = m_var.lastdata.recv.BR1.nIoBit;
 
 			//成立中？
 			if(IsBit(nValue,pTbl->nBit))
@@ -1505,9 +1636,9 @@ bool CguicanABH3View::DrawCheck_4(UINT nItemID,COLORITEM& colorItem)
 	int nBit = pTbl->nBit;
 
 	//比較対象の値
-	uint32_t nValue = m_var.lastdata.BR0.nWarnBit;
+	uint32_t nValue = m_var.lastdata.recv.BR0.nWarnBit;
 	if(bError)
-		nValue = m_var.lastdata.BR0.nErrorBit;
+		nValue = m_var.lastdata.recv.BR0.nErrorBit;
 
 	//成立中？
 	if(IsBit(nValue,nBit))
@@ -1549,12 +1680,47 @@ bool CguicanABH3View::DrawCheck_5(UINT nItemID,COLORITEM& colorItem)
 	return(false);
 	}
 
+//RAWDATA関連
+bool CguicanABH3View::DrawCheck_6(UINT nItemID,COLORITEM& colorItem)
+	{
+	if(!theConfig.IsRawdata())
+		return false;
+
+	int nNum = 0;
+	pIDTEXT5 pItem5 = g_request_tbl;
+	while(pItem5->nUid)
+		{
+		UINT nUid = IDC_TITLE_RAWDATA0 + nNum;
+		if(nItemID == nUid)
+			{
+			if(IsHeartBeat(nNum))
+				{
+				//有効
+				colorItem = GetAppColor(APPCOLOR::APPC_HEARTBEAT);
+				return(true);
+				}
+			//無効
+			colorItem = GetAppColor(APPCOLOR::APPC_WARNING);
+			return(true);
+			}
+		++nNum;
+		++pItem5;
+		}
+	return(false);
+	}
+
 //全データ部分の更新
 void CguicanABH3View::UpdateView(bool bForce /* false */)
 	{
 	//最終受信データを取得
 	theABH3.abh3_can_copylastdata(GetID(),&m_var.lastdata);
 
+//debug
+//if((rand() % 20) == 0)
+//	{
+//	m_var.lastdata.update[0].nUpdate = 1;
+//	m_var.lastdata.DP0R.nCtrlBit = 1;
+//	}
 //m_var.lastdata.DP0R.nCtrlBit = 1;
 //m_var.lastdata.BR0.nWarnBit = 2;
 //m_var.lastdata.BR0.nErrorBit = 4;
@@ -1563,7 +1729,6 @@ void CguicanABH3View::UpdateView(bool bForce /* false */)
 //m_var.lastdata.update[0].nUpdate = 1;
 //m_var.lastdata.update[1].nUpdate = 1;
 //m_var.lastdata.update[2].nUpdate = 1;
-
 
 	//各ビュー要素の更新
 	UpdateView_0(bForce);
@@ -1583,7 +1748,7 @@ void CguicanABH3View::UpdateView_0(bool bForce /* false */)
 	int32_t nPos = 0;
 
 	//更新不用？
-	if((bForce | (bool)(m_var.lastdata.update[nPos].nUpdate != 0)) == false)
+	if((bForce | (bool)(m_var.lastdata.recv.update[nPos].nUpdate != 0)) == false)
 		return;
 
 	//更新フラグを解除
@@ -1591,6 +1756,13 @@ void CguicanABH3View::UpdateView_0(bool bForce /* false */)
 
 	//ハートビート設定
 	UpHeartBeat(nPos);
+
+	//RAWDATA表示
+	if(theConfig.IsRawdata())
+		{
+		FastSetText(IDC_DATA_RAWDATA0,mem2bintext8(&m_var.lastdata.recv.DP0R));
+		FastSetText(IDC_DATA_RAWDATA8,mem2bintext(&m_var.lastdata.send.DP0R.packet,m_var.lastdata.send.DP0R.nLength));
+		}
 
 	//現在の機種
 	MTYPE nType = GetType();
@@ -1603,13 +1775,13 @@ void CguicanABH3View::UpdateView_0(bool bForce /* false */)
 		//========================================
 		//帰還
 		//========================================
-		FastSetText(g_valueid_tbl[0].nValueUid,float2text(_T("%.1f"),theABH3.cnvCAN2Vel(m_var.lastdata.DP0R.nBackAY)));
-		FastSetText(g_valueid_tbl[1].nValueUid,float2text(_T("%.1f"),theABH3.cnvCAN2Vel(m_var.lastdata.DP0R.nBackBX)));
+		FastSetText(g_valueid_tbl[0].nValueUid,float2text(_T("%.1f"),theABH3.cnvCAN2Vel(m_var.lastdata.recv.DP0R.nBackAY)));
+		FastSetText(g_valueid_tbl[1].nValueUid,float2text(_T("%.1f"),theABH3.cnvCAN2Vel(m_var.lastdata.recv.DP0R.nBackBX)));
 
 		//========================================
 		//制御フラグ
 		//========================================
-		uint32_t nValue = m_var.lastdata.DP0R.nCtrlBit;
+		uint32_t nValue = m_var.lastdata.recv.DP0R.nCtrlBit;
 		//使用テーブルの切り替え
 		pIDTEXT3 pTbl = g_resultid_normal_tbl;
 		if(nType != MTYPE::MTYPE_NORMAL)
@@ -1634,14 +1806,14 @@ void CguicanABH3View::UpdateView_0(bool bForce /* false */)
 		if(GetOrderType() == 0)
 			{
 			//速度扱い
-			sText1.Format(_T("%.1f"),theABH3.cnvCAN2Vel(m_var.lastdata.DP0R.nBackAY));
-			sText2.Format(_T("%.1f"),theABH3.cnvCAN2Vel(m_var.lastdata.DP0R.nBackBX));
+			sText1.Format(_T("%.1f"),theABH3.cnvCAN2Vel(m_var.lastdata.recv.DP0R.nBackAY));
+			sText2.Format(_T("%.1f"),theABH3.cnvCAN2Vel(m_var.lastdata.recv.DP0R.nBackBX));
 			}
 		else
 			{
 			//トルク扱い
-			sText1.Format(_T("%.1f"),theABH3.cnvCAN2Cur(m_var.lastdata.DP0R.nBackAY));
-			sText2.Format(_T("%.1f"),theABH3.cnvCAN2Cur(m_var.lastdata.DP0R.nBackBX));
+			sText1.Format(_T("%.1f"),theABH3.cnvCAN2Cur(m_var.lastdata.recv.DP0R.nBackAY));
+			sText2.Format(_T("%.1f"),theABH3.cnvCAN2Cur(m_var.lastdata.recv.DP0R.nBackBX));
 			}
 		FastSetText(IDC_VALUE0,sText1);
 		FastSetText(IDC_VALUE1,sText2);
@@ -1652,7 +1824,7 @@ void CguicanABH3View::UpdateView_0(bool bForce /* false */)
 		//操作/入力/制御/I/Oフラグはbitの並びを同じにしている為、
 		//テーブルのID順が一致（IDC_*0 -> IDC_*31）になっている事が前提となっている
 		//========================================
-		uint32_t nValue = m_var.lastdata.DP0R.nCtrlBit;
+		uint32_t nValue = m_var.lastdata.recv.DP0R.nCtrlBit;
 		pIDTEXT3 pTbl3 = g_resultid_normal_tbl;
 		pIDTEXT2 pTbl2 = g_ctrlid_normal_ctrl;
 		while(pTbl3->nUid)
@@ -1687,7 +1859,7 @@ void CguicanABH3View::UpdateView_1(bool bForce /* false */)
 	int32_t nPos = 1;
 
 	//更新不用？
-	if((bForce | (bool)(m_var.lastdata.update[nPos].nUpdate != 0)) == false)
+	if((bForce | (bool)(m_var.lastdata.recv.update[nPos].nUpdate != 0)) == false)
 		return;
 
 	//更新フラグを解除
@@ -1695,6 +1867,13 @@ void CguicanABH3View::UpdateView_1(bool bForce /* false */)
 
 	//ハートビート設定
 	UpHeartBeat(nPos);
+
+	//RAWDATA表示
+	if(theConfig.IsRawdata())
+		{
+		FastSetText(IDC_DATA_RAWDATA1,mem2bintext8(&m_var.lastdata.recv.BR0));
+		FastSetText(IDC_DATA_RAWDATA9,mem2bintext(&m_var.lastdata.send.BR[0].packet,m_var.lastdata.send.BR[0].nLength));
+		}
 
 	//現在の機種がホストなら何も描画しない
 	if(GetType() == MTYPE::MTYPE_HOST)
@@ -1720,7 +1899,7 @@ void CguicanABH3View::UpdateView_2(bool bForce /* false */)
 	int32_t nPos = 2;
 
 	//更新不用？
-	if((bForce | (bool)(m_var.lastdata.update[nPos].nUpdate != 0)) == false)
+	if((bForce | (bool)(m_var.lastdata.recv.update[nPos].nUpdate != 0)) == false)
 		return;
 
 	//更新フラグを解除
@@ -1728,6 +1907,13 @@ void CguicanABH3View::UpdateView_2(bool bForce /* false */)
 
 	//ハートビート設定
 	UpHeartBeat(nPos);
+
+	//RAWDATA表示
+	if(theConfig.IsRawdata())
+		{
+		FastSetText(IDC_DATA_RAWDATA2,mem2bintext8(&m_var.lastdata.recv.BR1));
+		FastSetText(IDC_DATA_RAWDATA10,mem2bintext(&m_var.lastdata.send.BR[1].packet,m_var.lastdata.send.BR[1].nLength));
+		}
 
 	//現在の機種がホストなら何も描画しない
 	if(GetType() == MTYPE::MTYPE_HOST)
@@ -1751,7 +1937,7 @@ void CguicanABH3View::UpdateView_2(bool bForce /* false */)
 	//入力フラグ
 	//========================================
 	//現在の値を取得して適切な文字を設定
-	uint32_t nValue = m_var.lastdata.BR1.nCtrlBit;
+	uint32_t nValue = m_var.lastdata.recv.BR1.nCtrlBit;
 	//機種切り替え
 	pIDTEXT3 pTbl2 = g_inputid_normal_tbl;
 	if(GetType() == MTYPE::MTYPE_SMALL)
@@ -1773,7 +1959,7 @@ void CguicanABH3View::UpdateView_3(bool bForce /* false */)
 	int32_t nPos = 3;
 
 	//更新不用？
-	if((bForce | (bool)(m_var.lastdata.update[nPos].nUpdate != 0)) == false)
+	if((bForce | (bool)(m_var.lastdata.recv.update[nPos].nUpdate != 0)) == false)
 		return;
 
 	//更新フラグを解除
@@ -1782,6 +1968,13 @@ void CguicanABH3View::UpdateView_3(bool bForce /* false */)
 	//ハートビート設定
 	UpHeartBeat(nPos);
 
+	//RAWDATA表示
+	if(theConfig.IsRawdata())
+		{
+		FastSetText(IDC_DATA_RAWDATA3,mem2bintext8(&m_var.lastdata.recv.BR2));
+		FastSetText(IDC_DATA_RAWDATA11,mem2bintext(&m_var.lastdata.send.BR[2].packet,m_var.lastdata.send.BR[2].nLength));
+		}
+
 	//現在の機種がホストなら何も描画しない
 	if(GetType() == MTYPE::MTYPE_HOST)
 		return;
@@ -1789,14 +1982,14 @@ void CguicanABH3View::UpdateView_3(bool bForce /* false */)
 	//========================================
 	//速度指令
 	//========================================
-	FastSetText(g_valueid_tbl[2].nValueUid,float2text(_T("%.1f"),theABH3.cnvCAN2Vel(m_var.lastdata.BR2.nOrderSpeedAY)));
-	FastSetText(g_valueid_tbl[3].nValueUid,float2text(_T("%.1f"),theABH3.cnvCAN2Vel(m_var.lastdata.BR2.nOrderSpeedBX)));
+	FastSetText(g_valueid_tbl[2].nValueUid,float2text(_T("%.1f"),theABH3.cnvCAN2Vel(m_var.lastdata.recv.BR2.nOrderSpeedAY)));
+	FastSetText(g_valueid_tbl[3].nValueUid,float2text(_T("%.1f"),theABH3.cnvCAN2Vel(m_var.lastdata.recv.BR2.nOrderSpeedBX)));
 
 	//========================================
 	//速度帰還
 	//========================================
-	FastSetText(g_valueid_tbl[4].nValueUid,float2text(_T("%.1f"),theABH3.cnvCAN2Vel(m_var.lastdata.BR2.nBackSpeedAY)));
-	FastSetText(g_valueid_tbl[5].nValueUid,float2text(_T("%.1f"),theABH3.cnvCAN2Vel(m_var.lastdata.BR2.nBackSpeedBX)));
+	FastSetText(g_valueid_tbl[4].nValueUid,float2text(_T("%.1f"),theABH3.cnvCAN2Vel(m_var.lastdata.recv.BR2.nBackSpeedAY)));
+	FastSetText(g_valueid_tbl[5].nValueUid,float2text(_T("%.1f"),theABH3.cnvCAN2Vel(m_var.lastdata.recv.BR2.nBackSpeedBX)));
 	}
 
 //電流指令・負荷率の更新(要素4)
@@ -1806,7 +1999,7 @@ void CguicanABH3View::UpdateView_4(bool bForce /* false */)
 	int32_t nPos = 4;
 
 	//更新不用？
-	if((bForce | (bool)(m_var.lastdata.update[nPos].nUpdate != 0)) == false)
+	if((bForce | (bool)(m_var.lastdata.recv.update[nPos].nUpdate != 0)) == false)
 		return;
 
 	//更新フラグを解除
@@ -1815,6 +2008,13 @@ void CguicanABH3View::UpdateView_4(bool bForce /* false */)
 	//ハートビート設定
 	UpHeartBeat(nPos);
 
+	//RAWDATA表示
+	if(theConfig.IsRawdata())
+		{
+		FastSetText(IDC_DATA_RAWDATA4,mem2bintext8(&m_var.lastdata.recv.BR3));
+		FastSetText(IDC_DATA_RAWDATA12,mem2bintext(&m_var.lastdata.send.BR[3].packet,m_var.lastdata.send.BR[3].nLength));
+		}
+
 	//現在の機種がホストなら何も描画しない
 	if(GetType() == MTYPE::MTYPE_HOST)
 		return;
@@ -1822,14 +2022,14 @@ void CguicanABH3View::UpdateView_4(bool bForce /* false */)
 	//========================================
 	//電流指令
 	//========================================
-	FastSetText(g_valueid_tbl[6].nValueUid,float2text(_T("%.1f"),theABH3.cnvCAN2Cur(m_var.lastdata.BR3.nOrderCurrentAY)));
-	FastSetText(g_valueid_tbl[7].nValueUid,float2text(_T("%.1f"),theABH3.cnvCAN2Cur(m_var.lastdata.BR3.nOrderCurrentBX)));
+	FastSetText(g_valueid_tbl[6].nValueUid,float2text(_T("%.1f"),theABH3.cnvCAN2Cur(m_var.lastdata.recv.BR3.nOrderCurrentAY)));
+	FastSetText(g_valueid_tbl[7].nValueUid,float2text(_T("%.1f"),theABH3.cnvCAN2Cur(m_var.lastdata.recv.BR3.nOrderCurrentBX)));
 
 	//========================================
 	//負荷率
 	//========================================
-	FastSetText(g_valueid_tbl[8].nValueUid,float2text(_T("%.0f"),theABH3.cnvCAN2Load(m_var.lastdata.BR3.nLoadA)));
-	FastSetText(g_valueid_tbl[9].nValueUid,float2text(_T("%.0f"),theABH3.cnvCAN2Load(m_var.lastdata.BR3.nLoadB)));
+	FastSetText(g_valueid_tbl[8].nValueUid,float2text(_T("%.0f"),theABH3.cnvCAN2Load(m_var.lastdata.recv.BR3.nLoadA)));
+	FastSetText(g_valueid_tbl[9].nValueUid,float2text(_T("%.0f"),theABH3.cnvCAN2Load(m_var.lastdata.recv.BR3.nLoadB)));
 	}
 
 //パルス積算値の更新(要素5)
@@ -1839,7 +2039,7 @@ void CguicanABH3View::UpdateView_5(bool bForce /* false */)
 	int32_t nPos = 5;
 
 	//更新不用？
-	if((bForce | (bool)(m_var.lastdata.update[nPos].nUpdate != 0)) == false)
+	if((bForce | (bool)(m_var.lastdata.recv.update[nPos].nUpdate != 0)) == false)
 		return;
 
 	//更新フラグを解除
@@ -1848,6 +2048,13 @@ void CguicanABH3View::UpdateView_5(bool bForce /* false */)
 	//ハートビート設定
 	UpHeartBeat(nPos);
 
+	//RAWDATA表示
+	if(theConfig.IsRawdata())
+		{
+		FastSetText(IDC_DATA_RAWDATA5,mem2bintext8(&m_var.lastdata.recv.BR4));
+		FastSetText(IDC_DATA_RAWDATA13,mem2bintext(&m_var.lastdata.send.BR[4].packet,m_var.lastdata.send.BR[4].nLength));
+		}
+
 	//現在の機種がホストなら何も描画しない
 	if(GetType() == MTYPE::MTYPE_HOST)
 		return;
@@ -1855,8 +2062,8 @@ void CguicanABH3View::UpdateView_5(bool bForce /* false */)
 	//========================================
 	//パルス積算値
 	//========================================
-	FastSetText(g_valueid_tbl[10].nValueUid,uint2text(_T("%d"),m_var.lastdata.BR4.nCountPulseA));
-	FastSetText(g_valueid_tbl[11].nValueUid,uint2text(_T("%d"),m_var.lastdata.BR4.nCountPulseB));
+	FastSetText(g_valueid_tbl[10].nValueUid,uint2text(_T("%d"),m_var.lastdata.recv.BR4.nCountPulseA));
+	FastSetText(g_valueid_tbl[11].nValueUid,uint2text(_T("%d"),m_var.lastdata.recv.BR4.nCountPulseB));
 	}
 
 //アナログ入力・電源電圧の更新(要素6)
@@ -1866,7 +2073,7 @@ void CguicanABH3View::UpdateView_6(bool bForce /* false */)
 	int32_t nPos = 6;
 
 	//更新不用？
-	if((bForce | (bool)(m_var.lastdata.update[nPos].nUpdate != 0)) == false)
+	if((bForce | (bool)(m_var.lastdata.recv.update[nPos].nUpdate != 0)) == false)
 		return;
 
 	//更新フラグを解除
@@ -1875,6 +2082,13 @@ void CguicanABH3View::UpdateView_6(bool bForce /* false */)
 	//ハートビート設定
 	UpHeartBeat(nPos);
 
+	//RAWDATA表示
+	if(theConfig.IsRawdata())
+		{
+		FastSetText(IDC_DATA_RAWDATA6,mem2bintext8(&m_var.lastdata.recv.BR5));
+		FastSetText(IDC_DATA_RAWDATA14,mem2bintext(&m_var.lastdata.send.BR[5].packet,m_var.lastdata.send.BR[5].nLength));
+		}
+
 	//現在の機種がホストなら何も描画しない
 	if(GetType() == MTYPE::MTYPE_HOST)
 		return;
@@ -1882,14 +2096,14 @@ void CguicanABH3View::UpdateView_6(bool bForce /* false */)
 	//========================================
 	//アナログ入力
 	//========================================
-	FastSetText(g_valueid_tbl[12].nValueUid,float2text(_T("%.2f"),theABH3.cnvCAN2Analog(m_var.lastdata.BR5.nAnalog0)));
-	FastSetText(g_valueid_tbl[13].nValueUid,float2text(_T("%.2f"),theABH3.cnvCAN2Analog(m_var.lastdata.BR5.nAnalog1)));
+	FastSetText(g_valueid_tbl[12].nValueUid,float2text(_T("%.2f"),theABH3.cnvCAN2Analog(m_var.lastdata.recv.BR5.nAnalog0)));
+	FastSetText(g_valueid_tbl[13].nValueUid,float2text(_T("%.2f"),theABH3.cnvCAN2Analog(m_var.lastdata.recv.BR5.nAnalog1)));
 
 	//========================================
 	//電源
 	//========================================
-	FastSetText(g_valueid_tbl[14].nValueUid,float2text(_T("%.1f"),theABH3.cnvCAN2Volt(m_var.lastdata.BR5.nPowerMain)));
-	FastSetText(g_valueid_tbl[15].nValueUid,float2text(_T("%.1f"),theABH3.cnvCAN2Volt(m_var.lastdata.BR5.nPowerCtrl)));
+	FastSetText(g_valueid_tbl[14].nValueUid,float2text(_T("%.1f"),theABH3.cnvCAN2Volt(m_var.lastdata.recv.BR5.nPowerMain)));
+	FastSetText(g_valueid_tbl[15].nValueUid,float2text(_T("%.1f"),theABH3.cnvCAN2Volt(m_var.lastdata.recv.BR5.nPowerCtrl)));
 	}
 
 //モニタデータの更新(要素7)
@@ -1899,7 +2113,7 @@ void CguicanABH3View::UpdateView_7(bool bForce /* false */)
 	int32_t nPos = 7;
 
 	//更新不用？
-	if((bForce | (bool)(m_var.lastdata.update[nPos].nUpdate != 0)) == false)
+	if((bForce | (bool)(m_var.lastdata.recv.update[nPos].nUpdate != 0)) == false)
 		return;
 
 	//更新フラグを解除
@@ -1908,6 +2122,13 @@ void CguicanABH3View::UpdateView_7(bool bForce /* false */)
 	//ハートビート設定
 	UpHeartBeat(nPos);
 
+	//RAWDATA表示
+	if(theConfig.IsRawdata())
+		{
+		FastSetText(IDC_DATA_RAWDATA7,mem2bintext8(&m_var.lastdata.recv.BR6));
+		FastSetText(IDC_DATA_RAWDATA15,mem2bintext(&m_var.lastdata.send.BR[6].packet,m_var.lastdata.send.BR[6].nLength));
+		}
+
 	//現在の機種がホストなら何も描画しない
 	if(GetType() == MTYPE::MTYPE_HOST)
 		return;
@@ -1915,8 +2136,8 @@ void CguicanABH3View::UpdateView_7(bool bForce /* false */)
 	//========================================
 	//モニタデータ（正体不明）
 	//========================================
-	FastSetText(g_valueid_tbl[16].nValueUid,float2text(_T("%.2f"),m_var.lastdata.BR6.nMonitor0));
-	FastSetText(g_valueid_tbl[17].nValueUid,float2text(_T("%.2f"),m_var.lastdata.BR6.nMonitor1));
+	FastSetText(g_valueid_tbl[16].nValueUid,float2text(_T("%.2f"),m_var.lastdata.recv.BR6.nMonitor0));
+	FastSetText(g_valueid_tbl[17].nValueUid,float2text(_T("%.2f"),m_var.lastdata.recv.BR6.nMonitor1));
 	}
 
 //================================================================================

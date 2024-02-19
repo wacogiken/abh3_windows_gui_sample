@@ -89,7 +89,7 @@ protected:
 			} thread;
 
 		//最終受信データ（バス上から取得したABH3データ）
-		CANABH3_LASTRECV	lastdata;
+		CANABH3_LASTDATA	lastdata;
 
 		//ユーザー側から制御する要素（ローカルのみで保存）
 		struct _USERCTRL
@@ -242,6 +242,8 @@ protected:
 	bool DrawCheck_4(UINT nItemID,COLORITEM& colorItem);
 	//ハートビート関連
 	bool DrawCheck_5(UINT nItemID,COLORITEM& colorItem);
+	//RAWDATA関連
+	bool DrawCheck_6(UINT nItemID,COLORITEM& colorItem);
 
 	//全データ部分の更新
 	void UpdateView(bool bForce = false);
@@ -326,6 +328,36 @@ protected:
 
 	//周期要求設定の実行
 	uint32_t ExecCycleRequest(void);
+
+	//========================================
+	//特殊
+	//========================================
+
+	CString mem2bintext(void* pMem,int nLength = 8)
+		{
+		CString sResult(""),sTmp("");
+		char* pMemory = (char*)pMem;
+		for(int nLoop = 0;nLoop < nLength;nLoop++)
+			{
+			sTmp.Format(_T("%02X "),(*pMemory++ & 0xff));
+			sResult += sTmp;
+			}
+		return(sResult);
+		}
+
+	CString mem2bintext8(void* pMem)
+		{
+		return(mem2bintext(pMem,8));
+		}
+
+	//========================================
+	//
+	//========================================
+
+	CFont m_fixedfont;
+
+
+
 
 public:
 	//内部変数（スレッドから利用する為、publicに置く）

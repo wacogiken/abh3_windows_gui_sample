@@ -56,6 +56,7 @@ static IDTEXT1 g_config_title[] = {
 	{IDC_TITLE3,	{_T("Host adrs"),		_T("ホストアドレス")}},
 	{IDC_TITLE4,	{_T("Baudrate"),		_T("ボーレート")}},
 	{IDC_TITLE13,	{_T("Language"),		_T("表示言語")}},
+	{IDC_TITLE14,	{_T("PACKET data"),		_T("パケットデータ")}},
 	{IDC_SAVE,		{_T("Set"),				_T("設定")}},
 	{IDCANCEL,		{_T("Cancel"),			_T("キャンセル")}},
 	{0,				{NULL,					NULL}},
@@ -108,6 +109,14 @@ static TEXTARRAY g_config_baudrate[] = {
 	{{NULL,							NULL},			0,		NULL},
 	};
 
+//RAWデータ表示選択肢
+static TEXTARRAY g_config_rawdata[] = {
+	//textEN						textJP			value	textvalue
+	{{_T("No visible"),				_T("非表示")},	0,		_T("")},
+	{{_T("Visible"),				_T("表示")},	1,		_T("")},
+	{{NULL,							NULL},			0,		NULL},
+	};
+
 //
 IMPLEMENT_DYNAMIC(CConfigDlg, CDialogEx)
 
@@ -143,6 +152,7 @@ void CConfigDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX,IDC_CONFIG_BAUDRATE,m_baudrate);
 	DDX_Control(pDX,IDC_CONFIG_TYPE,m_type);
 	DDX_Control(pDX,IDC_CONFIG_LANGUAGE,m_language);
+	DDX_Control(pDX,IDC_CONFIG_RAWDATA,m_rawdata);
 	}
 
 //メッセージマップ
@@ -205,6 +215,8 @@ void CConfigDlg::initScreen()
 	theApp.InitCombobox(&m_baudrate,g_config_baudrate);
 	//
 	theApp.InitCombobox(&m_language,g_config_language);
+	//
+	theApp.InitCombobox(&m_rawdata,g_config_rawdata);
 
 	//選択肢構築・ホストID
 	m_hostid.ResetContent();
@@ -283,6 +295,8 @@ void CConfigDlg::sys2reg()
 	m_pConfig->nHostID			= (uint8_t)theApp.GetProfileInt(sSection,_T("hostid"),0);
 	m_pConfig->nBaudrate		= (uint8_t)theApp.GetProfileInt(sSection,_T("baudrate"),0);
 	m_pConfig->nLanguage		= (uint8_t)theApp.GetProfileInt(sSection,_T("language"),0);
+	m_pConfig->nRawdata			= (uint8_t)theApp.GetProfileInt(sSection,_T("rawdata"),0);
+
 	//その他項目
 	m_pConfig->nSelectID		= (uint8_t)theApp.GetProfileInt(sSection,_T("selectid"),0x0);
 	m_pConfig->nSelectGroup		= (uint8_t)theApp.GetProfileInt(sSection,_T("selectgroup"),0x0);
@@ -326,6 +340,8 @@ void CConfigDlg::reg2sys()
 	theApp.WriteProfileInt(sSection,_T("hostid"),int(m_pConfig->nHostID));
 	theApp.WriteProfileInt(sSection,_T("baudrate"),int(m_pConfig->nBaudrate));
 	theApp.WriteProfileInt(sSection,_T("language"),int(m_pConfig->nLanguage));
+	theApp.WriteProfileInt(sSection,_T("rawdata"),int(m_pConfig->nRawdata));
+
 	//その他項目
 	theApp.WriteProfileInt(sSection,_T("selectid"),int(m_pConfig->nSelectID));
 	theApp.WriteProfileInt(sSection,_T("selectgroup"),int(m_pConfig->nSelectGroup));
@@ -362,6 +378,7 @@ void CConfigDlg::reg2disp()
 	m_hostid.SetCurSel(m_pConfig->nHostID);
 	m_baudrate.SetCurSel(m_pConfig->nBaudrate);
 	m_language.SetCurSel(m_pConfig->nLanguage);
+	m_rawdata.SetCurSel(m_pConfig->nRawdata);
 	}
 
 //表示を環境設定に取り込み
@@ -376,6 +393,7 @@ void CConfigDlg::disp2reg()
 	m_pConfig->nHostID = (uint8_t)m_hostid.GetCurSel();
 	m_pConfig->nBaudrate = (uint8_t)m_baudrate.GetCurSel();
 	m_pConfig->nLanguage = (uint8_t)m_language.GetCurSel();
+	m_pConfig->nRawdata = (uint8_t)m_rawdata.GetCurSel();
 	}
 
 //DLLファイル名を取得
