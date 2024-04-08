@@ -437,6 +437,31 @@ int32_t CguicanABH3App::Connect()
 	theABH3.SetSendTimeout(100);
 	theABH3.SetRecvTimeout(100);
 
+	//ログ関連の関数が使えるか？
+	if(theABH3.canLogInit)
+		{
+		//制御コードを構築する
+		//	bit0	有効(1)/無効(0)
+		//	bit1	送信ログを記録しない(1)/送信ログを記録する(0)
+		//	bit2	受信ログを記録しない(1)/受信ログを記録する(0)
+		//
+		uint8_t nCode = 0x00;
+		if(theConfig.GetConfig()->nLogging)
+			nCode |= 0x01;
+
+		#ifdef _UNICODE
+			//ログフォルダを設定
+			theABH3.canLogInit(1,(void*)theConfig.GetConfig()->sLogFolder);
+			//ログ制御コードを設定
+			theABH3.canLogCtrl(nCode);
+		#else
+			//ログフォルダを設定
+			theABH3.canLogInit(0,(void*)theConfig.GetConfig()->sLogFolder);
+			//ログ制御コードを設定
+			theABH3.canLogCtrl(nCode);
+		#endif
+		}
+
 	//インターフェースを開く
 	return(theABH3.abh3_can_port_init());
 	}

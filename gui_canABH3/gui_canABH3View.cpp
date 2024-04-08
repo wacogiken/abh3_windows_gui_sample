@@ -647,10 +647,17 @@ static LANGTEXT g_heartbeat_text[] = {
 //	並び替え禁止
 //================================================================================
 static LANGTEXT g_status_text[] = {
-	//textEN							textJP
-	{_T("Normal operation."),			_T("正常動作中")},
-	{_T("Detected error of interface."),_T("インターフェースのエラーを検出中")},
-	{_T("Interface not connected."),	_T("インターフェースは未接続です")},
+	//textEN											textJP
+
+	//ログ機能無効中
+	{_T("Normal operation."),							_T("正常動作中")},
+	{_T("Detected error of interface."),				_T("インターフェースのエラーを検出中")},
+	{_T("Interface not connected."),					_T("インターフェースは未接続です")},
+
+	//ログ機能有効中
+	{_T("Normal operation.(Enable logging)"),			_T("正常動作中（ログ有効設定中）")},
+	{_T("Interface not connected.(Enable logging)"),	_T("インターフェースは未接続です（ログ有効設定中）")},
+
 	{NULL,								NULL},
 	};
 
@@ -1345,8 +1352,17 @@ void CguicanABH3View::UpdateSheetInfo()
 
 	if(!theABH3.IsOpenInterface())
 		{
-		//未接続
-		FastSetText(IDC_INFO2,theApp.GetLangText(&g_status_text[2]));
+		//ログ有効？
+		if(theConfig.GetConfig()->nLogging)
+			{
+			//未接続
+			FastSetText(IDC_INFO2,theApp.GetLangText(&g_status_text[4]));
+			}
+		else
+			{
+			//未接続
+			FastSetText(IDC_INFO2,theApp.GetLangText(&g_status_text[2]));
+			}
 		}
 	//エラー状態の取得
 	else if(theApp.isErrorID(nID))
@@ -1356,8 +1372,17 @@ void CguicanABH3View::UpdateSheetInfo()
 		}
 	else
 		{
-		//正常動作中
-		FastSetText(IDC_INFO2,theApp.GetLangText(&g_status_text[0]));
+		//ログ有効？
+		if(theConfig.GetConfig()->nLogging)
+			{
+			//正常動作中
+			FastSetText(IDC_INFO2,theApp.GetLangText(&g_status_text[3]));
+			}
+		else
+			{
+			//正常動作中
+			FastSetText(IDC_INFO2,theApp.GetLangText(&g_status_text[0]));
+			}
 		}
 	}
 
@@ -1484,12 +1509,26 @@ bool CguicanABH3View::DrawCheck_0(UINT nItemID,COLORITEM& colorItem)
 	//情報表示
 	if(nItemID == IDC_INFO2)
 		{
+		//ログ設定
+		bool bLogging = (bool)(theConfig.GetConfig()->nLogging != 0);
+
 		//未接続？
 		if(!theABH3.IsOpenInterface())
-			colorItem = GetAppColor(APPCOLOR::APPC_ERROR);
-		//エラー有り？
+			{
+			if(bLogging)
+				colorItem = GetAppColor(APPCOLOR::APPC_LOG_DISCONNECTED);
+			else
+				colorItem = GetAppColor(APPCOLOR::APPC_ERROR);
+			}
+		//エラー無し？
 		else if(!theApp.isErrorID(GetID()))
-			colorItem = GetAppColor(APPCOLOR::APPC_INFO);
+			{
+			if(bLogging)
+				colorItem = GetAppColor(APPCOLOR::APPC_LOG_CONNECTED);
+			else
+				colorItem = GetAppColor(APPCOLOR::APPC_INFO);
+			}
+		//エラー有り
 		else
 			colorItem = GetAppColor(APPCOLOR::APPC_ERROR);
 		return(true);

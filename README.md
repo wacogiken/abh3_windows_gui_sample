@@ -38,6 +38,13 @@
             <th bgcolor="blue"><font color="white">Notice</font></th>
         </tr>
         <tr>
+            <td>1.0.0.18</td>
+            <td>2024/04/08</td>
+            <td>Y.OGAWA</td>
+            <td>15th release<br>Added the logging functionality for incoming/outgoing data.<br>
+            (Logging control is in the preference dialog.)</td>
+        </tr>
+        <tr>
             <td>1.0.0.17</td>
             <td>2024/02/16</td>
             <td>Y.OGAWA</td>

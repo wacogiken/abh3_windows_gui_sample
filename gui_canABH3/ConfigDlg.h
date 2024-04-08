@@ -65,23 +65,18 @@ public:
 		{
 		//ダイアログ初期化時のDLL設定（変化を調べる為に保存）
 		int			nOldDLLnum;
-//		TCHAR		sOldDLLname[32];
-		//uint8_t		nOldDLL;
 		uint8_t		nOldLanguage;
 
 		//環境設定で設定する要素
 
 		TCHAR		sDLLname[32];		//選択されたDLLファイル名
 		uint8_t		nDLLoption;			//DLLオプション（ケーブル番号等）
-
-		//uint8_t		nDLL;				//DLL番号
-		//代替
-		//uint8_t		nDLLoption2[16];	//DLL番号に対応したオプション値（初期値0）
-
 		uint8_t		nHostID;			//ホストのID
 		uint8_t		nBaudrate;			//ボーレート(選択肢番号)
 		uint8_t		nLanguage;			//0..英語  1..日本語
 		uint8_t		nRawdata;			//0..非表示　1..表示
+		uint8_t		nLogging;			//0..無効　1..有効
+		TCHAR		sLogFolder[1024];	//ログフォルダ
 
 		//他の場所で設定する要素
 		uint8_t		nSelectID;			//ウィンドウを開く時のダイアログで使うID(0..ID1)
@@ -159,6 +154,8 @@ public:
 	CComboBox m_hostid;
 	CComboBox m_baudrate;
 	CComboBox m_type;
+	CButton m_logging;
+	CEdit m_logfolder;
 	CComboBox m_language;
 	CComboBox m_rawdata;
 
@@ -294,4 +291,5 @@ protected:
 public:
 	afx_msg HBRUSH OnCtlColor(CDC* pDC,CWnd* pWnd,UINT nCtlColor);
 	afx_msg void OnCbnDropdownConfigDll();
+	afx_msg void OnBnClickedConfigLogfolderSel();
 };

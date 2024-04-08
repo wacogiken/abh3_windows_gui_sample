@@ -68,6 +68,8 @@ enum class APPCOLOR
 	APPC_CTRL3,			//I/Oフラグ用
 	APPC_CTRL4,			//異常/警告項目の色
 	APPC_HEARTBEAT,		//ハートビート(受信中表示)用
+	APPC_LOG_CONNECTED,		//ログ機能有効時のインターフェース接続中色
+	APPC_LOG_DISCONNECTED,		//ログ機能有効時のインターフェース未接続色
 	};
 
 //接続先機種

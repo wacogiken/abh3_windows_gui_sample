@@ -55,8 +55,12 @@ static IDTEXT1 g_config_title[] = {
 	{IDC_TITLE2,	{_T("I/F ootion"),		_T("インターフェース番号指定")}},
 	{IDC_TITLE3,	{_T("Host adrs"),		_T("ホストアドレス")}},
 	{IDC_TITLE4,	{_T("Baudrate"),		_T("ボーレート")}},
+	{IDC_TITLE11,	{_T("Logging"),			_T("ログ設定")}},
+	{IDC_TITLE12,	{_T("Log Folder"),		_T("ログフォルダ")}},
 	{IDC_TITLE13,	{_T("Language"),		_T("表示言語")}},
 	{IDC_TITLE14,	{_T("PACKET data"),		_T("パケットデータ")}},
+	{IDC_CONFIG_ENABLELOG,		{_T("Enable"),		_T("有効")}},
+	{IDC_CONFIG_LOGFOLDER_SEL,	{_T("Choice"),		_T("選択")}},
 	{IDC_SAVE,		{_T("Set"),				_T("設定")}},
 	{IDCANCEL,		{_T("Cancel"),			_T("キャンセル")}},
 	{0,				{NULL,					NULL}},
@@ -151,6 +155,8 @@ void CConfigDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX,IDC_CONFIG_HOSTID,m_hostid);
 	DDX_Control(pDX,IDC_CONFIG_BAUDRATE,m_baudrate);
 	DDX_Control(pDX,IDC_CONFIG_TYPE,m_type);
+	DDX_Control(pDX,IDC_CONFIG_ENABLELOG,m_logging);
+	DDX_Control(pDX,IDC_CONFIG_LOGFOLDER,m_logfolder);
 	DDX_Control(pDX,IDC_CONFIG_LANGUAGE,m_language);
 	DDX_Control(pDX,IDC_CONFIG_RAWDATA,m_rawdata);
 	}
@@ -161,6 +167,7 @@ BEGIN_MESSAGE_MAP(CConfigDlg, CDialogEx)
 	ON_WM_CTLCOLOR()
 	ON_CBN_DROPDOWN(IDC_CONFIG_DLL,&CConfigDlg::OnCbnDropdownConfigDll)
 	ON_CBN_SELCHANGE(IDC_CONFIG_DLL,&CConfigDlg::OnCbnDropdownConfigDll)
+	ON_BN_CLICKED(IDC_CONFIG_LOGFOLDER_SEL,&CConfigDlg::OnBnClickedConfigLogfolderSel)
 END_MESSAGE_MAP()
 
 //ダイアログ初期化時に呼び出されます
@@ -294,9 +301,14 @@ void CConfigDlg::sys2reg()
 	m_pConfig->nDLLoption		= (uint8_t)theApp.GetProfileInt(sSection,_T("dlloption"),0);
 	m_pConfig->nHostID			= (uint8_t)theApp.GetProfileInt(sSection,_T("hostid"),0);
 	m_pConfig->nBaudrate		= (uint8_t)theApp.GetProfileInt(sSection,_T("baudrate"),0);
+	//
+	m_pConfig->nLogging			= (uint8_t)theApp.GetProfileInt(sSection,_T("logging"),0);
+	CString sLogFolder = theApp.GetProfileString(sSection,_T("logfolder"),_T(""));
+	::_tcscpy_s(m_pConfig->sLogFolder,1024,sLogFolder);
+
+	//
 	m_pConfig->nLanguage		= (uint8_t)theApp.GetProfileInt(sSection,_T("language"),0);
 	m_pConfig->nRawdata			= (uint8_t)theApp.GetProfileInt(sSection,_T("rawdata"),0);
-
 	//その他項目
 	m_pConfig->nSelectID		= (uint8_t)theApp.GetProfileInt(sSection,_T("selectid"),0x0);
 	m_pConfig->nSelectGroup		= (uint8_t)theApp.GetProfileInt(sSection,_T("selectgroup"),0x0);
@@ -339,6 +351,10 @@ void CConfigDlg::reg2sys()
 	theApp.WriteProfileInt(sSection,_T("dlloption"),m_pConfig->nDLLoption);
 	theApp.WriteProfileInt(sSection,_T("hostid"),int(m_pConfig->nHostID));
 	theApp.WriteProfileInt(sSection,_T("baudrate"),int(m_pConfig->nBaudrate));
+	//
+	theApp.WriteProfileInt(sSection,_T("logging"),int(m_pConfig->nLogging));
+	theApp.WriteProfileString(sSection,_T("logfolder"),CString(m_pConfig->sLogFolder));
+	//
 	theApp.WriteProfileInt(sSection,_T("language"),int(m_pConfig->nLanguage));
 	theApp.WriteProfileInt(sSection,_T("rawdata"),int(m_pConfig->nRawdata));
 
@@ -377,6 +393,10 @@ void CConfigDlg::reg2disp()
 	//
 	m_hostid.SetCurSel(m_pConfig->nHostID);
 	m_baudrate.SetCurSel(m_pConfig->nBaudrate);
+	//
+	m_logging.SetCheck(m_pConfig->nLogging);
+	m_logfolder.SetWindowText(m_pConfig->sLogFolder);
+	//	
 	m_language.SetCurSel(m_pConfig->nLanguage);
 	m_rawdata.SetCurSel(m_pConfig->nRawdata);
 	}
@@ -392,6 +412,13 @@ void CConfigDlg::disp2reg()
 	//
 	m_pConfig->nHostID = (uint8_t)m_hostid.GetCurSel();
 	m_pConfig->nBaudrate = (uint8_t)m_baudrate.GetCurSel();
+
+	//
+	m_pConfig->nLogging = (uint8_t)m_logging.GetCheck();
+	CString sText("");
+	m_logfolder.GetWindowText(sText);
+	::_tcscpy_s(m_pConfig->sLogFolder,1024,sText);
+	//
 	m_pConfig->nLanguage = (uint8_t)m_language.GetCurSel();
 	m_pConfig->nRawdata = (uint8_t)m_rawdata.GetCurSel();
 	}
@@ -401,12 +428,6 @@ CString CConfigDlg::getDllname()
 	{
 	return(CString(m_pConfig->sDLLname));
 	}
-
-//DLLの番号を取得
-//uint8_t CConfigDlg::getDll()
-//	{
-//	return(m_pConfig->nDLL);
-//	}
 
 //DLLオプション番号を取得
 uint8_t CConfigDlg::getDllOption()
@@ -577,3 +598,15 @@ bool CConfigDlg::filename2dllinfo(CString& sDispname,uint8_t& nWarning,uint8_t& 
 	return(false);
 	}
 
+
+//ログフォルダ選択
+void CConfigDlg::OnBnClickedConfigLogfolderSel()
+	{
+//CString FolderPicker(CWnd* pParent,CString sInitFolder = _T(""))
+	CFolderPickerDialog CPD(_T(""),0,this,sizeof(OPENFILENAME));
+	if(CPD.DoModal() == IDOK)
+		{
+		CString sFolder = CPD.GetFolderPath();
+		m_logfolder.SetWindowText(sFolder);
+		}
+	}
