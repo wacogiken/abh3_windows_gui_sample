@@ -76,6 +76,7 @@ public:
 		uint8_t		nLanguage;			//0..英語  1..日本語
 		uint8_t		nRawdata;			//0..非表示　1..表示
 		uint8_t		nLogging;			//0..無効　1..有効
+		uint8_t		nLogtarget;			//0..送受信　1..受信のみ　2..送信のみ
 		TCHAR		sLogFolder[1024];	//ログフォルダ
 
 		//他の場所で設定する要素
@@ -155,6 +156,7 @@ public:
 	CComboBox m_baudrate;
 	CComboBox m_type;
 	CButton m_logging;
+	CComboBox m_logtarget;
 	CEdit m_logfolder;
 	CComboBox m_language;
 	CComboBox m_rawdata;

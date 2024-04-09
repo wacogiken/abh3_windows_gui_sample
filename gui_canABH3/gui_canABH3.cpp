@@ -448,6 +448,7 @@ int32_t CguicanABH3App::Connect()
 		uint8_t nCode = 0x00;
 		if(theConfig.GetConfig()->nLogging)
 			nCode |= 0x01;
+		nCode |= (theConfig.GetConfig()->nLogtarget << 1);	//bit[1..2]
 
 		#ifdef _UNICODE
 			//ログフォルダを設定

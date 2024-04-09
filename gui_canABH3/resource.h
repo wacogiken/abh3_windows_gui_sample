@@ -27,6 +27,8 @@
 #define IDC_CONFIG_INTERVAL             1007
 #define IDC_CONFIG_LANGUAGE             1008
 #define IDC_CONFIG_RAWDATA              1009
+#define IDC_CONFIG_TYPE2                1010
+#define IDC_CONFIG_LOGTARGET            1010
 #define IDC_DUMMY                       1330
 #define IDC_TITLE_A                     1339
 #define IDC_TITLE_B                     1340

@@ -55,7 +55,8 @@ static IDTEXT1 g_config_title[] = {
 	{IDC_TITLE2,	{_T("I/F ootion"),		_T("インターフェース番号指定")}},
 	{IDC_TITLE3,	{_T("Host adrs"),		_T("ホストアドレス")}},
 	{IDC_TITLE4,	{_T("Baudrate"),		_T("ボーレート")}},
-	{IDC_TITLE11,	{_T("Logging"),			_T("ログ設定")}},
+	{IDC_TITLE10,	{_T("Logging"),			_T("ログ設定")}},
+	{IDC_TITLE11,	{_T("Log Target"),		_T("ログ対象")}},
 	{IDC_TITLE12,	{_T("Log Folder"),		_T("ログフォルダ")}},
 	{IDC_TITLE13,	{_T("Language"),		_T("表示言語")}},
 	{IDC_TITLE14,	{_T("PACKET data"),		_T("パケットデータ")}},
@@ -121,6 +122,15 @@ static TEXTARRAY g_config_rawdata[] = {
 	{{NULL,							NULL},			0,		NULL},
 	};
 
+//ログ対象選択肢
+static TEXTARRAY g_config_logtarget[] = {
+	//textEN						textJP			value	textvalue
+	{{_T("Send/Recv"),				_T("送受信")},	0,		_T("")},
+	{{_T("Recv only"),				_T("受信のみ")},1,		_T("")},
+	{{_T("Send only"),				_T("送信のみ")},2,		_T("")},
+	{{NULL,							NULL},			0,		NULL},
+	};
+
 //
 IMPLEMENT_DYNAMIC(CConfigDlg, CDialogEx)
 
@@ -156,6 +166,7 @@ void CConfigDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX,IDC_CONFIG_BAUDRATE,m_baudrate);
 	DDX_Control(pDX,IDC_CONFIG_TYPE,m_type);
 	DDX_Control(pDX,IDC_CONFIG_ENABLELOG,m_logging);
+	DDX_Control(pDX,IDC_CONFIG_LOGTARGET,m_logtarget);
 	DDX_Control(pDX,IDC_CONFIG_LOGFOLDER,m_logfolder);
 	DDX_Control(pDX,IDC_CONFIG_LANGUAGE,m_language);
 	DDX_Control(pDX,IDC_CONFIG_RAWDATA,m_rawdata);
@@ -233,6 +244,9 @@ void CConfigDlg::initScreen()
 		m_hostid.AddString(sText);
 		}
 
+	//ログ対象の選択肢構築
+	theApp.InitCombobox(&m_logtarget,g_config_logtarget);
+
 	//環境設定を表示物に設定
 	reg2disp();
 
@@ -303,6 +317,7 @@ void CConfigDlg::sys2reg()
 	m_pConfig->nBaudrate		= (uint8_t)theApp.GetProfileInt(sSection,_T("baudrate"),0);
 	//
 	m_pConfig->nLogging			= (uint8_t)theApp.GetProfileInt(sSection,_T("logging"),0);
+	m_pConfig->nLogtarget		= (uint8_t)theApp.GetProfileInt(sSection,_T("logtarget"),0);
 	CString sLogFolder = theApp.GetProfileString(sSection,_T("logfolder"),_T(""));
 	::_tcscpy_s(m_pConfig->sLogFolder,1024,sLogFolder);
 
@@ -353,6 +368,7 @@ void CConfigDlg::reg2sys()
 	theApp.WriteProfileInt(sSection,_T("baudrate"),int(m_pConfig->nBaudrate));
 	//
 	theApp.WriteProfileInt(sSection,_T("logging"),int(m_pConfig->nLogging));
+	theApp.WriteProfileInt(sSection,_T("logtarget"),int(m_pConfig->nLogtarget));
 	theApp.WriteProfileString(sSection,_T("logfolder"),CString(m_pConfig->sLogFolder));
 	//
 	theApp.WriteProfileInt(sSection,_T("language"),int(m_pConfig->nLanguage));
@@ -395,6 +411,7 @@ void CConfigDlg::reg2disp()
 	m_baudrate.SetCurSel(m_pConfig->nBaudrate);
 	//
 	m_logging.SetCheck(m_pConfig->nLogging);
+	m_logtarget.SetCurSel(m_pConfig->nLogtarget);
 	m_logfolder.SetWindowText(m_pConfig->sLogFolder);
 	//	
 	m_language.SetCurSel(m_pConfig->nLanguage);
@@ -415,6 +432,7 @@ void CConfigDlg::disp2reg()
 
 	//
 	m_pConfig->nLogging = (uint8_t)m_logging.GetCheck();
+	m_pConfig->nLogtarget = (uint8_t)m_logtarget.GetCurSel();
 	CString sText("");
 	m_logfolder.GetWindowText(sText);
 	::_tcscpy_s(m_pConfig->sLogFolder,1024,sText);
